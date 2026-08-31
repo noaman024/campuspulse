@@ -14,11 +14,67 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "CampusPulse — Event Discovery & Feedback Platform",
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://campuspulse.vercel.app"),
+  title: {
+    default: "CampusPulse — Campus Event Discovery, Feedback & Media Hub",
+    template: "%s | CampusPulse",
+  },
   description:
-    "Centralized campus event discovery, Google-Forms-like feedback engine, media galleries, and automated report generation for campus communities.",
-  keywords: ["campus events", "feedback", "RSVP", "QR tickets", "event management"],
+    "Centralized campus event discovery, dynamic feedback surveys, live Q&A forums, media showcases, and institutional report generation for modern university communities.",
+  keywords: [
+    "CampusPulse",
+    "Campus Events",
+    "University Event Discovery",
+    "College Fest Registration",
+    "Student Feedback Survey",
+    "Live Event Q&A",
+    "Campus Passes",
+    "QR Ticket Verification",
+    "College Hackathons",
+    "Campus Community",
+  ],
+  authors: [{ name: "CampusPulse Team" }],
+  creator: "CampusPulse",
+  publisher: "CampusPulse Platform",
   manifest: "/manifest.json",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "CampusPulse",
+    title: "CampusPulse — Campus Event Discovery & Feedback Platform",
+    description:
+      "Discover college events, register with instant scannable QR tickets, submit feedback, and join live campus discussions.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CampusPulse — Campus Event Discovery & Feedback Platform",
+    description:
+      "Centralized campus event discovery, feedback surveys, and instant QR passes for students.",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "CampusPulse",
+  url: "https://campuspulse.vercel.app",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://campuspulse.vercel.app/events?search={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +84,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col">
         <AuthProvider>
           <ThemeProvider>
