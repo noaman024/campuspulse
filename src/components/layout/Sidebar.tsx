@@ -14,6 +14,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { LogOut } from "lucide-react";
 
 const sidebarLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -26,6 +28,7 @@ const sidebarLinks = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -80,7 +83,31 @@ export default function Sidebar() {
         })}
       </div>
 
-      <div className="px-3 py-3 border-t" style={{ borderColor: 'hsla(var(--border), 0.5)' }}>
+      {/* Sidebar Footer with Collapse & Logout */}
+      <div className="px-3 py-3 border-t space-y-1" style={{ borderColor: 'hsla(var(--border), 0.5)' }}>
+        {session && (
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            title={collapsed ? "Log Out" : undefined}
+          >
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="whitespace-nowrap overflow-hidden"
+                >
+                  Log Out
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        )}
+
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-colors"
@@ -91,7 +118,7 @@ export default function Sidebar() {
           ) : (
             <>
               <ChevronLeft className="w-5 h-5 flex-shrink-0" />
-              <span className="whitespace-nowrap">Collapse</span>
+              <span className="whitespace-nowrap text-xs">Collapse Sidebar</span>
             </>
           )}
         </button>
