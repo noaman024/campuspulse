@@ -56,7 +56,6 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-UserSchema.index({ email: 1 });
 UserSchema.index({ department: 1 });
 
 const User: Model<IUser> =

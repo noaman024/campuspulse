@@ -152,7 +152,6 @@ EventSchema.virtual("registrationCount").get(function () {
 
 EventSchema.index({ eventDate: 1, status: 1 });
 EventSchema.index({ category: 1 });
-EventSchema.index({ slug: 1 });
 
 const Event: Model<IEvent> =
   mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
