@@ -1,35 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Collegiate Royal Indigo & Oxford Blue Palette */
-  --primary: 224 76% 48%;
+  /* Modern Emerald & Deep Slate Palette */
+  --primary: 160 84% 36%;
   --primary-foreground: 0 0% 100%;
-  --primary-hover: 224 76% 40%;
+  --primary-hover: 160 84% 30%;
 
-  /* Deep Emerald & Slate Accent */
-  --accent: 160 84% 36%;
+  /* Accent & Badges */
+  --accent: 38 92% 50%;
   --accent-foreground: 0 0% 100%;
 
-  /* Neutral Background & Surface */
+  /* Clean Sand Porcelain Backgrounds */
   --background: 210 20% 98%;
   --foreground: 222 47% 11%;
   --surface: 0 0% 100%;
-  --surface-hover: 210 20% 96%;
+  --surface-hover: 210 20% 95%;
 
-  /* Muted */
-  --muted: 215 16% 92%;
-  --muted-foreground: 215 16% 44%;
+  /* Muted & Neutral */
+  --muted: 215 20% 93%;
+  --muted-foreground: 215 16% 46%;
 
-  /* Card */
+  /* Cards */
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
 
-  /* Border & Dividers */
-  --border: 214 32% 91%;
-  --border-glow: 224 76% 48%;
+  /* Micro Borders */
+  --border: 214 32% 90%;
+  --border-glow: 160 84% 36%;
 
   /* State Colors */
   --destructive: 0 84% 60%;
@@ -39,32 +39,32 @@
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
-  /* Border Radius */
-  --radius: 0.625rem;
+  /* Radius */
+  --radius: 0.75rem;
 }
 
 .dark {
-  /* Dark Mode - Deep Midnight Slate */
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
-  --primary-hover: 217 91% 68%;
+  /* Deep Obsidian & Luminous Mint Dark Mode */
+  --primary: 158 75% 50%;
+  --primary-foreground: 224 35% 8%;
+  --primary-hover: 158 75% 58%;
 
-  --accent: 160 70% 48%;
-  --accent-foreground: 222 47% 6%;
+  --accent: 38 92% 55%;
+  --accent-foreground: 224 35% 8%;
 
-  --background: 222 47% 6%;
+  --background: 224 35% 7%;
   --foreground: 210 40% 98%;
-  --surface: 222 47% 9%;
-  --surface-hover: 222 40% 13%;
+  --surface: 224 30% 11%;
+  --surface-hover: 224 25% 15%;
 
-  --muted: 217 33% 15%;
+  --muted: 224 25% 15%;
   --muted-foreground: 215 20% 65%;
 
-  --card: 222 47% 8.5%;
+  --card: 224 30% 10%;
   --card-foreground: 210 40% 98%;
 
-  --border: 217 33% 17%;
-  --border-glow: 217 91% 60%;
+  --border: 224 25% 18%;
+  --border-glow: 158 75% 50%;
 
   --destructive: 0 72% 55%;
   --destructive-foreground: 0 0% 100%;
@@ -84,7 +84,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   min-height: 100vh;
@@ -92,18 +92,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Clean Surface & Card Utilities ─── */
+/* ─── Glass & Card Surface Utilities ─── */
 .glass {
-  background: hsla(var(--surface), 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: hsla(var(--surface), 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid hsla(var(--border), 0.8);
 }
 
 .glass-strong {
-  background: hsla(var(--surface), 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: hsla(var(--surface), 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid hsla(var(--border), 0.9);
 }
 
@@ -111,34 +111,34 @@ body {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  background: hsl(var(--card));
-  border-color: hsla(var(--primary), 0.4);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  border-color: hsla(var(--primary), 0.45);
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 6px 12px -4px rgba(15, 23, 42, 0.03);
+  transform: translateY(-2px);
 }
 
-/* ─── Professional Collegiate Gradients ─── */
+/* ─── Modern Theme Gradients ─── */
 .gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(224 76% 40%));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(175 80% 30%));
 }
 
-.gradient-accent {
-  background: linear-gradient(135deg, hsl(var(--accent)), hsl(175 70% 32%));
+.dark .gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(175 75% 38%));
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(220 85% 42%));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(185 85% 35%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .dark .gradient-text {
-  background: linear-gradient(135deg, hsl(217 91% 65%), hsl(190 85% 65%));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(175 90% 65%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -146,33 +146,33 @@ body {
 
 .gradient-mesh {
   background:
-    radial-gradient(ellipse at 15% 30%, hsla(var(--primary), 0.05) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 20%, hsla(var(--accent), 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 10% 25%, hsla(var(--primary), 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 90% 20%, hsla(var(--accent), 0.05) 0%, transparent 55%),
     radial-gradient(ellipse at 50% 90%, hsla(var(--muted), 0.4) 0%, transparent 60%);
 }
 
-/* ─── Authentic Button Styles ─── */
+/* ─── Button Styles ─── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.375rem;
+  padding: 0.6875rem 1.5rem;
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   border-radius: var(--radius);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px -1px hsla(var(--primary), 0.35);
 }
 
 .btn-primary:hover {
   background: hsl(var(--primary-hover));
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px hsla(var(--primary), 0.35);
+  box-shadow: 0 6px 18px -3px hsla(var(--primary), 0.45);
 }
 
 .btn-primary:active {
@@ -184,7 +184,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.375rem;
+  padding: 0.6875rem 1.5rem;
   background: hsl(var(--surface));
   color: hsl(var(--foreground));
   font-weight: 600;
@@ -192,38 +192,39 @@ body {
   border-radius: var(--radius);
   border: 1px solid hsl(var(--border));
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
 }
 
 .btn-secondary:hover {
   background: hsl(var(--surface-hover));
   border-color: hsla(var(--border), 1);
   color: hsl(var(--foreground));
+  transform: translateY(-1px);
 }
 
 /* ─── Form Inputs ─── */
 .input-field {
   width: 100%;
-  padding: 0.625rem 0.875rem;
+  padding: 0.6875rem 1rem;
   background: hsl(var(--surface));
   color: hsl(var(--foreground));
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
   font-size: 0.875rem;
   font-family: inherit;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   outline: none;
 }
 
 .input-field:focus {
   border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 3px hsla(var(--primary), 0.12);
+  box-shadow: 0 0 0 3px hsla(var(--primary), 0.15);
 }
 
 .input-field::placeholder {
   color: hsl(var(--muted-foreground));
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 .input-field.pl-10,
@@ -245,42 +246,42 @@ input.pr-10 {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.25rem 0.625rem;
+  padding: 0.25rem 0.6875rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: 9999px;
-  letter-spacing: 0.015em;
+  letter-spacing: 0.02em;
   border: 1px solid transparent;
 }
 
 .badge-primary {
-  background: hsla(var(--primary), 0.1);
+  background: hsla(var(--primary), 0.12);
   color: hsl(var(--primary));
-  border-color: hsla(var(--primary), 0.2);
+  border-color: hsla(var(--primary), 0.25);
 }
 
 .badge-accent {
-  background: hsla(var(--accent), 0.1);
+  background: hsla(var(--accent), 0.12);
   color: hsl(var(--accent));
-  border-color: hsla(var(--accent), 0.2);
+  border-color: hsla(var(--accent), 0.25);
 }
 
 .badge-success {
-  background: hsla(var(--success), 0.1);
+  background: hsla(var(--success), 0.12);
   color: hsl(var(--success));
-  border-color: hsla(var(--success), 0.2);
+  border-color: hsla(var(--success), 0.25);
 }
 
 .badge-warning {
-  background: hsla(var(--warning), 0.1);
+  background: hsla(var(--warning), 0.12);
   color: hsl(var(--warning));
-  border-color: hsla(var(--warning), 0.2);
+  border-color: hsla(var(--warning), 0.25);
 }
 
 .badge-destructive {
-  background: hsla(var(--destructive), 0.1);
+  background: hsla(var(--destructive), 0.12);
   color: hsl(var(--destructive));
-  border-color: hsla(var(--destructive), 0.2);
+  border-color: hsla(var(--destructive), 0.25);
 }
 
 /* ─── Scrollbar ─── */
@@ -302,8 +303,8 @@ input.pr-10 {
   background: hsla(var(--muted-foreground), 0.45);
 }
 
-/* ─── Category Identifiers ─── */
-.category-technical { --category-color: 221 83% 53%; }
-.category-cultural { --category-color: 346 77% 49%; }
-.category-sports { --category-color: 158 64% 40%; }
-.category-workshop { --category-color: 35 92% 43%; }
+/* ─── Category Brand Tokens ─── */
+.category-technical { --category-color: 200 95% 42%; }
+.category-cultural { --category-color: 346 80% 50%; }
+.category-sports { --category-color: 158 75% 38%; }
+.category-workshop { --category-color: 35 92% 45%; }
