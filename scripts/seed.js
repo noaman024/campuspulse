@@ -1,4 +1,5 @@
-// MongoDB Atlas Connection Test & Seed Script
+// CampusPulse - MongoDB Atlas Seed Script
+// Populates official university events, departments, and credentials
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
 
@@ -9,18 +10,11 @@ const MONGODB_URI =
   "mongodb://mdnoaman024_db_user:N030907@ac-bar3zxx-shard-00-00.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-01.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-02.kei9pjd.mongodb.net:27017/campuspulse?ssl=true&replicaSet=atlas-48mkzo-shard-0&authSource=admin&retryWrites=true&w=majority";
 
 async function run() {
-  console.log("🔌 Connecting to MongoDB Atlas...");
+  console.log("Connecting to CampusPulse Database...");
   try {
     await mongoose.connect(MONGODB_URI);
-    console.log("✅ Connected to MongoDB Atlas successfully!\n");
+    console.log("Connected to MongoDB Atlas successfully.\n");
 
-    const db = mongoose.connection.db;
-
-    // Show existing collections
-    const collections = await db.listCollections().toArray();
-    console.log("📦 Existing collections:", collections.map((c) => c.name));
-
-    // --- Create User Schema ---
     const userSchema = new mongoose.Schema({
       name: String,
       email: { type: String, unique: true },
@@ -32,10 +26,9 @@ async function run() {
     });
     const User = mongoose.models.User || mongoose.model("User", userSchema);
 
-    // --- Create Event Schema ---
     const eventSchema = new mongoose.Schema({
       title: String,
-      slug: String,
+      slug: { type: String, unique: true },
       description: String,
       category: { type: String, enum: ["Technical", "Cultural", "Sports", "Workshop"] },
       tags: [String],
@@ -51,7 +44,7 @@ async function run() {
     });
     const Event = mongoose.models.Event || mongoose.model("Event", eventSchema);
 
-    console.log("\n🌱 Syncing users & database...\n");
+    console.log("Syncing administrative and student accounts...");
 
     const adminPassword = await bcrypt.hash("admin123", 10);
     const studentPassword = await bcrypt.hash("student123", 10);
@@ -59,16 +52,15 @@ async function run() {
     const admin = await User.findOneAndUpdate(
       { email: "admin@campuspulse.com" },
       {
-        name: "Admin User",
+        name: "Dr. A. K. Sharma",
         email: "admin@campuspulse.com",
         passwordHash: adminPassword,
         password: adminPassword,
-        department: "Administration",
+        department: "Dean of Student Affairs",
         role: "admin",
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
-    console.log("✅ Admin user synced: admin@campuspulse.com / admin123");
 
     const student1 = await User.findOneAndUpdate(
       { email: "noaman@student.com" },
@@ -77,12 +69,11 @@ async function run() {
         email: "noaman@student.com",
         passwordHash: studentPassword,
         password: studentPassword,
-        department: "Computer Science",
+        department: "Computer Science & Engineering",
         role: "student",
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
-    console.log("✅ Student user synced: noaman@student.com / student123");
 
     const student2 = await User.findOneAndUpdate(
       { email: "sabir@student.com" },
@@ -94,139 +85,148 @@ async function run() {
         department: "Information Technology",
         role: "student",
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
-    console.log("✅ Student user synced: sabir@student.com / student123");
 
-    // Check if events already exist
-    const existingEventsCount = await Event.countDocuments();
-    if (existingEventsCount > 0) {
-      console.log(`\n📅 Database already has ${existingEventsCount} events.`);
-      console.log("\n==================================================");
-      console.log("🎉 DATABASE USERS & CREDENTIALS SYNCED SUCCESSFULLY!");
-      console.log("==================================================");
-      console.log("\n📋 Login Credentials:");
-      console.log("   Admin:   admin@campuspulse.com / admin123");
-      console.log("   Student: noaman@student.com / student123");
-      console.log("   Student: sabir@student.com / student123");
-      await mongoose.disconnect();
-      return;
-    }
+    console.log("User accounts verified.\n");
 
-    // Create Events
-    const events = [
+    // Realistic University Events
+    const campusEvents = [
       {
-        title: "AI & Machine Learning Workshop",
-        slug: "ai-ml-workshop",
-        description: "Dive into the world of Artificial Intelligence and Machine Learning. This hands-on workshop covers neural networks, deep learning fundamentals, and practical implementations using Python and TensorFlow. Perfect for beginners and intermediate developers looking to expand their AI skills.",
+        title: "HackPulse 2026: 24-Hour National Hackathon",
+        slug: "hackpulse-2026",
+        description: "Join over 40 teams across India in our flagship 24-hour hackathon. Build scalable solutions across Healthcare, Fintech, Smart Agriculture, and Clean Energy. Free high-speed WiFi, mentor support from industry software engineers, complimentary meals, and ₹50,000 cash prizes for winning teams.",
         category: "Technical",
-        tags: ["AI", "Machine Learning", "Python", "Workshop"],
-        eventDate: new Date("2026-09-15T10:00:00"),
-        venue: "CS Lab 101, Main Building",
+        tags: ["Hackathon", "Full Stack", "Web Development", "AI/ML", "Prize Pool"],
+        eventDate: new Date("2026-09-18T09:00:00"),
+        venue: "Advanced Computing Labs (Block 4, 3rd Floor)",
+        maxCapacity: 150,
+        status: "upcoming",
+        organizerId: admin._id,
+        reportData: {
+          chiefGuest: "Mr. Rajiv Nambiar (VP of Engineering, CloudCore Systems)",
+          facultyCoordinator: "Prof. S. K. Gupta (Dept of CSE)",
+          objectives: "Foster collaborative rapid prototyping and industry-standard software architecture among undergraduate students.",
+          outcomes: "Over 35 deployed project prototypes submitted to university repository with industry feedback.",
+        },
+      },
+      {
+        title: "Tarang 2026: Annual Inter-College Cultural Fest",
+        slug: "tarang-2026",
+        description: "The premier cultural festival of our university! Two action-packed days featuring Battle of the Bands, Classical & Western Dance Duels, Theatrical Dramatics, Street Plays, Photography Exhibitions, and the Grand Star Night Concert. Food trucks and student pop-up stalls open throughout the day.",
+        category: "Cultural",
+        tags: ["Cultural Fest", "Music", "Dance", "Drama", "Star Night"],
+        eventDate: new Date("2026-10-04T10:00:00"),
+        venue: "University Amphitheatre & Central Lawns",
+        maxCapacity: 800,
+        status: "upcoming",
+        organizerId: admin._id,
+        reportData: {
+          chiefGuest: "Ms. Ananya Roy (Eminent Theater Director & Classical Artist)",
+          facultyCoordinator: "Dr. Shalini Verma (Cultural Council Secretary)",
+          objectives: "Celebrate cultural diversity, stage performance excellence, and student artistic talent across 20+ visiting universities.",
+          outcomes: "Over 800 participants across 14 competitive events with widespread student engagement.",
+        },
+      },
+      {
+        title: "Hands-on Masterclass: Cloud Infrastructure & Docker Containers",
+        slug: "cloud-docker-masterclass",
+        description: "An intensive technical workshop covering containerization with Docker, microservices orchestration, and zero-downtime deployments on Linux servers. Students will build and ship a production container on their personal laptops with guided faculty assistance.",
+        category: "Workshop",
+        tags: ["DevOps", "Docker", "Cloud", "Linux", "Hands-on"],
+        eventDate: new Date("2026-09-24T14:00:00"),
+        venue: "Seminar Hall B (IT Department)",
         maxCapacity: 60,
         status: "upcoming",
         organizerId: admin._id,
+        reportData: {
+          chiefGuest: "Dr. Vikram Joshi (Principal Cloud Architect)",
+          facultyCoordinator: "Prof. M. R. Iyer (Dept of IT)",
+          objectives: "Equip pre-final and final year students with practical containerization and CI/CD DevOps workflows.",
+          outcomes: "Hands-on certificate issued to all attendees who successfully containerized their microservice.",
+        },
       },
       {
-        title: "Annual Cultural Fest - Rangeela 2026",
-        slug: "rangeela-2026",
-        description: "The biggest cultural extravaganza of the year is here! Join us for two days of music, dance, drama, art exhibitions, and food stalls. Featuring performances from top college bands and professional artists. Don't miss the grand finale night!",
-        category: "Cultural",
-        tags: ["Music", "Dance", "Cultural Fest", "Entertainment"],
-        eventDate: new Date("2026-10-05T09:00:00"),
-        venue: "Open Air Theatre & Main Auditorium",
-        maxCapacity: 500,
-        status: "upcoming",
-        organizerId: admin._id,
-      },
-      {
-        title: "Inter-College Cricket Tournament",
-        slug: "cricket-tournament-2026",
-        description: "Gear up for the annual inter-college cricket tournament! Teams from 16 colleges will compete in a knockout format. Registration open for players and spectators alike. Exciting prizes and trophies for winners and runners-up.",
+        title: "Inter-Department Cricket Championship & Sports Olympiad",
+        slug: "inter-department-cricket-2026",
+        description: "The annual inter-departmental athletic tournament. 8 departmental teams battle in T20 knockout matches on turf pitch. Running alongside table tennis, badminton singles, and 100m sprint events. Refreshments provided for participants and spectators.",
         category: "Sports",
-        tags: ["Cricket", "Tournament", "Inter-College", "Sports"],
-        eventDate: new Date("2026-09-20T07:00:00"),
-        venue: "College Cricket Ground",
-        maxCapacity: 200,
+        tags: ["Cricket", "Athletics", "Sports Meet", "Tournament"],
+        eventDate: new Date("2026-09-28T07:30:00"),
+        venue: "Main Sports Complex & Cricket Pavilion",
+        maxCapacity: 300,
         status: "upcoming",
         organizerId: admin._id,
+        reportData: {
+          chiefGuest: "Col. R. S. Rathore (Director of Physical Education)",
+          facultyCoordinator: "Coach Ramesh Patil (Sports Council)",
+          objectives: "Encourage physical fitness, team spirit, and competitive sportsmanship among all academic branches.",
+          outcomes: "Winners trophy and individual medals awarded during the final presentation ceremony.",
+        },
       },
       {
-        title: "Web Development Bootcamp",
-        slug: "web-dev-bootcamp",
-        description: "A comprehensive 3-day bootcamp covering modern web development with React, Next.js, and Node.js. Build a full-stack project from scratch. Includes hands-on sessions, code reviews, and mentorship from industry professionals.",
+        title: "Campus Placement Bootcamp: Technical Mock Interviews & Resume Clinic",
+        slug: "placement-readiness-bootcamp",
+        description: "Comprehensive career preparation workshop organized by the Training & Placement Cell. Features live 1-on-1 resume reviews, mock behavioral HR panels, and system design coding interviews conducted by corporate alumni.",
         category: "Workshop",
-        tags: ["Web Dev", "React", "Next.js", "Full Stack"],
-        eventDate: new Date("2026-09-08T09:30:00"),
-        venue: "Seminar Hall B, IT Department",
-        maxCapacity: 40,
-        status: "upcoming",
-        organizerId: admin._id,
-      },
-      {
-        title: "Hackathon - Code for Change",
-        slug: "hackathon-code-for-change",
-        description: "24-hour hackathon focused on building solutions for social good. Teams of 3-4 will compete to create innovative apps addressing real-world problems in education, healthcare, and environment. Amazing prizes worth ₹1 Lakh!",
-        category: "Technical",
-        tags: ["Hackathon", "Coding", "Innovation", "Social Good"],
-        eventDate: new Date("2026-10-12T08:00:00"),
-        venue: "Innovation Centre, Block C",
+        tags: ["Placements", "Resume", "Interviews", "Career", "T&P"],
+        eventDate: new Date("2026-10-10T10:30:00"),
+        venue: "Auditorium 1 (Management Block)",
         maxCapacity: 120,
         status: "upcoming",
         organizerId: admin._id,
+        reportData: {
+          chiefGuest: "Mr. Deepanker Bose (Head of University Relations, TechHire)",
+          facultyCoordinator: "Prof. Sunita Deshmukh (Placement Officer)",
+          objectives: "Enhance student confidence, resume ATS scores, and interview performance for the upcoming campus placement season.",
+          outcomes: "Over 120 students received personalized feedback on resume projects and mock HR assessments.",
+        },
       },
       {
-        title: "Photography Workshop & Contest",
-        slug: "photography-workshop",
-        description: "Learn photography techniques from professional photographers. Topics include composition, lighting, mobile photography, and post-processing. The workshop concludes with a photo contest with exciting prizes!",
-        category: "Cultural",
-        tags: ["Photography", "Art", "Contest", "Creative"],
-        eventDate: new Date("2026-09-25T14:00:00"),
-        venue: "Arts Gallery, Fine Arts Building",
-        maxCapacity: 50,
+        title: "RoboWars 2026: Autonomous Drone & Line Follower Challenge",
+        slug: "robowars-2026",
+        description: "The Robotics Club presents the flagship robotics arena tournament. Witness wired and wireless combat bots in the arena pit, alongside obstacle-course drone racing and precision line follower robot challenges.",
+        category: "Technical",
+        tags: ["Robotics", "Hardware", "Drones", "IoT", "Competition"],
+        eventDate: new Date("2026-10-18T11:00:00"),
+        venue: "Mechanical Engineering Workshop Arena",
+        maxCapacity: 200,
         status: "upcoming",
         organizerId: admin._id,
+        reportData: {
+          chiefGuest: "Dr. P. N. Murthy (Director, Robotics Research Institute)",
+          facultyCoordinator: "Prof. Rajesh Kulkarni (Dept of Mechanical Engg)",
+          objectives: "Promote embedded electronics, micro-controller programming, and mechanical fabrication skills.",
+          outcomes: "Live combat arena matches completed with awards for Best Design and Arena Champion.",
+        },
       },
     ];
 
-    const createdEvents = await Event.insertMany(events);
-    console.log(`\n✅ ${createdEvents.length} events created:`);
-    createdEvents.forEach((e) => console.log(`   📅 ${e.title} [${e.category}]`));
+    console.log("Updating campus events in database...");
+    for (const evt of campusEvents) {
+      await Event.findOneAndUpdate(
+        { slug: evt.slug },
+        { ...evt, registeredUsers: [
+          { userId: student1._id, qrCodeToken: `TKT-${evt.slug.toUpperCase()}-001`, attended: false },
+          { userId: student2._id, qrCodeToken: `TKT-${evt.slug.toUpperCase()}-002`, attended: false }
+        ] },
+        { upsert: true, returnDocument: 'after' }
+      );
+      console.log(`- Updated: ${evt.title} [${evt.category}]`);
+    }
 
-    // Register some students to events
-    await Event.updateOne(
-      { slug: "ai-ml-workshop" },
-      { $push: { registeredUsers: { userId: student1._id, qrCodeToken: "QR-AI-" + Date.now(), attended: false } } }
-    );
-    await Event.updateOne(
-      { slug: "ai-ml-workshop" },
-      { $push: { registeredUsers: { userId: student2._id, qrCodeToken: "QR-AI2-" + Date.now(), attended: false } } }
-    );
-    await Event.updateOne(
-      { slug: "web-dev-bootcamp" },
-      { $push: { registeredUsers: { userId: student1._id, qrCodeToken: "QR-WEB-" + Date.now(), attended: false } } }
-    );
-    console.log("\n✅ Student registrations added to events");
-
-    console.log("\n" + "=".repeat(50));
-    console.log("🎉 DATABASE SEEDED SUCCESSFULLY!");
-    console.log("=".repeat(50));
-    console.log("\n📋 Login Credentials:");
-    console.log("   Admin:   admin@campuspulse.com / admin123");
-    console.log("   Student: noaman@student.com / student123");
-    console.log("   Student: sabir@student.com / student123");
-    console.log("\n🌐 Run: npm run dev → http://localhost:3000\n");
+    console.log("\n==================================================");
+    console.log("UNIVERSITY DATABASE SYNCED SUCCESSFULLY!");
+    console.log("==================================================");
+    console.log("\nPortal Credentials:");
+    console.log("   Admin:   admin@campuspulse.com / admin123 (Dr. A. K. Sharma)");
+    console.log("   Student: noaman@student.com / student123 (Noaman Khan)");
+    console.log("   Student: sabir@student.com / student123 (Sabir Ahmed)");
+    console.log("==================================================\n");
 
     await mongoose.disconnect();
-    console.log("🔌 Disconnected from MongoDB Atlas.");
   } catch (error) {
-    console.error("❌ Error:", error.message);
-    if (error.message.includes("ENOTFOUND") || error.message.includes("authentication")) {
-      console.error("\n💡 Check:");
-      console.error("   1. Atlas Network Access → Allow 0.0.0.0/0");
-      console.error("   2. Database user password is correct");
-      console.error("   3. Cluster is active on cloud.mongodb.com");
-    }
+    console.error("Database sync error:", error.message);
     process.exit(1);
   }
 }

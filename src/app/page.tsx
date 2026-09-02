@@ -3,243 +3,253 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Zap,
   Calendar,
   ClipboardList,
   BarChart3,
   QrCode,
   Users,
   ArrowRight,
-  Star,
-  Shield,
+  ShieldCheck,
+  Share2,
+  Building2,
+  FileCheck2,
+  GraduationCap,
   Sparkles,
+  Layers,
+  ChevronRight,
 } from "lucide-react";
 
-const features = [
+const campusModules = [
   {
     icon: Calendar,
-    title: "Event Discovery",
-    description: "Browse, search, and filter campus events by category, date, and tags. Never miss what matters.",
-    color: "252 85% 63%",
+    title: "Departmental Event Bulletin",
+    description: "Real-time calendar covering technical symposiums, hackathons, guest lectures, cultural fests, and inter-college sports tournaments.",
+    badge: "Active Bulletin",
+    badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
   },
   {
     icon: QrCode,
-    title: "QR Ticketing & RSVP",
-    description: "One-click RSVP with auto-generated QR codes for seamless check-in and attendance tracking.",
-    color: "173 80% 40%",
+    title: "Digital QR Passes & Check-In",
+    description: "One-click registration generating official digital entry passes with high-resolution QR verification for gate and auditorium access.",
+    badge: "Contactless Entry",
+    badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  },
+  {
+    icon: Share2,
+    title: "Multi-Platform Event Sharing",
+    description: "Broadcast campus events across WhatsApp batches, Telegram channels, LinkedIn, and email with pre-formatted invite summaries.",
+    badge: "Viral Outreach",
+    badgeColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
   },
   {
     icon: ClipboardList,
-    title: "Smart Feedback",
-    description: "Google-Forms-like feedback builder with ratings, MCQs, Likert scales, and anonymous submissions.",
-    color: "330 85% 60%",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics Dashboard",
-    description: "Real-time charts for attendance, feedback scores, and event performance at a glance.",
-    color: "38 92% 50%",
+    title: "Student Feedback & Surveys",
+    description: "Structured post-event feedback forms with star ratings, Likert scales, and verified student responses for quality evaluation.",
+    badge: "Quality Audit",
+    badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
   },
   {
     icon: Users,
-    title: "Live Q&A",
-    description: "Students ask questions, upvote, and get real-time answers from organizers during events.",
-    color: "152 69% 45%",
+    title: "Live Keynote & Speaker Q&A",
+    description: "Interactive session question boards where students post queries, upvote key topics, and receive direct answers from guest speakers.",
+    badge: "Interactive Sessions",
+    badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
   },
   {
-    icon: Shield,
-    title: "Role-Based Access",
-    description: "Student and Admin roles with dedicated portals, secure auth, and fine-grained permissions.",
-    color: "210 70% 50%",
+    icon: BarChart3,
+    title: "Accreditation & Event Reports",
+    description: "Automated executive summary reports recording chief guests, faculty coordinators, learning objectives, and verified attendee rosters.",
+    badge: "Official Records",
+    badgeColor: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
   },
 ];
 
-const stats = [
-  { label: "Events Managed", value: "500+" },
-  { label: "Active Users", value: "2K+" },
-  { label: "Feedback Collected", value: "10K+" },
-  { label: "Departments", value: "25+" },
+const campusStats = [
+  { label: "Academic Departments", value: "12+", sub: "Engineering, Science, Arts & Management" },
+  { label: "Active Student Clubs", value: "35+", sub: "Technical, Cultural & Social Societies" },
+  { label: "Verified QR Passes", value: "100%", sub: "Instant Gate & Hall Validation" },
+  { label: "Paperless Operations", value: "0", sub: "Fully Digital Event Lifecycle" },
 ];
 
 export default function HomePage() {
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden bg-background">
       {/* ─── Hero Section ─── */}
-      <section className="relative min-h-[92vh] flex items-center gradient-mesh">
-        {/* Floating orbs */}
-        <div className="absolute top-20 left-10 w-72 h-72 rounded-full opacity-20 animate-float" style={{ background: "radial-gradient(circle, hsl(252 85% 63% / 0.3), transparent)" }} />
-        <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full opacity-15 animate-float" style={{ background: "radial-gradient(circle, hsl(173 80% 40% / 0.3), transparent)", animationDelay: "3s" }} />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
+      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 border-b border-border/60 gradient-mesh">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto">
+            {/* Collegiate Header Chip */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-6 border border-primary/20 bg-primary/5 text-primary text-xs font-semibold tracking-wide"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8" style={{ background: "hsl(var(--primary) / 0.08)", border: "1px solid hsl(var(--primary) / 0.2)" }}>
-                <Sparkles className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-                <span className="text-sm font-medium" style={{ color: "hsl(var(--primary))" }}>
-                  The future of campus event management
-                </span>
-              </div>
+              <Building2 className="w-3.5 h-3.5" />
+              <span>OFFICE OF STUDENT AFFAIRS & EVENT COORDINATION</span>
             </motion.div>
 
+            {/* Main Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.15] mb-6"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              <span style={{ color: "hsl(var(--foreground))" }}>Your Campus,</span>
-              <br />
-              <span className="gradient-text">One Pulse Away</span>
+              Campus Events, Registrations & <span className="gradient-text">Verified QR Passes</span>
             </motion.h1>
 
+            {/* Sub-text */}
             <motion.p
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-              style={{ color: "hsl(var(--muted-foreground))" }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10"
             >
-              Discover events, RSVP with QR tickets, share feedback, and explore analytics — all in one beautiful, centralized platform built for campus communities.
+              The official centralized platform for university symposiums, departmental hackathons, cultural festivals, sports leagues, and verified digital attendee passes.
             </motion.p>
 
+            {/* Action Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-3.5"
             >
-              <Link href="/events" className="btn-primary py-3 px-8 text-base rounded-xl">
-                <Calendar className="w-5 h-5" />
-                Explore Events
-                <ArrowRight className="w-5 h-5" />
+              <Link
+                href="/events"
+                className="btn-primary w-full sm:w-auto py-3 px-6 text-sm font-semibold rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                Browse Campus Events
+                <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/register" className="btn-secondary py-3 px-8 text-base rounded-xl">
-                Get Started Free
+              <Link
+                href="/login"
+                className="btn-secondary w-full sm:w-auto py-3 px-6 text-sm font-semibold rounded-xl border border-border flex items-center justify-center gap-2"
+              >
+                <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                Student & Faculty Login
               </Link>
             </motion.div>
           </div>
 
-          {/* Stats Bar */}
+          {/* Institutional Stats Strip */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-20 glass-card p-6 rounded-2xl max-w-3xl mx-auto"
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto"
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {stats.map((stat, i) => (
-                <div key={i} className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold gradient-text">{stat.value}</p>
-                  <p className="text-xs sm:text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>{stat.label}</p>
-                </div>
-              ))}
-            </div>
+            {campusStats.map((item, idx) => (
+              <div
+                key={idx}
+                className="p-5 rounded-2xl bg-card border border-border/80 shadow-sm text-center"
+              >
+                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                  {item.value}
+                </p>
+                <p className="text-xs font-bold text-primary mt-1">
+                  {item.label}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {item.sub}
+                </p>
+              </div>
+            ))}
           </motion.div>
         </div>
       </section>
 
-      {/* ─── Features Section ─── */}
-      <section className="py-24 relative">
+      {/* ─── Platform Capabilities ─── */}
+      <section className="py-20 bg-surface/50 dark:bg-card/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <span className="badge badge-primary mb-4 text-xs">FEATURES</span>
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="badge badge-primary text-xs uppercase font-bold tracking-wider mb-3">
+              CAMPUS OPERATIONS
+            </span>
             <h2
-              className="text-3xl sm:text-4xl font-bold mb-4"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}
+              className="text-2xl sm:text-3xl font-bold text-foreground mb-3"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Everything Your Campus Needs
+              Built for Student Councils, Faculty & Organizers
             </h2>
-            <p className="text-lg max-w-2xl mx-auto" style={{ color: "hsl(var(--muted-foreground))" }}>
-              From event discovery to post-event analytics, CampusPulse covers the entire lifecycle.
+            <p className="text-sm text-muted-foreground">
+              End-to-end management for college fests, academic conferences, student council elections, and sports tournaments.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => {
-              const Icon = feature.icon;
+            {campusModules.map((item, i) => {
+              const Icon = item.icon;
               return (
-                <motion.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="glass-card p-6 group"
+                  className="glass-card p-6 rounded-2xl flex flex-col justify-between hover:border-primary/40 transition-all group"
                 >
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                    style={{ background: `hsl(${feature.color} / 0.12)` }}
-                  >
-                    <Icon className="w-6 h-6" style={{ color: `hsl(${feature.color})` }} />
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${item.badgeColor}`}>
+                        {item.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-foreground mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2" style={{ color: "hsl(var(--foreground))" }}>
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
-                    {feature.description}
-                  </p>
-                </motion.div>
+                  <div className="mt-5 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-semibold text-primary">
+                    <span>Learn how it works</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* ─── CTA Section ─── */}
-      <section className="py-24">
+      {/* ─── Ready to Publish Banner ─── */}
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative rounded-3xl overflow-hidden p-12 sm:p-16 text-center"
-            style={{ background: "linear-gradient(135deg, hsl(252 85% 63%), hsl(252 85% 45%))" }}
-          >
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full" style={{ background: "radial-gradient(circle, white, transparent)" }} />
-              <div className="absolute bottom-0 right-1/4 w-48 h-48 rounded-full" style={{ background: "radial-gradient(circle, white, transparent)" }} />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Ready to Pulse Your Campus?
-              </h2>
-              <p className="text-lg text-white/80 max-w-xl mx-auto mb-8">
-                Join thousands of students and organizers who are transforming how campus events are managed.
+          <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-8 sm:p-12 border border-border/40 shadow-xl relative overflow-hidden">
+            <div className="max-w-2xl relative z-10">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 px-3 py-1 rounded-full border border-indigo-400/30 mb-4">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                OFFICIAL UNIVERSITY SYSTEM
+              </span>
+              <h3
+                className="text-2xl sm:text-3xl font-extrabold text-white mb-3"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                Organizing a College Event or Workshop?
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed mb-6">
+                Create event listings, issue scannable QR passes, configure customized feedback questionnaires, and generate institutional reports with the CampusPulse administration suite.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/register"
-                  className="inline-flex items-center gap-2 py-3 px-8 rounded-xl bg-white font-semibold text-base transition-all hover:bg-white/90 hover:scale-105"
-                  style={{ color: "hsl(252 85% 50%)" }}
+                  href="/login"
+                  className="py-2.5 px-5 bg-white text-slate-900 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors inline-flex items-center gap-2"
                 >
-                  <Star className="w-5 h-5" />
-                  Create Account
+                  Admin & Organizer Portal
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
                   href="/events"
-                  className="inline-flex items-center gap-2 py-3 px-8 rounded-xl bg-white/15 text-white font-semibold text-base border border-white/30 transition-all hover:bg-white/25"
+                  className="py-2.5 px-5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl border border-white/20 transition-colors inline-flex items-center gap-2"
                 >
-                  Browse Events
-                  <ArrowRight className="w-5 h-5" />
+                  View Event Calendar
                 </Link>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>
