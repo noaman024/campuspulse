@@ -72,30 +72,30 @@ export default function AdminEventsPage() {
   if (loading) return <LoadingSpinner size="lg" text="Loading events..." fullPage />;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+    <div className="p-3.5 sm:p-5 lg:p-7 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground break-words">
             Manage Events
           </h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 text-muted-foreground break-words">
             {events.length} total events
           </p>
         </div>
-        <Link href="/admin/events/new" className="btn-primary">
+        <Link href="/admin/events/new" className="btn-primary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 w-full sm:w-auto flex-shrink-0">
           <Plus className="w-4 h-4" /> Create Event
         </Link>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
+      <div className="relative w-full max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "hsl(var(--muted-foreground))" }} />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search events..."
-          className="input-field pl-10"
+          className="input-field pl-10 text-xs sm:text-sm w-full"
         />
       </div>
 
@@ -110,7 +110,7 @@ export default function AdminEventsPage() {
       ) : (
         <div className="glass-card rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                   {["Event", "Date", "Category", "Status", "Registrations", "Actions"].map((h) => (

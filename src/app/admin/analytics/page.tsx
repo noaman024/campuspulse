@@ -55,28 +55,28 @@ export default function AnalyticsPage() {
   const maxReg = Math.max(...monthly.map((m) => m.registrations), 1);
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="p-3.5 sm:p-5 lg:p-8 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground break-words" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Analytics
         </h1>
-        <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+        <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 text-muted-foreground break-words">
           Insights and trends from your campus events
         </p>
       </motion.div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatsCard title="Total Events" value={stats?.totalEvents as number || 0} icon={Calendar} color="252 85% 63%" index={0} />
         <StatsCard title="Total Registrations" value={stats?.totalRegistrations as number || 0} icon={Users} color="173 80% 40%" index={1} />
         <StatsCard title="Attendance Rate" value={`${stats?.attendanceRate || 0}%`} icon={TrendingUp} color="152 69% 45%" index={2} />
         <StatsCard title="Feedback Received" value={stats?.totalFeedbackSubmissions as number || 0} icon={BarChart3} color="38 92% 50%" index={3} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Monthly Trend */}
-        <div className="glass-card p-6 rounded-xl">
-          <h2 className="text-lg font-semibold mb-6 flex items-center gap-2" style={{ color: "hsl(var(--foreground))" }}>
+        <div className="glass-card p-4 sm:p-6 rounded-xl overflow-hidden">
+          <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 flex items-center gap-2" style={{ color: "hsl(var(--foreground))" }}>
             <TrendingUp className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
             Monthly Trend
           </h2>
@@ -91,9 +91,9 @@ export default function AnalyticsPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08 }}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
                     <span className="text-sm font-medium" style={{ color: "hsl(var(--foreground))" }}>{m.month}</span>
-                    <div className="flex items-center gap-4 text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
+                    <div className="flex items-center gap-3 text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
                       <span><Calendar className="w-3 h-3 inline mr-1" />{m.events} events</span>
                       <span><Users className="w-3 h-3 inline mr-1" />{m.registrations} regs</span>
                     </div>

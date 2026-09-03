@@ -205,22 +205,22 @@ export default function AdminFeedbackPage() {
   if (loading) return <LoadingSpinner size="lg" text="Loading feedback forms..." fullPage />;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
+    <div className="p-3.5 sm:p-5 lg:p-7 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       {/* Header with Create Form Button */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground break-words">
             Feedback Forms
           </h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 text-muted-foreground break-words">
             Create and manage participant feedback surveys for campus events
           </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="btn-primary py-2.5 px-5 flex items-center gap-2"
+          className="btn-primary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 w-full sm:w-auto flex-shrink-0"
         >
           <Plus className="w-4 h-4" /> Create Feedback Form
         </button>
@@ -237,7 +237,7 @@ export default function AdminFeedbackPage() {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {forms.map((form, i) => {
             const event = form.eventId as Record<string, unknown> | null;
             const qCount = (form.questions as unknown[])?.length || 0;
@@ -249,16 +249,16 @@ export default function AdminFeedbackPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass-card p-5 rounded-xl flex flex-col justify-between gap-4 hover:border-primary/40 transition-colors"
+                className="glass-card p-4 sm:p-5 rounded-xl flex flex-col justify-between gap-3 sm:gap-4 hover:border-primary/40 transition-colors overflow-hidden"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-sm line-clamp-2" style={{ color: "hsl(var(--foreground))" }}>
+                    <h3 className="font-semibold text-sm line-clamp-2 break-words flex-1 min-w-0" style={{ color: "hsl(var(--foreground))" }}>
                       {form.title as string}
                     </h3>
                     <button
                       onClick={() => handleDelete(form._id as string)}
-                      className="text-muted-foreground hover:text-red-400 p-1 transition-colors"
+                      className="text-muted-foreground hover:text-red-400 p-1 transition-colors flex-shrink-0"
                       title="Delete form"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -266,9 +266,9 @@ export default function AdminFeedbackPage() {
                   </div>
 
                   {event ? (
-                    <p className="text-xs truncate mt-1 flex items-center gap-1" style={{ color: "hsl(var(--primary))" }}>
-                      <Calendar className="w-3 h-3" />
-                      {event.title as string}
+                    <p className="text-xs truncate mt-1 flex items-center gap-1 min-w-0" style={{ color: "hsl(var(--primary))" }}>
+                      <Calendar className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{event.title as string}</span>
                     </p>
                   ) : (
                     <p className="text-xs text-muted-foreground mt-1">Standalone Form</p>
@@ -289,17 +289,17 @@ export default function AdminFeedbackPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
+                <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
                   <Link
                     href={`/portal/feedback/${form._id}`}
                     target="_blank"
-                    className="btn-secondary py-1.5 px-3 text-xs flex-1 justify-center flex items-center gap-1.5"
+                    className="btn-secondary py-1.5 px-3 text-xs flex-1 justify-center flex items-center gap-1.5 whitespace-nowrap"
                   >
                     <Eye className="w-3.5 h-3.5" /> Preview Form
                   </Link>
                   <Link
                     href={`/admin/feedback/${event?._id || form.eventId}/responses`}
-                    className="btn-primary py-1.5 px-3 text-xs flex-1 justify-center flex items-center gap-1.5"
+                    className="btn-primary py-1.5 px-3 text-xs flex-1 justify-center flex items-center gap-1.5 whitespace-nowrap"
                   >
                     <BarChart3 className="w-3.5 h-3.5" /> Responses
                   </Link>

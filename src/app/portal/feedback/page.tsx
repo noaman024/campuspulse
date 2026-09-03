@@ -42,8 +42,8 @@ export default function FeedbackListPage() {
 
   return (
     <div className="min-h-screen gradient-mesh">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+      <div className="max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-10 overflow-x-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
           <div
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3"
             style={{ background: "hsl(var(--primary) / 0.1)" }}
@@ -52,12 +52,12 @@ export default function FeedbackListPage() {
             <span className="text-xs font-semibold text-primary">STUDENT FEEDBACK PORTAL</span>
           </div>
           <h1
-            className="text-3xl font-bold mb-2"
+            className="text-2xl sm:text-3xl font-bold mb-2 break-words"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}
           >
             Campus Event Feedback Surveys
           </h1>
-          <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p className="text-xs sm:text-sm break-words" style={{ color: "hsl(var(--muted-foreground))" }}>
             {session?.user?.name
               ? `Welcome ${session.user.name}! Share your ratings and suggestions for events you attended.`
               : "Share your genuine experience to help student clubs and faculty organize better events."}
@@ -77,7 +77,7 @@ export default function FeedbackListPage() {
             }}
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {forms.map((form, i) => {
               const event = form.eventId as Record<string, unknown> | null;
               const hasSubmitted = !!form.hasSubmitted;
@@ -92,7 +92,7 @@ export default function FeedbackListPage() {
                 >
                   <Link href={`/portal/feedback/${form._id}`} className="block group h-full">
                     <div
-                      className={`glass-card p-6 h-full flex flex-col justify-between gap-4 rounded-2xl border transition-all duration-200 ${
+                      className={`glass-card p-4 sm:p-6 h-full flex flex-col justify-between gap-4 rounded-2xl border transition-all duration-200 overflow-hidden ${
                         hasSubmitted
                           ? "border-emerald-500/30 hover:border-emerald-500/50"
                           : "hover:border-primary/50 hover:shadow-lg"
@@ -102,7 +102,7 @@ export default function FeedbackListPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-3 flex-1 min-w-0">
                             <div
-                              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
                               style={{
                                 background: hasSubmitted
                                   ? "hsl(var(--success) / 0.15)"
@@ -117,7 +117,7 @@ export default function FeedbackListPage() {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 {typeof event?.category === "string" ? (
                                   <span className="badge badge-primary text-[10px]">
                                     {event.category}
@@ -134,7 +134,7 @@ export default function FeedbackListPage() {
                                 )}
                               </div>
                               <h3
-                                className="font-bold text-base mt-1.5 line-clamp-2"
+                                className="font-bold text-sm sm:text-base mt-1.5 line-clamp-2 break-words"
                                 style={{ color: "hsl(var(--foreground))" }}
                               >
                                 {String(form.title || "")}
@@ -144,13 +144,13 @@ export default function FeedbackListPage() {
                         </div>
 
                         {event && (
-                          <div className="text-xs text-muted-foreground space-y-1 pt-1">
-                            <p className="flex items-center gap-1.5 font-medium text-foreground">
-                              <Calendar className="w-3.5 h-3.5 text-primary" />
-                              {String(event.title || "")}
+                          <div className="text-xs text-muted-foreground space-y-1 pt-1 min-w-0">
+                            <p className="flex items-center gap-1.5 font-medium text-foreground break-words min-w-0">
+                              <Calendar className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                              <span className="truncate">{String(event.title || "")}</span>
                             </p>
                             {typeof event.eventDate === "string" ? (
-                              <p className="text-[11px] pl-5">
+                              <p className="text-[11px] pl-5 break-words">
                                 {format(new Date(event.eventDate), "MMMM dd, yyyy")}
                                 {typeof event.venue === "string" ? ` • ${event.venue}` : ""}
                               </p>
@@ -160,7 +160,7 @@ export default function FeedbackListPage() {
 
                         {!!form.instructions && (
                           <p
-                            className="text-xs line-clamp-2 pt-1"
+                            className="text-xs line-clamp-2 pt-1 break-words"
                             style={{ color: "hsl(var(--muted-foreground))" }}
                           >
                             {String(form.instructions)}

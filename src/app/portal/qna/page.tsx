@@ -74,16 +74,16 @@ export default function QnAPage() {
 
   return (
     <div className="min-h-screen gradient-mesh">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: "hsl(var(--primary) / 0.08)" }}>
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10 overflow-x-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3 sm:mb-4" style={{ background: "hsl(var(--primary) / 0.08)" }}>
             <Sparkles className="w-3.5 h-3.5" style={{ color: "hsl(var(--primary))" }} />
             <span className="text-xs font-semibold" style={{ color: "hsl(var(--primary))" }}>Q&A</span>
           </div>
-          <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 break-words" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
             Questions & Answers
           </h1>
-          <p className="text-base" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p className="text-xs sm:text-base break-words" style={{ color: "hsl(var(--muted-foreground))" }}>
             Ask questions about events and get answers from organizers
           </p>
         </motion.div>
@@ -95,7 +95,7 @@ export default function QnAPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card p-6 rounded-xl mb-8 space-y-4"
+            className="glass-card p-4 sm:p-6 rounded-xl mb-6 sm:mb-8 space-y-4 overflow-hidden"
           >
             <h3 className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>Ask a Question</h3>
             <select
@@ -169,21 +169,21 @@ export default function QnAPage() {
                         {(q.studentId as Record<string, unknown>)?.name as string || "Anonymous"}
                       </span>
                       {!!q.eventId && (
-                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>
-                          <Calendar className="w-3 h-3 inline mr-1" />
-                          {String((q.eventId as Record<string, unknown>)?.title || "")}
+                        <span className="text-xs px-2 py-0.5 rounded-full truncate max-w-full inline-flex items-center gap-1" style={{ background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>
+                          <Calendar className="w-3 h-3 inline flex-shrink-0" />
+                          <span className="truncate">{String((q.eventId as Record<string, unknown>)?.title || "")}</span>
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-medium mb-2" style={{ color: "hsl(var(--foreground))" }}>
+                    <p className="text-sm font-medium mb-2 break-words" style={{ color: "hsl(var(--foreground))" }}>
                       {q.question as string}
                     </p>
                     {!!q.answer && (
-                      <div className="p-3 rounded-lg" style={{ background: "hsl(var(--primary) / 0.06)" }}>
-                        <p className="text-xs font-semibold mb-1" style={{ color: "hsl(var(--primary))" }}>
+                      <div className="p-3 rounded-lg overflow-hidden" style={{ background: "hsl(var(--primary) / 0.06)" }}>
+                        <p className="text-xs font-semibold mb-1 break-words" style={{ color: "hsl(var(--primary))" }}>
                           Answer by {String(((q.answer as Record<string, unknown>).answeredBy as Record<string, unknown>)?.name || "Admin")}
                         </p>
-                        <p className="text-sm" style={{ color: "hsl(var(--foreground))" }}>
+                        <p className="text-sm break-words" style={{ color: "hsl(var(--foreground))" }}>
                           {String((q.answer as Record<string, unknown>).text || "")}
                         </p>
                       </div>

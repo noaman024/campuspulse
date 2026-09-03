@@ -72,25 +72,25 @@ export default function FeedbackResponsesPage({ params }: { params: Promise<{ ev
   });
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl">
-      <Link href="/admin/feedback" className="inline-flex items-center gap-1 text-sm mb-6 transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
+    <div className="p-3.5 sm:p-5 lg:p-8 max-w-4xl mx-auto overflow-x-hidden">
+      <Link href="/admin/feedback" className="inline-flex items-center gap-1 text-sm mb-4 sm:mb-6 transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
         <ArrowLeft className="w-4 h-4" /> Back to Forms
       </Link>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground break-words">
               Feedback Responses
             </h1>
-            <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+            <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 text-muted-foreground break-words">
               {event?.title as string} — {submissions.length} responses
             </p>
           </div>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="glass-card p-4 rounded-xl text-center">
             <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "hsl(var(--primary))" }} />
             <p className="text-2xl font-bold" style={{ color: "hsl(var(--foreground))" }}>{submissions.length}</p>
@@ -118,22 +118,22 @@ export default function FeedbackResponsesPage({ params }: { params: Promise<{ ev
         {submissions.length === 0 ? (
           <EmptyState icon={BarChart3} title="No Responses Yet" description="Responses will appear here once students fill the feedback form." />
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {questionStats.map((q, idx) => (
               <motion.div
                 key={q.questionId}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="glass-card p-6 rounded-xl"
+                className="glass-card p-4 sm:p-6 rounded-xl overflow-hidden"
               >
-                <div className="flex items-start gap-2 mb-4">
-                  <span className="text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" }}>
+                <div className="flex items-start gap-2.5 mb-4">
+                  <span className="text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" }}>
                     {idx + 1}
                   </span>
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>{q.prompt}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{q.count} responses • {q.type}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground break-words">{q.prompt}</p>
+                    <p className="text-xs mt-0.5 text-muted-foreground">{q.count} responses • {q.type}</p>
                   </div>
                 </div>
 

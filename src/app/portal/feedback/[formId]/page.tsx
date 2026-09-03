@@ -130,18 +130,18 @@ export default function FillFeedbackPage({ params }: { params: Promise<{ formId:
 
   return (
     <div className="min-h-screen gradient-mesh">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
-        <Link href="/portal/feedback" className="inline-flex items-center gap-1 text-sm mb-6 transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
+      <div className="max-w-2xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10 overflow-x-hidden">
+        <Link href="/portal/feedback" className="inline-flex items-center gap-1 text-sm mb-4 sm:mb-6 transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
           <ArrowLeft className="w-4 h-4" /> Back to forms
         </Link>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="glass-card p-8 rounded-2xl">
-            <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+          <div className="glass-card p-4 sm:p-8 rounded-2xl overflow-hidden">
+            <h1 className="text-xl sm:text-2xl font-bold mb-2 break-words" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
               {form.title as string}
             </h1>
             {!!form.instructions && (
-              <p className="text-sm mb-6" style={{ color: "hsl(var(--muted-foreground))" }}>
+              <p className="text-xs sm:text-sm mb-4 sm:mb-6 break-words" style={{ color: "hsl(var(--muted-foreground))" }}>
                 {String(form.instructions)}
               </p>
             )}
@@ -149,25 +149,27 @@ export default function FillFeedbackPage({ params }: { params: Promise<{ formId:
             {error && (
               <div className="flex items-center gap-2 p-3 rounded-lg mb-6 text-sm" style={{ background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))" }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {error}
+                <span className="break-words">{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
               {questions.map((q, idx) => (
                 <motion.div
                   key={q.questionId}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="space-y-3"
+                  className="space-y-3 overflow-hidden"
                 >
-                  <label className="text-sm font-semibold flex items-start gap-1" style={{ color: "hsl(var(--foreground))" }}>
+                  <label className="text-sm font-semibold flex items-start gap-1.5 break-words" style={{ color: "hsl(var(--foreground))" }}>
                     <span className="text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" }}>
                       {idx + 1}
                     </span>
-                    {q.prompt}
-                    {q.isRequired && <span className="text-red-500">*</span>}
+                    <span className="min-w-0 flex-1 break-words">
+                      {q.prompt}
+                      {q.isRequired && <span className="text-red-500 ml-1">*</span>}
+                    </span>
                   </label>
 
                   {/* Rating */}
@@ -217,7 +219,7 @@ export default function FillFeedbackPage({ params }: { params: Promise<{ formId:
                               <div className="w-2 h-2 rounded-full" style={{ background: "hsl(var(--primary))" }} />
                             )}
                           </div>
-                          <span className="text-sm" style={{ color: "hsl(var(--foreground))" }}>{opt}</span>
+                          <span className="text-sm break-words flex-1 min-w-0" style={{ color: "hsl(var(--foreground))" }}>{opt}</span>
                           <input
                             type="radio"
                             name={q.questionId}
