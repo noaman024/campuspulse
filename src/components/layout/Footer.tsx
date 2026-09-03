@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Zap, Mail, MapPin, Building2 } from "lucide-react";
+
 
 const LINKS = {
   Portal: [
