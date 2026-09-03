@@ -1005,7 +1005,7 @@ export default function AdminDashboard() {
                       <div className="min-w-0 flex-1">
                         <h2 className="text-base font-bold text-foreground truncate">Attendance Rate & Student Turnout</h2>
                         <p className="text-xs text-muted-foreground truncate">
-                          Overall platform attendance rate: {stats?.attendanceRate}%
+                          Overall platform attendance rate: {String(stats?.attendanceRate ?? 0)}%
                         </p>
                       </div>
                     </div>
@@ -1019,9 +1019,9 @@ export default function AdminDashboard() {
 
                   <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
                     <div className="glass-card p-4 rounded-xl text-center">
-                      <p className="text-3xl font-extrabold text-foreground">{stats?.attendanceRate}%</p>
+                      <p className="text-3xl font-extrabold text-foreground">{String(stats?.attendanceRate ?? 0)}%</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Total {stats?.totalAttended as number} students verified attended out of {stats?.totalRegistrations as number} total signups
+                        Total {Number(stats?.totalAttended ?? 0)} students verified attended out of {Number(stats?.totalRegistrations ?? 0)} total signups
                       </p>
                     </div>
 
@@ -1058,7 +1058,7 @@ export default function AdminDashboard() {
                       <div className="min-w-0 flex-1">
                         <h2 className="text-base font-bold text-foreground truncate">Feedback Surveys & Student Insights</h2>
                         <p className="text-xs text-muted-foreground truncate">
-                          {stats?.totalFeedbackForms as number} Surveys Created • {stats?.totalFeedbackSubmissions as number} Total Responses
+                          {Number(stats?.totalFeedbackForms ?? 0)} Surveys Created • {Number(stats?.totalFeedbackSubmissions ?? 0)} Total Responses
                         </p>
                       </div>
                     </div>
@@ -1095,7 +1095,7 @@ export default function AdminDashboard() {
                       <div className="min-w-0 flex-1">
                         <h2 className="text-base font-bold text-foreground truncate">Completed Events Archive</h2>
                         <p className="text-xs text-muted-foreground truncate">
-                          {stats?.completedEvents as number} events successfully conducted
+                          {Number(stats?.completedEvents ?? 0)} events successfully conducted
                         </p>
                       </div>
                     </div>
