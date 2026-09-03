@@ -147,38 +147,43 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
             <motion.div
               key={card.label}
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-2xl p-4"
+              transition={{ duration: 0.25, delay: i * 0.03 }}
+              className="rounded-xl flex flex-col justify-between"
               style={{
+                padding: "1.1rem 1.25rem",
+                minHeight: "96px",
                 background: "hsl(var(--surface-raised))",
-                border: "1.5px solid hsl(var(--border-strong))",
-                boxShadow: "var(--shadow-sm)",
+                border: "1px solid hsla(var(--border-strong), 0.9)",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
               }}
             >
               {/* Icon + Label row */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-medium truncate" style={{ color: "hsl(var(--fg-muted))" }}>
+                  {card.label}
+                </span>
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ background: `hsl(${card.color} / 0.15)` }}
                 >
                   <Icon className="w-3.5 h-3.5" style={{ color: `hsl(${card.color})` }} />
                 </div>
-                <p className="text-[11px] font-semibold leading-tight" style={{ color: "hsl(var(--fg-muted))" }}>
-                  {card.label}
+              </div>
+
+              {/* Value */}
+              <div className="mt-2 flex items-baseline">
+                <p className="text-2xl font-bold tracking-tight text-foreground" style={{ lineHeight: 1.2 }}>
+                  {String(card.value)}
                 </p>
               </div>
-              {/* Value */}
-              <p className="text-2xl font-extrabold text-foreground leading-none tracking-tight">
-                {String(card.value)}
-              </p>
             </motion.div>
           );
         })}
