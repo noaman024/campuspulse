@@ -156,27 +156,29 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="rounded-2xl p-4 border flex items-start justify-between gap-2"
+              className="rounded-2xl p-4"
               style={{
                 background: "hsl(var(--surface-raised))",
-                borderColor: "hsl(var(--border))",
+                border: "1.5px solid hsl(var(--border-strong))",
                 boxShadow: "var(--shadow-sm)",
               }}
             >
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold mb-1 truncate" style={{ color: "hsl(var(--fg-muted))" }}>
+              {/* Icon + Label row */}
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: `hsl(${card.color} / 0.15)` }}
+                >
+                  <Icon className="w-3.5 h-3.5" style={{ color: `hsl(${card.color})` }} />
+                </div>
+                <p className="text-[11px] font-semibold leading-tight" style={{ color: "hsl(var(--fg-muted))" }}>
                   {card.label}
                 </p>
-                <p className="text-2xl font-extrabold text-foreground leading-none">
-                  {String(card.value)}
-                </p>
               </div>
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: `hsl(${card.color} / 0.12)` }}
-              >
-                <Icon className="w-4.5 h-4.5" style={{ color: `hsl(${card.color})` }} />
-              </div>
+              {/* Value */}
+              <p className="text-2xl font-extrabold text-foreground leading-none tracking-tight">
+                {String(card.value)}
+              </p>
             </motion.div>
           );
         })}
