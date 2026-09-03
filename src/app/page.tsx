@@ -18,11 +18,7 @@ import {
 import { useState } from "react";
 
 /* ─── Staggered fade-up helper ─── */
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 18 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, delay, ease: "easeOut" },
-});
+
 
 const CATEGORY_LINKS = [
   { label: "💻 Technical", sub: "Hackathons, Robotics, Coding", href: "/events?category=Technical", color: "hsl(214 89% 52%)" },
@@ -67,7 +63,10 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
           {/* Top label */}
-          <motion.div {...fadeUp(0)} className="flex justify-center mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}
+            className="flex justify-center mb-6"
+          >
             <span
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide border"
               style={{
@@ -83,7 +82,7 @@ export default function HomePage() {
 
           {/* Heading */}
           <motion.h1
-            {...fadeUp(0.05)}
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.06 }}
             className="text-center font-extrabold tracking-tight text-foreground mb-5"
             style={{
               fontSize: "clamp(2rem, 5vw, 3.5rem)",
@@ -97,7 +96,7 @@ export default function HomePage() {
 
           {/* Subtitle */}
           <motion.p
-            {...fadeUp(0.1)}
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.12 }}
             className="text-center text-sm sm:text-base leading-relaxed max-w-xl mx-auto mb-10"
             style={{ color: "hsl(var(--fg-muted))" }}
           >
@@ -106,7 +105,10 @@ export default function HomePage() {
           </motion.p>
 
           {/* Search + CTA */}
-          <motion.div {...fadeUp(0.15)} className="max-w-xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.18 }}
+            className="max-w-xl mx-auto"
+          >
             <div
               className="flex items-center gap-2 p-1.5 rounded-2xl border"
               style={{
