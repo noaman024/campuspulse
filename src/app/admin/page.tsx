@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Users,
@@ -20,14 +20,26 @@ import {
   Check,
   X,
   Settings,
+  Search,
+  User,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  MapPin,
+  Tag,
 } from "lucide-react";
 import {
   getDashboardStats,
   getRecentEvents,
   getCategoryDistribution,
   getRecentRegistrations,
+  getAllUsersDirectory,
+  UserDirectoryItem,
+  getEventsRegistrationDetails,
+  EventRegistrationDetail,
 } from "@/actions/analytics";
-import { toggleAttendance } from "@/actions/events";
+import { getAdminEvents, toggleAttendance } from "@/actions/events";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -64,18 +76,56 @@ export default function AdminDashboard() {
   const [togglingUser, setTogglingUser] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // Modals & Interactive Breakdown State
+  const [activeStatModal, setActiveStatModal] = useState<
+    | "total-events"
+    | "upcoming-events"
+    | "total-users"
+    | "total-registrations"
+    | "attendance-rate"
+    | "feedback-surveys"
+    | "student-responses"
+    | "completed-events"
+    | null
+  >(null);
+
+  // Users Directory State
+  const [userDirectory, setUserDirectory] = useState<{
+    totalCount: number;
+    students: UserDirectoryItem[];
+    admins: UserDirectoryItem[];
+    studentCount: number;
+    adminCount: number;
+  }>({ totalCount: 0, students: [], admins: [], studentCount: 0, adminCount: 0 });
+  const [userTab, setUserTab] = useState<"student" | "admin">("student");
+  const [userSearch, setUserSearch] = useState("");
+
+  // Event Registrations Breakdown State
+  const [eventsWithRegs, setEventsWithRegs] = useState<EventRegistrationDetail[]>([]);
+  const [regEventSearch, setRegEventSearch] = useState("");
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
+
+  // All Events for modal browsing
+  const [allEvents, setAllEvents] = useState<Record<string, unknown>[]>([]);
+
   const loadData = async () => {
     try {
-      const [s, r, c, regs] = await Promise.all([
+      const [s, r, c, regs, usersDir, evRegs, allEvs] = await Promise.all([
         getDashboardStats(),
         getRecentEvents(5),
         getCategoryDistribution(),
         getRecentRegistrations(8),
+        getAllUsersDirectory().catch(() => ({ totalCount: 0, students: [], admins: [], studentCount: 0, adminCount: 0 })),
+        getEventsRegistrationDetails().catch(() => []),
+        getAdminEvents().catch(() => []),
       ]);
       setStats(s);
       setRecent(r);
       setCategories(c);
       setRegistrations(regs);
+      if (usersDir) setUserDirectory(usersDir);
+      if (evRegs) setEventsWithRegs(evRegs);
+      if (allEvs) setAllEvents(allEvs);
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
     } finally {
@@ -96,6 +146,23 @@ export default function AdminDashboard() {
             : reg
         )
       );
+      // Also update eventsWithRegs
+      setEventsWithRegs((prev) =>
+        prev.map((ev) => {
+          if (ev.id !== eventId) return ev;
+          const updatedAttendees = ev.attendees.map((a) =>
+            a.userId === userId ? { ...a, attended: res.attended } : a
+          );
+          const attendedCount = updatedAttendees.filter((a) => a.attended).length;
+          const turnoutRate = ev.totalRegistrations > 0 ? Math.round((attendedCount / ev.totalRegistrations) * 100) : 0;
+          return {
+            ...ev,
+            attendees: updatedAttendees,
+            attendedCount,
+            turnoutRate,
+          };
+        })
+      );
       setToast({ message: res.message, type: "success" });
     } catch (err) {
       setToast({ message: err instanceof Error ? err.message : "Failed to toggle attendance", type: "error" });
@@ -107,14 +174,71 @@ export default function AdminDashboard() {
   if (loading) return <LoadingSpinner size="lg" text="Loading dashboard..." fullPage />;
 
   const statCards = [
-    { label: "Total Events",        value: stats?.totalEvents       ?? 0, icon: Calendar,     color: "214 89% 52%" },
-    { label: "Upcoming Events",     value: stats?.upcomingEvents    ?? 0, icon: Clock,        color: "35 92% 45%"  },
-    { label: "Total Users",         value: stats?.totalUsers        ?? 0, icon: Users,        color: "199 89% 48%" },
-    { label: "Total Registrations", value: stats?.totalRegistrations ?? 0, icon: TrendingUp,   color: "158 64% 38%" },
-    { label: "Attendance Rate",     value: `${stats?.attendanceRate ?? 0}%`, icon: CheckCircle, color: "346 80% 50%" },
-    { label: "Feedback Surveys",    value: stats?.totalFeedbackForms ?? 0, icon: ClipboardList, color: "214 89% 52%" },
-    { label: "Student Responses",   value: stats?.totalFeedbackSubmissions ?? 0, icon: MessageSquare, color: "35 92% 45%" },
-    { label: "Completed Events",    value: stats?.completedEvents   ?? 0, icon: BarChart3,    color: "158 64% 38%" },
+    {
+      id: "total-events",
+      label: "Total Events",
+      value: stats?.totalEvents ?? 0,
+      icon: Calendar,
+      color: "214 89% 52%",
+      actionHint: "Click to view all events",
+    },
+    {
+      id: "upcoming-events",
+      label: "Upcoming Events",
+      value: stats?.upcomingEvents ?? 0,
+      icon: Clock,
+      color: "35 92% 45%",
+      actionHint: "Click to view schedule",
+    },
+    {
+      id: "total-users",
+      label: "Total Users",
+      value: stats?.totalUsers ?? 0,
+      icon: Users,
+      color: "199 89% 48%",
+      actionHint: "Click for Students & Admins",
+    },
+    {
+      id: "total-registrations",
+      label: "Total Registrations",
+      value: stats?.totalRegistrations ?? 0,
+      isSpecialRegistrationCard: true,
+      icon: TrendingUp,
+      color: "158 64% 38%",
+      actionHint: "Click to view per-event count",
+    },
+    {
+      id: "attendance-rate",
+      label: "Attendance Rate",
+      value: `${stats?.attendanceRate ?? 0}%`,
+      icon: CheckCircle,
+      color: "346 80% 50%",
+      actionHint: "Click for turnout details",
+    },
+    {
+      id: "feedback-surveys",
+      label: "Feedback Surveys",
+      value: stats?.totalFeedbackForms ?? 0,
+      icon: ClipboardList,
+      color: "214 89% 52%",
+      actionHint: "Click to manage surveys",
+    },
+    {
+      id: "student-responses",
+      label: "Student Responses",
+      value: stats?.totalFeedbackSubmissions ?? 0,
+      icon: MessageSquare,
+      color: "35 92% 45%",
+      actionHint: "Click for survey responses",
+    },
+    {
+      id: "completed-events",
+      label: "Completed Events",
+      value: stats?.completedEvents ?? 0,
+      icon: BarChart3,
+      color: "158 64% 38%",
+      actionHint: "Click for past summaries",
+    },
   ];
 
   return (
@@ -153,43 +277,60 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Stats Grid ── */}
+      {/* ── Stats Grid (All 8 Cards Interactive) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
         {statCards.map((card, i) => {
           const Icon = card.icon;
+          const isRegCard = card.isSpecialRegistrationCard;
           return (
             <motion.div
               key={card.label}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.03 }}
-              className="rounded-xl flex flex-col justify-between p-3 sm:p-4"
+              onClick={() => setActiveStatModal(card.id as any)}
+              className="rounded-xl flex flex-col justify-between p-3 sm:p-4 cursor-pointer hover:border-primary/60 hover:shadow-md transition-all group overflow-hidden"
               style={{
-                minHeight: "84px",
+                minHeight: "88px",
                 background: "hsl(var(--surface-raised))",
                 border: "1px solid hsla(var(--border-strong), 0.9)",
                 boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
               }}
+              title={`Click to explore ${card.label} details`}
             >
               {/* Icon + Label row */}
               <div className="flex items-center justify-between gap-1.5">
-                <span className="text-[11px] sm:text-xs font-medium truncate" style={{ color: "hsl(var(--fg-muted))" }}>
+                <span className="text-[11px] sm:text-xs font-medium truncate group-hover:text-foreground transition-colors" style={{ color: "hsl(var(--fg-muted))" }}>
                   {card.label}
                 </span>
                 <div
-                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform"
                   style={{ background: `hsl(${card.color} / 0.15)` }}
                 >
                   <Icon className="w-3.5 h-3.5" style={{ color: `hsl(${card.color})` }} />
                 </div>
               </div>
 
-              {/* Value */}
-              <div className="mt-1.5 sm:mt-2 flex items-baseline">
-                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground" style={{ lineHeight: 1.2 }}>
-                  {String(card.value)}
-                </p>
-              </div>
+              {/* Value or Action */}
+              {isRegCard ? (
+                <div className="mt-1.5 sm:mt-2">
+                  <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-emerald-400 group-hover:underline">
+                    View Events Breakdown <TrendingUp className="w-3 h-3" />
+                  </span>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                    Click to view per-event count
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-1.5 sm:mt-2 flex items-baseline justify-between">
+                  <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground" style={{ lineHeight: 1.2 }}>
+                    {String(card.value)}
+                  </p>
+                  <span className="text-[10px] font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">
+                    Details →
+                  </span>
+                </div>
+              )}
             </motion.div>
           );
         })}
@@ -458,6 +599,560 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── Stat Modals (AnimatePresence) ── */}
+      <AnimatePresence>
+        {activeStatModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
+            onClick={() => {
+              setActiveStatModal(null);
+              setExpandedEventId(null);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="glass-card rounded-2xl w-full max-w-2xl max-h-[88vh] overflow-hidden flex flex-col my-auto border shadow-2xl"
+              style={{ background: "hsl(var(--card))", borderColor: "hsl(var(--border))" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* ── Modal 1: Total Users Directory (Students & Admins) ── */}
+              {activeStatModal === "total-users" && (
+                <>
+                  <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(199 89% 48% / 0.15)", color: "hsl(199 89% 48%)" }}>
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base font-bold text-foreground truncate">Registered Users Directory</h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Total {userDirectory.totalCount} registered users on CampusPulse
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveStatModal(null)}
+                      className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Filter Tabs & Search */}
+                  <div className="p-4 sm:p-5 border-b space-y-3" style={{ borderColor: "hsl(var(--border))" }}>
+                    {/* 2 Category Tabs: Students vs Admins */}
+                    <div className="grid grid-cols-2 gap-2 p-1 rounded-xl" style={{ background: "hsl(var(--surface))" }}>
+                      <button
+                        type="button"
+                        onClick={() => setUserTab("student")}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                          userTab === "student"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <User className="w-3.5 h-3.5" />
+                        Students ({userDirectory.studentCount})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUserTab("admin")}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                          userTab === "admin"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        Administrators ({userDirectory.adminCount})
+                      </button>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        placeholder={`Search ${userTab === "student" ? "students" : "administrators"} by name, email, department, roll...`}
+                        className="input-field text-xs pl-9 w-full"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Users List Body */}
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-2.5">
+                    {(() => {
+                      const list = userTab === "student" ? userDirectory.students : userDirectory.admins;
+                      const q = userSearch.toLowerCase();
+                      const filtered = list.filter(
+                        (u) =>
+                          u.name.toLowerCase().includes(q) ||
+                          u.email.toLowerCase().includes(q) ||
+                          u.department.toLowerCase().includes(q) ||
+                          (u.rollNumber && u.rollNumber.toLowerCase().includes(q))
+                      );
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="py-10 text-center text-muted-foreground">
+                            <p className="text-sm font-medium">No {userTab === "student" ? "students" : "administrators"} found</p>
+                            <p className="text-xs mt-1">Try another search query</p>
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((user) => (
+                        <div
+                          key={user.id}
+                          className="flex items-center justify-between p-3 rounded-xl border bg-card/60 gap-3 hover:border-primary/40 transition-colors"
+                          style={{ borderColor: "hsl(var(--border))" }}
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
+                              style={{
+                                background: user.role === "admin" ? "hsl(var(--primary) / 0.15)" : "hsl(var(--accent) / 0.15)",
+                                color: user.role === "admin" ? "hsl(var(--primary))" : "hsl(var(--accent))",
+                              }}
+                            >
+                              {user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-xs sm:text-sm font-bold text-foreground truncate">{user.name}</p>
+                                {user.role === "admin" ? (
+                                  <span className="badge badge-primary text-[10px] font-bold">Administrator</span>
+                                ) : user.rollNumber ? (
+                                  <span className="badge badge-neutral text-[10px] font-mono">{user.rollNumber}</span>
+                                ) : null}
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              <p className="text-[11px] text-primary/90 truncate">{user.department}</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap flex-shrink-0">
+                            Joined {format(new Date(user.createdAt), "MMM dd, yyyy")}
+                          </span>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </>
+              )}
+
+              {/* ── Modal 2: Total Registrations Breakdown (Per Event) ── */}
+              {activeStatModal === "total-registrations" && (
+                <>
+                  <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(158 64% 38% / 0.15)", color: "hsl(158 64% 38%)" }}>
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base font-bold text-foreground truncate">Event-Wise Registrations Breakdown</h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                          See exactly how many student registrations and attendees each event has received
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setActiveStatModal(null);
+                        setExpandedEventId(null);
+                      }}
+                      className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Search Bar */}
+                  <div className="p-4 sm:p-5 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={regEventSearch}
+                        onChange={(e) => setRegEventSearch(e.target.value)}
+                        placeholder="Search events by title, category, venue..."
+                        className="input-field text-xs pl-9 w-full"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Events with Registrations List */}
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+                    {(() => {
+                      const q = regEventSearch.toLowerCase();
+                      const filtered = eventsWithRegs.filter(
+                        (ev) =>
+                          ev.title.toLowerCase().includes(q) ||
+                          ev.category.toLowerCase().includes(q) ||
+                          ev.venue.toLowerCase().includes(q)
+                      );
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="py-10 text-center text-muted-foreground">
+                            <p className="text-sm font-medium">No events found matching your search</p>
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((ev) => {
+                        const isExpanded = expandedEventId === ev.id;
+                        return (
+                          <div
+                            key={ev.id}
+                            className="rounded-xl border p-4 bg-card/60 space-y-3 transition-all"
+                            style={{ borderColor: "hsl(var(--border))" }}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h3 className="text-sm font-bold text-foreground break-words">{ev.title}</h3>
+                                  <span className="badge badge-primary text-[10px]">{ev.category}</span>
+                                  <span className="badge badge-neutral text-[10px] capitalize">{ev.status}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                                  {format(new Date(ev.eventDate), "MMM dd, yyyy")} • {ev.venue}
+                                </p>
+                              </div>
+
+                              <Link
+                                href={`/events/${ev.slug}`}
+                                target="_blank"
+                                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 self-start sm:self-auto"
+                              >
+                                View Event <ExternalLink className="w-3 h-3" />
+                              </Link>
+                            </div>
+
+                            {/* Registration Count & Turnout Pills */}
+                            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-lg text-center" style={{ background: "hsl(var(--surface))" }}>
+                              <div>
+                                <p className="text-[10px] text-muted-foreground uppercase font-bold">Total Signups</p>
+                                <p className="text-sm font-extrabold text-foreground mt-0.5">
+                                  {ev.totalRegistrations} <span className="text-[10px] font-normal text-muted-foreground">/ {ev.maxCapacity}</span>
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-muted-foreground uppercase font-bold">Attended</p>
+                                <p className="text-sm font-extrabold text-emerald-400 mt-0.5">
+                                  {ev.attendedCount}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] text-muted-foreground uppercase font-bold">Turnout Rate</p>
+                                <p className="text-sm font-extrabold text-primary mt-0.5">
+                                  {ev.turnoutRate}%
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Expandable Attendees List */}
+                            <div>
+                              {ev.totalRegistrations > 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedEventId(isExpanded ? null : ev.id)}
+                                  className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      <ChevronUp className="w-3.5 h-3.5" /> Hide Registered Students
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="w-3.5 h-3.5" /> View {ev.totalRegistrations} Registered Student{ev.totalRegistrations === 1 ? "" : "s"}
+                                    </>
+                                  )}
+                                </button>
+                              ) : (
+                                <span className="text-xs text-muted-foreground italic">No student registrations for this event yet</span>
+                              )}
+
+                              {/* Expanded Attendee Roster */}
+                              {isExpanded && ev.attendees.length > 0 && (
+                                <div className="mt-3 pt-3 border-t space-y-2" style={{ borderColor: "hsl(var(--border))" }}>
+                                  <p className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">
+                                    Registered Participant Roster:
+                                  </p>
+                                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                                    {ev.attendees.map((attendee, ai) => (
+                                      <div
+                                        key={ai}
+                                        className="flex items-center justify-between p-2 rounded-lg bg-surface text-xs gap-2"
+                                      >
+                                        <div className="min-w-0 flex-1">
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="font-bold text-foreground truncate">{attendee.name}</span>
+                                            {attendee.rollNumber && (
+                                              <span className="text-[10px] font-mono text-muted-foreground">({attendee.rollNumber})</span>
+                                            )}
+                                          </div>
+                                          <p className="text-[11px] text-muted-foreground truncate">{attendee.email} • {attendee.department}</p>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleToggleAttendance(ev.id, attendee.userId)}
+                                          disabled={togglingUser === attendee.userId}
+                                          className={`badge text-[10px] cursor-pointer whitespace-nowrap transition-colors ${
+                                            attendee.attended ? "badge-success" : "badge-neutral opacity-60"
+                                          }`}
+                                          title="Click to toggle attendance"
+                                        >
+                                          {attendee.attended ? "✓ Attended" : "○ Not Checked In"}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </>
+              )}
+
+              {/* ── Modal 3: Total Events & Upcoming Events ── */}
+              {(activeStatModal === "total-events" || activeStatModal === "upcoming-events") && (
+                <>
+                  <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(214 89% 52% / 0.15)", color: "hsl(214 89% 52%)" }}>
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base font-bold text-foreground truncate">
+                          {activeStatModal === "upcoming-events" ? "Upcoming Campus Events" : "All Campus Events"}
+                        </h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {activeStatModal === "upcoming-events" ? "Scheduled events coming up next" : "Full catalog of campus activities and symposiums"}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveStatModal(null)}
+                      className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+                    {(() => {
+                      const eventsToShow = activeStatModal === "upcoming-events"
+                        ? allEvents.filter((e) => e.status === "upcoming")
+                        : allEvents;
+
+                      if (eventsToShow.length === 0) {
+                        return <p className="text-center py-10 text-muted-foreground text-sm">No events found in this category.</p>;
+                      }
+
+                      return eventsToShow.map((ev) => (
+                        <div
+                          key={ev._id as string}
+                          className="flex items-center justify-between p-3.5 rounded-xl border bg-card/60 gap-3"
+                          style={{ borderColor: "hsl(var(--border))" }}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-xs sm:text-sm font-bold text-foreground break-words">{ev.title as string}</h3>
+                              <span className="badge badge-primary text-[10px]">{ev.category as string}</span>
+                              <span className="badge badge-neutral text-[10px] capitalize">{ev.status as string}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {format(new Date(ev.eventDate as string), "MMM dd, yyyy")} • {ev.venue as string}
+                            </p>
+                          </div>
+                          <Link
+                            href={`/events/${ev.slug as string}`}
+                            target="_blank"
+                            className="btn-secondary py-1 px-2.5 text-xs flex items-center gap-1 flex-shrink-0"
+                          >
+                            View <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                  <div className="p-4 border-t flex justify-end" style={{ borderColor: "hsl(var(--border))" }}>
+                    <Link href="/admin/events" className="btn-primary py-2 px-4 text-xs">
+                      Go to Events Management →
+                    </Link>
+                  </div>
+                </>
+              )}
+
+              {/* ── Modal 4: Attendance Rate ── */}
+              {activeStatModal === "attendance-rate" && (
+                <>
+                  <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(346 80% 50% / 0.15)", color: "hsl(346 80% 50%)" }}>
+                        <CheckCircle className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base font-bold text-foreground truncate">Attendance Rate & Student Turnout</h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Overall platform attendance rate: {stats?.attendanceRate}%
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveStatModal(null)}
+                      className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+                    <div className="glass-card p-4 rounded-xl text-center">
+                      <p className="text-3xl font-extrabold text-foreground">{stats?.attendanceRate}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Total {stats?.totalAttended as number} students verified attended out of {stats?.totalRegistrations as number} total signups
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-xs font-bold uppercase text-muted-foreground">Per Event Turnout Breakdown:</p>
+                      {eventsWithRegs.map((ev) => (
+                        <div key={ev.id} className="p-3 rounded-xl border bg-card/60 space-y-1.5" style={{ borderColor: "hsl(var(--border))" }}>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-foreground truncate flex-1 pr-2">{ev.title}</span>
+                            <span className="font-bold text-primary flex-shrink-0">{ev.turnoutRate}% Turnout</span>
+                          </div>
+                          <div className="h-2 rounded-full overflow-hidden bg-muted">
+                            <div className="h-full rounded-full bg-primary" style={{ width: `${ev.turnoutRate}%` }} />
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span>{ev.attendedCount} Attended</span>
+                            <span>{ev.totalRegistrations} Registered</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── Modal 5: Feedback Surveys & Student Responses ── */}
+              {(activeStatModal === "feedback-surveys" || activeStatModal === "student-responses") && (
+                <>
+                  <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(214 89% 52% / 0.15)", color: "hsl(214 89% 52%)" }}>
+                        <ClipboardList className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base font-bold text-foreground truncate">Feedback Surveys & Student Insights</h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {stats?.totalFeedbackForms as number} Surveys Created • {stats?.totalFeedbackSubmissions as number} Total Responses
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveStatModal(null)}
+                      className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-center py-8">
+                    <p className="text-sm font-semibold text-foreground">Manage and view real-time student survey responses</p>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                      Access star ratings, open suggestions, and multiple choice question analytics for all campus events.
+                    </p>
+                    <div className="flex justify-center gap-3 pt-2">
+                      <Link href="/admin/feedback" className="btn-primary py-2.5 px-6 text-xs">
+                        Open Feedback Section →
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── Modal 6: Completed Events ── */}
+              {activeStatModal === "completed-events" && (
+                <>
+                  <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(158 64% 38% / 0.15)", color: "hsl(158 64% 38%)" }}>
+                        <BarChart3 className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base font-bold text-foreground truncate">Completed Events Archive</h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {stats?.completedEvents as number} events successfully conducted
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveStatModal(null)}
+                      className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-2"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+                    {(() => {
+                      const completed = allEvents.filter((e) => e.status === "completed");
+                      if (completed.length === 0) {
+                        return (
+                          <div className="text-center py-10 text-muted-foreground space-y-2">
+                            <p className="text-sm font-semibold">No completed events yet</p>
+                            <p className="text-xs">Once an event finishes, you can mark its status as Completed to generate official documentation.</p>
+                          </div>
+                        );
+                      }
+
+                      return completed.map((ev) => (
+                        <div key={ev._id as string} className="p-3.5 rounded-xl border bg-card/60 flex items-center justify-between gap-3" style={{ borderColor: "hsl(var(--border))" }}>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-sm font-bold text-foreground truncate">{ev.title as string}</h3>
+                            <p className="text-xs text-muted-foreground">{format(new Date(ev.eventDate as string), "MMM dd, yyyy")} • {ev.venue as string}</p>
+                          </div>
+                          <Link href="/admin/reports" className="btn-secondary py-1 px-3 text-xs flex items-center gap-1">
+                            View Report
+                          </Link>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </>
+              )}
+
+              {/* Modal Footer */}
+              <div className="p-3.5 sm:p-4 border-t flex justify-end" style={{ borderColor: "hsl(var(--border))" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveStatModal(null);
+                    setExpandedEventId(null);
+                  }}
+                  className="btn-secondary py-1.5 px-4 text-xs"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+

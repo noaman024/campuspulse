@@ -224,3 +224,130 @@ export async function getRecentRegistrations(limit: number = 10) {
   return JSON.parse(JSON.stringify(registrations.slice(0, limit)));
 }
 
+export interface UserDirectoryItem {
+  id: string;
+  name: string;
+  email: string;
+  role: "student" | "admin";
+  department: string;
+  rollNumber?: string;
+  createdAt: string;
+}
+
+export async function getAllUsersDirectory() {
+  await requireAdmin();
+  await dbConnect();
+
+  const rawUsers = await User.find({})
+    .select("_id name email role department rollNumber createdAt")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const students: UserDirectoryItem[] = [];
+  const admins: UserDirectoryItem[] = [];
+
+  for (const u of rawUsers) {
+    const item: UserDirectoryItem = {
+      id: u._id.toString(),
+      name: u.name || "Unnamed",
+      email: u.email,
+      role: (u.role === "admin" ? "admin" : "student"),
+      department: u.department || "General",
+      rollNumber: u.rollNumber || "",
+      createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString(),
+    };
+
+    if (item.role === "admin") {
+      admins.push(item);
+    } else {
+      students.push(item);
+    }
+  }
+
+  return {
+    totalCount: rawUsers.length,
+    students,
+    admins,
+    studentCount: students.length,
+    adminCount: admins.length,
+  };
+}
+
+export interface EventRegistrationDetail {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  eventDate: string;
+  venue: string;
+  status: string;
+  maxCapacity: number;
+  totalRegistrations: number;
+  attendedCount: number;
+  turnoutRate: number;
+  attendees: {
+    userId: string;
+    name: string;
+    email: string;
+    department: string;
+    rollNumber?: string;
+    attended: boolean;
+    registeredAt: string;
+  }[];
+}
+
+export async function getEventsRegistrationDetails() {
+  await requireAdmin();
+  await dbConnect();
+
+  const events = await Event.find({ status: { $ne: "cancelled" } })
+    .populate("registeredUsers.userId", "name email department rollNumber")
+    .select("title slug category eventDate venue status maxCapacity registeredUsers")
+    .sort({ eventDate: -1 })
+    .lean();
+
+  const result: EventRegistrationDetail[] = events.map((ev) => {
+    const attendees = (ev.registeredUsers || []).map((r) => {
+      const u = r.userId as unknown as {
+        _id?: import("mongoose").Types.ObjectId;
+        name?: string;
+        email?: string;
+        department?: string;
+        rollNumber?: string;
+      } | null;
+
+      return {
+        userId: u?._id ? u._id.toString() : (r.userId?.toString() || ""),
+        name: u?.name || "Student",
+        email: u?.email || "N/A",
+        department: u?.department || "General",
+        rollNumber: u?.rollNumber || "",
+        attended: !!r.attended,
+        registeredAt: r.registeredAt ? new Date(r.registeredAt).toISOString() : new Date().toISOString(),
+      };
+    });
+
+    const totalReg = attendees.length;
+    const attended = attendees.filter((a) => a.attended).length;
+    const turnout = totalReg > 0 ? Math.round((attended / totalReg) * 100) : 0;
+
+    return {
+      id: ev._id.toString(),
+      title: ev.title,
+      slug: ev.slug,
+      category: ev.category,
+      eventDate: ev.eventDate ? new Date(ev.eventDate).toISOString() : new Date().toISOString(),
+      venue: ev.venue,
+      status: ev.status,
+      maxCapacity: ev.maxCapacity || 100,
+      totalRegistrations: totalReg,
+      attendedCount: attended,
+      turnoutRate: turnout,
+      attendees,
+    };
+  });
+
+  return JSON.parse(JSON.stringify(result));
+}
+
+
