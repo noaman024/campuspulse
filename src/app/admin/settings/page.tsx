@@ -16,8 +16,20 @@ import {
   CheckCircle,
   AlertCircle,
   Sparkles,
+  UserCheck,
+  UserPlus,
+  Lock,
+  Eye,
+  EyeOff,
+  Users,
 } from "lucide-react";
 import { getSiteSettings, updateSiteSettings } from "@/actions/settings";
+import {
+  getAdminUsers,
+  createAdminUser,
+  deleteAdminUser,
+  AdminUserData,
+} from "@/actions/admin-users";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Toast from "@/components/ui/Toast";
 
@@ -46,19 +58,43 @@ export default function AdminSettingsPage() {
   const [newDeptLabel, setNewDeptLabel] = useState("");
   const [newDeptHref, setNewDeptHref] = useState("");
 
+  // Admin Team Management State
+  const [adminUsers, setAdminUsers] = useState<AdminUserData[]>([]);
+  const [newAdminName, setNewAdminName] = useState("");
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminDept, setNewAdminDept] = useState("");
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
+
+  const loadAdmins = async () => {
+    try {
+      const list = await getAdminUsers();
+      setAdminUsers(list);
+    } catch (err) {
+      console.error("Failed to load admin users:", err);
+    }
+  };
+
   useEffect(() => {
-    getSiteSettings()
-      .then((data) => {
-        if (data) {
-          setSiteName(data.siteName || "CampusPulse");
-          setDescription(data.description || "");
-          setOfficeName(data.officeName || "");
-          setOfficeLocation(data.officeLocation || "");
-          setContactEmail(data.contactEmail || "");
-          setContactPhone(data.contactPhone || "");
-          setDepartments(data.departments || []);
-          setCopyrightText(data.copyrightText || "");
-          setCouncilNote(data.councilNote || "");
+    Promise.all([
+      getSiteSettings(),
+      getAdminUsers().catch(() => []),
+    ])
+      .then(([settingsData, adminsData]) => {
+        if (settingsData) {
+          setSiteName(settingsData.siteName || "CampusPulse");
+          setDescription(settingsData.description || "");
+          setOfficeName(settingsData.officeName || "");
+          setOfficeLocation(settingsData.officeLocation || "");
+          setContactEmail(settingsData.contactEmail || "");
+          setContactPhone(settingsData.contactPhone || "");
+          setDepartments(settingsData.departments || []);
+          setCopyrightText(settingsData.copyrightText || "");
+          setCouncilNote(settingsData.councilNote || "");
+        }
+        if (adminsData && Array.isArray(adminsData)) {
+          setAdminUsers(adminsData);
         }
       })
       .catch((err) => {
@@ -67,6 +103,48 @@ export default function AdminSettingsPage() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingAdmin(true);
+    try {
+      const res = await createAdminUser({
+        name: newAdminName,
+        email: newAdminEmail,
+        department: newAdminDept,
+        password: newAdminPassword,
+      });
+      setToast({ message: res.message || "Admin created successfully!", type: "success" });
+      setNewAdminName("");
+      setNewAdminEmail("");
+      setNewAdminDept("");
+      setNewAdminPassword("");
+      await loadAdmins();
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to create administrator",
+        type: "error",
+      });
+    } finally {
+      setCreatingAdmin(false);
+    }
+  };
+
+  const handleDeleteAdmin = async (adminId: string, adminName: string) => {
+    if (!confirm(`Are you sure you want to remove administrator access for ${adminName}?`)) {
+      return;
+    }
+    try {
+      const res = await deleteAdminUser(adminId);
+      setToast({ message: res.message, type: "success" });
+      await loadAdmins();
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to delete admin account",
+        type: "error",
+      });
+    }
+  };
 
   const handleAddDepartment = () => {
     if (!newDeptLabel.trim()) return;
@@ -116,7 +194,7 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="p-5 lg:p-8 max-w-5xl mx-auto space-y-8">
+    <div className="p-3.5 sm:p-5 lg:p-8 max-w-5xl mx-auto space-y-6 sm:space-y-8 overflow-x-hidden">
       {toast && (
         <Toast
           message={toast.message}
@@ -127,7 +205,7 @@ export default function AdminSettingsPage() {
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6" style={{ borderColor: "hsl(var(--border))" }}>
-        <div>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span
               className="text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide"
@@ -136,22 +214,181 @@ export default function AdminSettingsPage() {
               Portal Management
             </span>
           </div>
-          <h1 className="text-2xl font-extrabold text-foreground mt-1 tracking-tight">
-            Site & Footer Settings
+          <h1 className="text-xl sm:text-2xl font-extrabold text-foreground mt-1 tracking-tight break-words">
+            Site & Administrator Settings
           </h1>
-          <p className="text-xs mt-1" style={{ color: "hsl(var(--fg-muted))" }}>
-            Edit the footer details, university contact information, departments, and copyright notes in real-time.
+          <p className="text-xs mt-1 text-muted-foreground break-words">
+            Manage administrators, footer information, contact details, departments, and copyright attribution.
           </p>
         </div>
 
         <button
           onClick={handleSave}
           disabled={saving}
-          className="btn-primary py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl shadow-md disabled:opacity-50"
+          className="btn-primary py-2.5 px-5 text-sm flex items-center justify-center gap-2 rounded-xl shadow-md w-full sm:w-auto flex-shrink-0 disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {saving ? "Saving Changes..." : "Save All Changes"}
         </button>
+      </div>
+
+      {/* Section 0: Administrator Team & Access Management */}
+      <div
+        className="p-4 sm:p-6 rounded-2xl border space-y-5 overflow-hidden"
+        style={{
+          background: "hsl(var(--surface-raised))",
+          borderColor: "hsl(var(--border))",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "hsl(var(--primary) / 0.15)" }}
+            >
+              <UserCheck className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm sm:text-base font-bold text-foreground truncate">Administrator Accounts & Team</h2>
+              <p className="text-[11px] text-muted-foreground truncate">
+                Create new administrators and manage current university administrative access
+              </p>
+            </div>
+          </div>
+          <span className="badge badge-primary text-xs w-fit flex-shrink-0">
+            {adminUsers.length} Active {adminUsers.length === 1 ? "Admin" : "Admins"}
+          </span>
+        </div>
+
+        {/* Existing Admins List */}
+        <div className="space-y-2.5">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Current Active Administrators
+          </p>
+          {adminUsers.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-2">Loading administrators...</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {adminUsers.map((admin) => (
+                <div
+                  key={admin.id}
+                  className="flex items-center justify-between p-3 rounded-xl border bg-card/60 gap-2"
+                  style={{ borderColor: "hsl(var(--border))" }}
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0"
+                      style={{ background: "hsl(var(--primary) / 0.15)", color: "hsl(var(--primary))" }}
+                    >
+                      {admin.name ? admin.name.charAt(0).toUpperCase() : "A"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-foreground truncate">{admin.name}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{admin.email}</p>
+                      <p className="text-[10px] text-primary truncate font-medium">{admin.department}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAdmin(admin.id, admin.name)}
+                    className="p-1.5 text-muted-foreground hover:text-red-400 rounded-lg hover:bg-red-500/10 transition-colors flex-shrink-0 cursor-pointer"
+                    title={`Remove admin access for ${admin.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Add New Admin Form */}
+        <div className="pt-3 border-t space-y-3" style={{ borderColor: "hsl(var(--border))" }}>
+          <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
+            <UserPlus className="w-3.5 h-3.5 text-primary" /> Create New Administrator
+          </p>
+          <form onSubmit={handleCreateAdmin} className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={newAdminName}
+                  onChange={(e) => setNewAdminName(e.target.value)}
+                  placeholder="e.g. Dr. Priya Singh"
+                  className="input-field text-xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                  Official Email Address *
+                </label>
+                <input
+                  type="email"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  placeholder="priya.singh@university.edu"
+                  className="input-field text-xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                  Department / Designation *
+                </label>
+                <input
+                  type="text"
+                  value={newAdminDept}
+                  onChange={(e) => setNewAdminDept(e.target.value)}
+                  placeholder="e.g. Head of Computer Science"
+                  className="input-field text-xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                  Password (Min. 6 chars) *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showAdminPassword ? "text" : "password"}
+                    value={newAdminPassword}
+                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="input-field text-xs pr-9"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                  >
+                    {showAdminPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <button
+                type="submit"
+                disabled={creatingAdmin}
+                className="btn-primary py-2 px-5 text-xs flex items-center justify-center gap-1.5 w-full sm:w-auto disabled:opacity-50"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                {creatingAdmin ? "Creating Administrator..." : "Create Administrator Account"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
