@@ -165,35 +165,34 @@ export default function AdminSettingsPage() {
           }}
         >
           <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setSiteName("");
-                  setDescription("");
-                }}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
-                title="Delete and clear all details from this box"
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: "hsl(var(--primary) / 0.12)" }}
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Delete Box Details
-              </button>
-
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: "hsl(var(--primary) / 0.12)" }}
-                >
-                  <Globe className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-foreground">Brand & Portal Overview</h2>
-                  <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                    Name and description shown on the website footer
-                  </p>
-                </div>
+                <Globe className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-foreground">Brand & Portal Overview</h2>
+                <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                  Name and description shown on the website footer
+                </p>
               </div>
             </div>
+
+            {/* Delete button shifted to the right */}
+            <button
+              type="button"
+              onClick={() => {
+                setSiteName("");
+                setDescription("");
+              }}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Delete and clear all details from this box"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Box Details
+            </button>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -235,38 +234,36 @@ export default function AdminSettingsPage() {
           }}
         >
           <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
-            <div className="flex items-center gap-3">
-              {/* Delete / Clear Box Button on top left */}
-              <button
-                type="button"
-                onClick={() => {
-                  setOfficeName("");
-                  setOfficeLocation("");
-                  setContactEmail("");
-                  setContactPhone("");
-                }}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
-                title="Delete and clear all details from this box"
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: "hsl(var(--accent) / 0.12)" }}
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Delete Box Details
-              </button>
-
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: "hsl(var(--accent) / 0.12)" }}
-                >
-                  <Building2 className="w-4 h-4" style={{ color: "hsl(var(--accent))" }} />
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-foreground">Office & Contact Details</h2>
-                  <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                    University department office, physical location, and support channels
-                  </p>
-                </div>
+                <Building2 className="w-4 h-4" style={{ color: "hsl(var(--accent))" }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-foreground">Office & Contact Details</h2>
+                <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                  University department office, physical location, and support channels
+                </p>
               </div>
             </div>
+
+            {/* Delete button shifted to the right */}
+            <button
+              type="button"
+              onClick={() => {
+                setOfficeName("");
+                setOfficeLocation("");
+                setContactEmail("");
+                setContactPhone("");
+              }}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Delete and clear all details from this box"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Box Details
+            </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -420,35 +417,34 @@ export default function AdminSettingsPage() {
           }}
         >
           <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setCopyrightText("");
-                  setCouncilNote("");
-                }}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
-                title="Delete and clear all details from this box"
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: "hsl(35 92% 45% / 0.12)" }}
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Delete Box Details
-              </button>
-
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: "hsl(35 92% 45% / 0.12)" }}
-                >
-                  <ShieldCheck className="w-4 h-4" style={{ color: "hsl(35 92% 45%)" }} />
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-foreground">Copyright & Council Attribution</h2>
-                  <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                    Bottom bar text shown across all pages
-                  </p>
-                </div>
+                <ShieldCheck className="w-4 h-4" style={{ color: "hsl(35 92% 45%)" }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-foreground">Copyright & Council Attribution</h2>
+                <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                  Bottom bar text shown across all pages
+                </p>
               </div>
             </div>
+
+            {/* Delete button shifted to the right */}
+            <button
+              type="button"
+              onClick={() => {
+                setCopyrightText("");
+                setCouncilNote("");
+              }}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Delete and clear all details from this box"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Box Details
+            </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
