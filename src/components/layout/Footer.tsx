@@ -10,6 +10,7 @@ const LINKS = {
     { label: "Feedback Forms", href: "/portal/feedback" },
     { label: "Live Q&A", href: "/portal/qna" },
     { label: "Student Login", href: "/login" },
+    { label: "About Us", href: "/about" },
   ],
   Departments: [
     { label: "Computer Science & Engg", href: "#" },
