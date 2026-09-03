@@ -21,7 +21,7 @@ import { useState } from "react";
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.45, delay, ease: "easeOut" },
 });
 
 const CATEGORY_LINKS = [
