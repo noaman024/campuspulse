@@ -118,40 +118,43 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="p-5 lg:p-7 space-y-6 min-h-screen" style={{ background: "hsl(var(--bg))" }}>
+    <div className="p-3.5 sm:p-5 lg:p-7 space-y-4 sm:space-y-6 min-h-screen" style={{ background: "hsl(var(--bg))" }}>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl font-extrabold text-foreground tracking-tight">Admin Dashboard</h1>
+          <h1 className="text-lg sm:text-xl font-extrabold text-foreground tracking-tight">Admin Dashboard</h1>
           <p className="text-xs mt-0.5" style={{ color: "hsl(var(--fg-muted))" }}>
             Real-time overview — events, registrations, and attendance
           </p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href="/admin/events/new" className="btn-primary py-2 px-4 text-xs">
+        {/* Quick Actions (Swipeable on mobile, flex-wrap on desktop) */}
+        <div
+          className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap"
+          style={{ scrollbarWidth: "none" }}
+        >
+          <Link href="/admin/events/new" className="btn-primary py-2 px-3.5 text-xs whitespace-nowrap flex-shrink-0">
             <Plus className="w-3.5 h-3.5" /> Create Event
           </Link>
-          <Link href="/admin/feedback" className="btn-secondary py-2 px-3.5 text-xs">
+          <Link href="/admin/feedback" className="btn-secondary py-2 px-3 text-xs whitespace-nowrap flex-shrink-0">
             <ClipboardList className="w-3.5 h-3.5" /> Feedback
           </Link>
-          <Link href="/admin/media" className="btn-secondary py-2 px-3.5 text-xs">
+          <Link href="/admin/media" className="btn-secondary py-2 px-3 text-xs whitespace-nowrap flex-shrink-0">
             <Upload className="w-3.5 h-3.5" /> Media
           </Link>
-          <Link href="/admin/reports" className="btn-secondary py-2 px-3.5 text-xs">
+          <Link href="/admin/reports" className="btn-secondary py-2 px-3 text-xs whitespace-nowrap flex-shrink-0">
             <FileText className="w-3.5 h-3.5" /> Reports
           </Link>
-          <Link href="/admin/settings" className="btn-secondary py-2 px-3.5 text-xs">
+          <Link href="/admin/settings" className="btn-secondary py-2 px-3 text-xs whitespace-nowrap flex-shrink-0">
             <Settings className="w-3.5 h-3.5" /> Site Settings
           </Link>
         </div>
       </div>
 
       {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
@@ -160,22 +163,21 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.03 }}
-              className="rounded-xl flex flex-col justify-between"
+              className="rounded-xl flex flex-col justify-between p-3 sm:p-4"
               style={{
-                padding: "1.1rem 1.25rem",
-                minHeight: "96px",
+                minHeight: "84px",
                 background: "hsl(var(--surface-raised))",
                 border: "1px solid hsla(var(--border-strong), 0.9)",
                 boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
               }}
             >
               {/* Icon + Label row */}
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-medium truncate" style={{ color: "hsl(var(--fg-muted))" }}>
+              <div className="flex items-center justify-between gap-1.5">
+                <span className="text-[11px] sm:text-xs font-medium truncate" style={{ color: "hsl(var(--fg-muted))" }}>
                   {card.label}
                 </span>
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ background: `hsl(${card.color} / 0.15)` }}
                 >
                   <Icon className="w-3.5 h-3.5" style={{ color: `hsl(${card.color})` }} />
@@ -183,8 +185,8 @@ export default function AdminDashboard() {
               </div>
 
               {/* Value */}
-              <div className="mt-2 flex items-baseline">
-                <p className="text-2xl font-bold tracking-tight text-foreground" style={{ lineHeight: 1.2 }}>
+              <div className="mt-1.5 sm:mt-2 flex items-baseline">
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground" style={{ lineHeight: 1.2 }}>
                   {String(card.value)}
                 </p>
               </div>

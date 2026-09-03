@@ -34,13 +34,51 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: collapsed ? 72 : 260 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="glass-strong h-[calc(100vh-4rem)] sticky top-16 flex flex-col overflow-hidden"
-      style={{ borderRight: '1px solid hsla(var(--border), 0.5)' }}
-    >
+    <>
+      {/* ── Mobile Admin Navigation Tab Bar (< md) ── */}
+      <div
+        className="md:hidden w-full border-b sticky top-16 z-30 overflow-x-auto"
+        style={{
+          background: "var(--glass-bg)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderColor: "var(--glass-border)",
+          scrollbarWidth: "none",
+        }}
+      >
+        <div className="flex items-center gap-1 px-3 py-2 min-w-max">
+          {sidebarLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive =
+              pathname === link.href ||
+              (link.href !== "/admin" && pathname.startsWith(link.href));
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all"
+                style={{
+                  background: isActive ? "hsl(var(--primary))" : "transparent",
+                  color: isActive ? "white" : "hsl(var(--fg-muted))",
+                }}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {link.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Desktop Sticky Sidebar (>= md) ── */}
+      <motion.aside
+        initial={false}
+        animate={{ width: collapsed ? 72 : 260 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="hidden md:flex glass-strong h-[calc(100vh-4rem)] sticky top-16 flex-col overflow-hidden flex-shrink-0"
+        style={{ borderRight: "1px solid hsla(var(--border), 0.5)" }}
+      >
       <div className="flex-1 py-4 px-3 space-y-1">
         {sidebarLinks.map((link) => {
           const Icon = link.icon;
@@ -126,5 +164,6 @@ export default function Sidebar() {
         </button>
       </div>
     </motion.aside>
-  );
+  </>
+);
 }
