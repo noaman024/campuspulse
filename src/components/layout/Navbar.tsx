@@ -19,8 +19,8 @@ import {
   ClipboardList,
   User,
   Settings,
-  ShieldCheck,
   ChevronDown,
+  ShieldCheck,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "../providers/ThemeProvider";
@@ -30,359 +30,406 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = session?.user?.role === "admin";
+  const isLoading = status === "loading";
 
-  // Close dropdown when clicking outside
+  // Track scroll to enhance glass effect
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setProfileDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+    setProfileOpen(false);
+  }, [pathname]);
 
   const navLinks = [
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/portal/feedback", label: "Feedback", icon: ClipboardList },
     { href: "/portal/qna", label: "Live Q&A", icon: MessageSquare },
-    ...(isAdmin
-      ? [{ href: "/admin", label: "Admin Panel", icon: LayoutDashboard }]
-      : []),
+    ...(isAdmin ? [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }] : []),
   ];
 
+  const userInitials = session?.user?.name
+    ? session.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "U";
+
   return (
-    <nav className="glass-strong sticky top-0 z-50" style={{ borderBottom: '1px solid hsla(var(--border), 0.5)' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span
-                className="text-xl font-bold tracking-tight leading-none"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+    <>
+      <nav
+        className="sticky top-0 z-50 transition-all duration-300"
+        style={{
+          background: scrolled
+            ? "var(--glass-bg)"
+            : "transparent",
+          backdropFilter: scrolled ? `blur(${scrolled ? "20px" : "0"})` : "none",
+          WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
+          borderBottom: scrolled
+            ? "1px solid var(--glass-border)"
+            : "1px solid transparent",
+          boxShadow: scrolled ? "0 1px 20px rgba(15,23,42,0.06)" : "none",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+
+            {/* ─── Logo ─── */}
+            <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+                  boxShadow: "0 2px 10px hsl(var(--primary) / 0.35)",
+                }}
               >
-                Campus<span className="gradient-text">Pulse</span>
-              </span>
-              <span className="text-[10px] text-muted-foreground font-medium tracking-wide mt-0.5">
-                SMART CAMPUS HUB
-              </span>
+                <Zap className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <span className="text-[17px] font-800 tracking-tight text-foreground leading-none">
+                  Campus<span className="gradient-text font-extrabold">Pulse</span>
+                </span>
+                <p className="text-[9px] text-muted-foreground font-semibold tracking-widest mt-0.5 uppercase">
+                  University Portal
+                </p>
+              </div>
+            </Link>
+
+            {/* ─── Desktop Nav Links ─── */}
+            <div className="hidden md:flex items-center gap-0.5">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="relative flex items-center gap-1.5 px-3.5 py-2 text-[13.5px] font-medium rounded-lg transition-all duration-150"
+                    style={{
+                      color: isActive ? "hsl(var(--primary))" : "hsl(var(--fg-muted))",
+                      background: isActive ? "hsl(var(--primary) / 0.08)" : "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) (e.currentTarget as HTMLElement).style.color = "hsl(var(--fg))";
+                      if (!isActive) (e.currentTarget as HTMLElement).style.background = "hsl(var(--border) / 0.5)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) (e.currentTarget as HTMLElement).style.color = "hsl(var(--fg-muted))";
+                      if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent";
+                    }}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {link.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-lg"
+                        style={{ background: "hsl(var(--primary) / 0.08)", zIndex: -1 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
-          </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                  style={{
-                    color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                    background: isActive ? 'hsla(var(--primary), 0.08)' : 'transparent',
-                  }}
-                >
-                  <Icon className="w-4 h-4" />
-                  {link.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
-                      style={{ background: 'hsl(var(--primary))' }}
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+            {/* ─── Right Actions ─── */}
+            <div className="hidden md:flex items-center gap-2">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="btn-ghost p-2 rounded-xl"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark"
+                  ? <Sun className="w-4 h-4" />
+                  : <Moon className="w-4 h-4" />}
+              </button>
 
-          {/* Right Side Actions */}
-          <div className="hidden md:flex items-center gap-3">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl border transition-all duration-200 hover:scale-105"
-              style={{
-                borderColor: 'hsla(var(--border), 0.7)',
-                color: 'hsl(var(--muted-foreground))',
-                background: 'hsla(var(--background), 0.5)',
-              }}
-              aria-label="Toggle theme"
-              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
-            </button>
-
-            {status === "loading" ? (
-              <div className="w-24 h-9 rounded-lg bg-muted/40 animate-pulse" />
-            ) : session ? (
-              /* User Profile & Logout Dropdown */
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border transition-all duration-200 hover:shadow-md"
-                  style={{
-                    borderColor: profileDropdownOpen ? 'hsl(var(--primary))' : 'hsla(var(--border), 0.8)',
-                    background: 'hsla(var(--card), 0.8)',
-                  }}
-                  aria-expanded={profileDropdownOpen}
-                >
-                  <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                    {session.user?.name ? session.user.name[0].toUpperCase() : "U"}
-                  </div>
-                  <div className="text-left hidden lg:block">
-                    <p className="text-xs font-bold leading-tight" style={{ color: 'hsl(var(--foreground))' }}>
-                      {session.user?.name?.split(" ")[0]}
-                    </p>
-                    <span className={`inline-block text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded ${
-                      isAdmin ? "bg-amber-500/15 text-amber-500" : "bg-primary/15 text-primary"
-                    }`}>
-                      {isAdmin ? "Admin" : "Student"}
-                    </span>
-                  </div>
-                  <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Floating Profile Dropdown Menu */}
-                <AnimatePresence>
-                  {profileDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 8 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 8 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-64 rounded-2xl glass-strong border shadow-2xl p-2 z-50"
-                      style={{ borderColor: 'hsla(var(--border), 0.8)' }}
+              {isLoading ? (
+                <div className="w-8 h-8 rounded-full bg-border animate-pulse" />
+              ) : session?.user ? (
+                /* ── Authenticated: Profile Dropdown ── */
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setProfileOpen((p) => !p)}
+                    className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-2xl border transition-all duration-150 hover:border-primary/40 hover:bg-primary/5"
+                    style={{
+                      borderColor: "hsl(var(--border))",
+                      background: "hsl(var(--surface-raised))",
+                    }}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{
+                        background: isAdmin
+                          ? "linear-gradient(135deg, hsl(35 92% 48%), hsl(25 90% 45%))"
+                          : "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+                      }}
                     >
-                      {/* User Header */}
-                      <div className="px-3 py-2.5 mb-1 rounded-xl bg-muted/40 border border-border/40">
-                        <p className="text-sm font-bold text-foreground truncate">
-                          {session.user?.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate mb-1.5">
-                          {session.user?.email}
-                        </p>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                            isAdmin ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-primary/20 text-primary"
-                          }`}>
-                            {isAdmin ? <ShieldCheck className="w-3 h-3" /> : <User className="w-3 h-3" />}
+                      {userInitials}
+                    </div>
+                    <div className="text-left hidden sm:block">
+                      <p className="text-xs font-semibold text-foreground leading-none">
+                        {session.user.name?.split(" ")[0] ?? "User"}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {isAdmin ? "Admin" : "Student"}
+                      </p>
+                    </div>
+                    <ChevronDown
+                      className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200"
+                      style={{ transform: profileOpen ? "rotate(180deg)" : "rotate(0)" }}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {profileOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute right-0 top-full mt-2 w-56 rounded-2xl border overflow-hidden"
+                        style={{
+                          background: "var(--glass-bg)",
+                          backdropFilter: "blur(20px)",
+                          WebkitBackdropFilter: "blur(20px)",
+                          borderColor: "var(--glass-border)",
+                          boxShadow: "var(--shadow-lg)",
+                        }}
+                      >
+                        {/* User Info */}
+                        <div
+                          className="px-4 py-3 border-b"
+                          style={{ borderColor: "var(--glass-border)" }}
+                        >
+                          <p className="text-xs font-bold text-foreground truncate">{session.user.name}</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{session.user.email}</p>
+                          <span
+                            className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                            style={{
+                              background: isAdmin ? "hsl(35 92% 48% / 0.15)" : "hsl(var(--primary) / 0.12)",
+                              color: isAdmin ? "hsl(35 92% 42%)" : "hsl(var(--primary))",
+                            }}
+                          >
+                            {isAdmin ? <ShieldCheck className="w-2.5 h-2.5" /> : <User className="w-2.5 h-2.5" />}
                             {isAdmin ? "University Admin" : "Verified Student"}
                           </span>
                         </div>
-                      </div>
 
-                      {/* Menu Links */}
-                      <div className="space-y-1">
-                        {isAdmin && (
+                        {/* Menu Items */}
+                        <div className="p-1.5 space-y-0.5">
+                          {isAdmin && (
+                            <Link
+                              href="/admin"
+                              className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors"
+                              style={{ color: "hsl(var(--fg))" }}
+                              onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "hsl(var(--border) / 0.5)"}
+                              onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
+                            >
+                              <LayoutDashboard className="w-3.5 h-3.5 text-muted-foreground" />
+                              Admin Dashboard
+                            </Link>
+                          )}
                           <Link
-                            href="/admin"
-                            onClick={() => setProfileDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                            href="/settings"
+                            className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors"
+                            style={{ color: "hsl(var(--fg))" }}
+                            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "hsl(var(--border) / 0.5)"}
+                            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
                           >
-                            <LayoutDashboard className="w-4 h-4 text-amber-500" />
-                            Admin Dashboard
+                            <Settings className="w-3.5 h-3.5 text-muted-foreground" />
+                            Account Settings
                           </Link>
-                        )}
-                        <Link
-                          href="/settings"
-                          onClick={() => setProfileDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
-                        >
-                          <Settings className="w-4 h-4 text-primary" />
-                          Account Settings & Profile
-                        </Link>
-                      </div>
+                        </div>
 
-                      {/* Divider & Logout Button */}
-                      <div className="my-1.5 border-t border-border/50 pt-1.5">
-                        <button
-                          onClick={() => signOut({ callbackUrl: "/login" })}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                          id="logout-button-desktop"
+                        <div
+                          className="p-1.5 border-t"
+                          style={{ borderColor: "var(--glass-border)" }}
                         >
-                          <LogOut className="w-4 h-4" />
-                          Log Out (Sign Out)
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              /* Login & Register CTA Buttons */
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/login"
-                  id="navbar-login-button"
-                  className="btn-secondary py-2 px-4 text-xs font-semibold flex items-center gap-1.5 rounded-xl"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  id="navbar-register-button"
-                  className="btn-primary py-2 px-4 text-xs font-semibold flex items-center gap-1.5 rounded-xl shadow-md hover:shadow-lg transition-all"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Register
-                </Link>
-              </div>
-            )}
+                          <button
+                            onClick={() => signOut({ callbackUrl: "/" })}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors text-left"
+                            style={{ color: "hsl(var(--danger))" }}
+                            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "hsl(var(--danger) / 0.08)"}
+                            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            Sign Out
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                /* ── Not Authenticated ── */
+                <>
+                  <Link href="/login" className="btn-ghost text-sm py-2 px-3.5">
+                    <LogIn className="w-3.5 h-3.5" />
+                    Sign In
+                  </Link>
+                  <Link href="/register" className="btn-primary text-sm py-2 px-4">
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Register
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* ─── Mobile Hamburger ─── */}
+            <div className="md:hidden flex items-center gap-2">
+              <button onClick={toggleTheme} className="btn-ghost p-2 rounded-xl" aria-label="Toggle theme">
+                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => setMobileOpen((o) => !o)}
+                className="btn-ghost p-2 rounded-xl"
+                aria-label="Toggle menu"
+              >
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-xl border border-border/50"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-            style={{ color: 'hsl(var(--foreground))' }}
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Drawer */}
+      {/* ─── Mobile Drawer ─── */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden overflow-hidden border-t"
-            style={{ borderColor: 'hsla(var(--border), 0.5)' }}
-          >
-            <div className="px-4 py-4 space-y-3">
-              {/* User profile section if logged in */}
-              {session && (
-                <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/60 mb-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-white text-sm font-bold shadow-md">
-                      {session.user?.name ? session.user.name[0].toUpperCase() : "U"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-foreground truncate">
-                        {session.user?.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {session.user?.email}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border/40">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      isAdmin ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-primary/20 text-primary"
-                    }`}>
-                      {isAdmin ? "Administrator" : "Student"}
-                    </span>
-                    <Link
-                      href="/settings"
-                      onClick={() => setMobileOpen(false)}
-                      className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-                    >
-                      <Settings className="w-3.5 h-3.5" />
-                      Settings
-                    </Link>
-                  </div>
-                </div>
-              )}
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 md:hidden"
+              style={{ background: "rgba(0,0,0,0.25)", backdropFilter: "blur(4px)" }}
+              onClick={() => setMobileOpen(false)}
+            />
 
-              {/* Navigation Links */}
-              <div className="space-y-1">
-                {navLinks.map((link) => {
+            {/* Drawer */}
+            <motion.div
+              initial={{ opacity: 0, x: "100%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed top-0 right-0 h-full w-72 z-50 md:hidden flex flex-col"
+              style={{
+                background: "var(--glass-bg)",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                borderLeft: "1px solid var(--glass-border)",
+                boxShadow: "-4px 0 40px rgba(0,0,0,0.15)",
+              }}
+            >
+              {/* Drawer Header */}
+              <div
+                className="flex items-center justify-between px-5 h-16 border-b flex-shrink-0"
+                style={{ borderColor: "var(--glass-border)" }}
+              >
+                <span className="text-sm font-bold text-foreground">Navigation</span>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="btn-ghost p-1.5 rounded-lg"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Drawer Links */}
+              <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+                {navLinks.map((link, i) => {
                   const Icon = link.icon;
-                  const isActive = pathname === link.href;
+                  const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
                   return (
-                    <Link
+                    <motion.div
                       key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
-                      style={{
-                        color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--foreground))',
-                        background: isActive ? 'hsla(var(--primary), 0.1)' : 'transparent',
-                      }}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
                     >
-                      <Icon className="w-5 h-5" />
-                      {link.label}
-                    </Link>
+                      <Link
+                        href={link.href}
+                        className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        style={{
+                          color: isActive ? "hsl(var(--primary))" : "hsl(var(--fg))",
+                          background: isActive ? "hsl(var(--primary) / 0.10)" : "transparent",
+                        }}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        {link.label}
+                      </Link>
+                    </motion.div>
                   );
                 })}
               </div>
 
-              {/* Theme Toggle */}
-              <div className="pt-2 border-t" style={{ borderColor: 'hsl(var(--border))' }}>
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-medium border border-border/50"
-                  style={{ color: 'hsl(var(--foreground))' }}
-                >
-                  <span className="flex items-center gap-2.5">
-                    {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
-                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                  </span>
-                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
-                    {theme}
-                  </span>
-                </button>
-              </div>
-
-              {/* Auth Buttons: Login / Register OR Logout */}
-              <div className="pt-2 border-t border-border/50">
-                {session ? (
-                  <button
-                    onClick={() => {
-                      setMobileOpen(false);
-                      signOut({ callbackUrl: "/login" });
-                    }}
-                    id="mobile-logout-button"
-                    className="w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Log Out from CampusPulse
-                  </button>
+              {/* Drawer Footer */}
+              <div
+                className="px-3 py-4 border-t space-y-2 flex-shrink-0"
+                style={{ borderColor: "var(--glass-border)" }}
+              >
+                {session?.user ? (
+                  <>
+                    <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-border/30">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                        style={{
+                          background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+                        }}
+                      >
+                        {userInitials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-foreground truncate">{session.user.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{session.user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                      className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                      style={{ color: "hsl(var(--danger))", background: "hsl(var(--danger) / 0.06)" }}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </>
                 ) : (
-                  <div className="flex gap-2">
-                    <Link
-                      href="/login"
-                      id="mobile-login-button"
-                      className="btn-secondary flex-1 justify-center py-2.5 text-xs font-semibold rounded-xl"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <LogIn className="w-4 h-4 mr-1.5" />
-                      Log In
+                  <div className="space-y-2">
+                    <Link href="/login" className="btn-secondary w-full justify-center py-2.5 text-sm">
+                      <LogIn className="w-4 h-4" /> Sign In
                     </Link>
-                    <Link
-                      href="/register"
-                      id="mobile-register-button"
-                      className="btn-primary flex-1 justify-center py-2.5 text-xs font-semibold rounded-xl shadow-md"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <UserPlus className="w-4 h-4 mr-1.5" />
-                      Register
+                    <Link href="/register" className="btn-primary w-full justify-center py-2.5 text-sm">
+                      <UserPlus className="w-4 h-4" /> Create Account
                     </Link>
                   </div>
                 )}
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 }
-

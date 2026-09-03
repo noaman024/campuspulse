@@ -1,165 +1,110 @@
 import Link from "next/link";
-import { Zap, Mail, Phone, MapPin, Shield, Building2, Calendar, ClipboardList, HelpCircle } from "lucide-react";
+import { Zap, Mail, MapPin, Building2 } from "lucide-react";
+
+const LINKS = {
+  Portal: [
+    { label: "All Events", href: "/events" },
+    { label: "Feedback Forms", href: "/portal/feedback" },
+    { label: "Live Q&A", href: "/portal/qna" },
+    { label: "Student Login", href: "/login" },
+  ],
+  Departments: [
+    { label: "Computer Science & Engg", href: "#" },
+    { label: "Information Technology", href: "#" },
+    { label: "Mechanical Engineering", href: "#" },
+    { label: "Cultural Council", href: "#" },
+  ],
+  Policy: [
+    { label: "Privacy Policy", href: "/legal/privacy-policy" },
+    { label: "Terms of Service", href: "/legal/terms-of-service" },
+    { label: "Code of Conduct", href: "/legal/community-guidelines" },
+    { label: "Help & FAQs", href: "/help" },
+  ],
+};
 
 export default function Footer() {
   return (
     <footer
-      className="border-t mt-auto w-full bg-surface/80 dark:bg-card/50"
+      className="border-t mt-auto"
       style={{
-        borderColor: "hsla(var(--border), 0.7)",
+        background: "hsl(var(--surface))",
+        borderColor: "hsl(var(--border))",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
-          {/* Brand & University Info */}
-          <div className="lg:col-span-2 space-y-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-1 space-y-4">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white shadow-sm">
-                <Zap className="w-5 h-5" />
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
+                style={{
+                  background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+                }}
+              >
+                <Zap className="w-4 h-4" strokeWidth={2.5} />
               </div>
-              <div className="flex flex-col">
-                <span
-                  className="text-lg font-bold tracking-tight leading-none"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                >
-                  Campus<span className="gradient-text">Pulse</span>
-                </span>
-                <span className="text-[10px] text-muted-foreground font-semibold tracking-wider mt-0.5">
-                  UNIVERSITY EVENT MANAGEMENT SYSTEM
-                </span>
-              </div>
+              <span className="text-base font-extrabold tracking-tight text-foreground">
+                Campus<span className="gradient-text">Pulse</span>
+              </span>
             </Link>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-              The official centralized platform for university symposiums, departmental hackathons, cultural festivals, sports championships, and verified digital QR passes.
+
+            <p className="text-xs leading-relaxed" style={{ color: "hsl(var(--fg-muted))" }}>
+              Official university event management system for symposiums, hackathons, cultural fests, sports meets, and verified digital entry passes.
             </p>
-            <div className="space-y-1.5 text-xs text-muted-foreground pt-1">
+
+            <div className="space-y-1.5 text-xs" style={{ color: "hsl(var(--fg-subtle))" }}>
               <p className="flex items-center gap-2">
-                <Building2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                <span>Office of Student Affairs & Technical Council</span>
+                <Building2 className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "hsl(var(--primary))" }} />
+                Office of Student Affairs
               </p>
               <p className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                <span>Main Academic Block, Campus North Campus</span>
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "hsl(var(--primary))" }} />
+                Main Academic Block, North Campus
               </p>
               <p className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                <span>studentaffairs@campuspulse.edu</span>
+                <Mail className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "hsl(var(--primary))" }} />
+                events@campuspulse.edu
               </p>
             </div>
           </div>
 
-          {/* Academic Wings & Councils */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-              Campus Portals
-            </h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
-              <li>
-                <Link href="/events" className="hover:text-primary transition-colors flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" /> All Campus Events
-                </Link>
-              </li>
-              <li>
-                <Link href="/portal/feedback" className="hover:text-primary transition-colors flex items-center gap-1.5">
-                  <ClipboardList className="w-3.5 h-3.5" /> Event Feedback Forms
-                </Link>
-              </li>
-              <li>
-                <Link href="/portal/qna" className="hover:text-primary transition-colors">
-                  Live Speaker Q&A
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="hover:text-primary transition-colors font-medium text-foreground">
-                  Student & Organizer Login →
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Student Council & Clubs */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-              Committees & Cells
-            </h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
-              <li>
-                <span className="hover:text-foreground transition-colors cursor-default">
-                  Technical Events Council
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground transition-colors cursor-default">
-                  Cultural Affairs Committee
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground transition-colors cursor-default">
-                  Department Sports Board
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground transition-colors cursor-default">
-                  Training & Placement Cell
-                </span>
-              </li>
-              <li>
-                <Link href="/help" className="text-primary hover:underline font-medium">
-                  Help Desk & FAQs
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Compliance & Verification */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-              Verification & Policies
-            </h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
-              <li>
-                <Link href="/legal/privacy-policy" className="hover:text-primary transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/terms-of-service" className="hover:text-primary transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/security-policy" className="hover:text-primary transition-colors">
-                  Security & Data Privacy
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/community-guidelines" className="hover:text-primary transition-colors">
-                  Campus Code of Conduct
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Link Columns */}
+          {Object.entries(LINKS).map(([section, links]) => (
+            <div key={section} className="space-y-3">
+              <h4
+                className="text-[11px] font-bold uppercase tracking-widest"
+                style={{ color: "hsl(var(--fg-muted))" }}
+              >
+                {section}
+              </h4>
+              <ul className="space-y-2">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-xs transition-colors"
+                      style={{ color: "hsl(var(--fg-subtle))" }}
+                      onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "hsl(var(--primary))")}
+                      onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "hsl(var(--fg-subtle))")}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom bar */}
         <div
-          className="mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground"
-          style={{ borderColor: "hsla(var(--border), 0.7)" }}
+          className="mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
+          style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--fg-subtle))" }}
         >
-          <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
-            <span>© {new Date().getFullYear()} CampusPulse. All rights reserved.</span>
-            <span>•</span>
-            <span>University Student Affairs & Event Operations</span>
-          </div>
-          <div className="flex items-center gap-4 text-xs">
-            <Link href="/legal" className="hover:text-foreground transition-colors">
-              Trust & Transparency
-            </Link>
-            <span>•</span>
-            <Link href="/help" className="hover:text-foreground transition-colors">
-              Student Grievance & Support
-            </Link>
-          </div>
+          <p>© {new Date().getFullYear()} CampusPulse. All rights reserved. University Event Portal.</p>
+          <p>Student Affairs & Technical Council</p>
         </div>
       </div>
     </footer>
