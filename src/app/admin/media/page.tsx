@@ -158,105 +158,107 @@ export default function MediaPage() {
   });
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
+    <div className="p-3.5 sm:p-5 lg:p-8 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "hsl(var(--foreground))" }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground break-words">
             Media Gallery & Uploads
           </h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 text-muted-foreground break-words">
             Upload, preview, and manage high-resolution photos and video clips for campus events
           </p>
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className="btn-primary py-2.5 px-5 flex items-center gap-2"
+          className="btn-primary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 w-full sm:w-auto flex-shrink-0"
         >
           <Upload className="w-4 h-4" /> Upload Media
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card p-5 rounded-xl flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--primary) / 0.1)" }}>
-            <ImageIcon className="w-6 h-6 text-primary" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="glass-card p-4 sm:p-5 rounded-xl flex items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--primary) / 0.1)" }}>
+            <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
           </div>
-          <div>
-            <p className="text-2xl font-bold" style={{ color: "hsl(var(--foreground))" }}>{allPhotosCount}</p>
-            <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Total Event Photos</p>
-          </div>
-        </div>
-        <div className="glass-card p-5 rounded-xl flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--accent) / 0.1)" }}>
-            <Film className="w-6 h-6 text-accent" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold" style={{ color: "hsl(var(--foreground))" }}>{allClipsCount}</p>
-            <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Total Video Clips</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{allPhotosCount}</p>
+            <p className="text-xs text-muted-foreground truncate">Total Event Photos</p>
           </div>
         </div>
-        <div className="glass-card p-5 rounded-xl flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "hsl(var(--success) / 0.1)" }}>
-            <Calendar className="w-6 h-6 text-success" />
+        <div className="glass-card p-4 sm:p-5 rounded-xl flex items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--accent) / 0.1)" }}>
+            <Film className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
           </div>
-          <div>
-            <p className="text-2xl font-bold" style={{ color: "hsl(var(--foreground))" }}>
+          <div className="min-w-0 flex-1">
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{allClipsCount}</p>
+            <p className="text-xs text-muted-foreground truncate">Total Video Clips</p>
+          </div>
+        </div>
+        <div className="glass-card p-4 sm:p-5 rounded-xl flex items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--success) / 0.1)" }}>
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-success" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xl sm:text-2xl font-bold text-foreground">
               {events.filter((e) => {
                 const g = e.mediaGallery as Record<string, unknown>;
                 return ((g?.photos as string[]) || []).length > 0 || ((g?.rawClips as string[]) || []).length > 0;
               }).length}
             </p>
-            <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Events with Media</p>
+            <p className="text-xs text-muted-foreground truncate">Events with Media</p>
           </div>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 glass-card p-3.5 rounded-xl">
-        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 glass-card p-3 sm:p-3.5 rounded-xl overflow-hidden">
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground flex-shrink-0">
           <Filter className="w-3.5 h-3.5" /> Filter by:
         </div>
-        <select
-          value={filterEvent}
-          onChange={(e) => setFilterEvent(e.target.value)}
-          className="input-field py-1.5 px-3 text-xs w-auto min-w-[180px]"
-        >
-          <option value="all">All Events ({events.length})</option>
-          {events.map((e) => (
-            <option key={e._id as string} value={e._id as string}>
-              {e.title as string}
-            </option>
-          ))}
-        </select>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setFilterType("all")}
-            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
-              filterType === "all" ? "btn-primary" : "btn-secondary"
-            }`}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0">
+          <select
+            value={filterEvent}
+            onChange={(e) => setFilterEvent(e.target.value)}
+            className="input-field py-1.5 px-2.5 text-xs w-full sm:w-auto sm:max-w-xs truncate"
           >
-            All Media
-          </button>
-          <button
-            onClick={() => setFilterType("photos")}
-            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
-              filterType === "photos" ? "btn-primary" : "btn-secondary"
-            }`}
-          >
-            Photos Only
-          </button>
-          <button
-            onClick={() => setFilterType("videos")}
-            className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
-              filterType === "videos" ? "btn-primary" : "btn-secondary"
-            }`}
-          >
-            Videos Only
-          </button>
+            <option value="all">All Events ({events.length})</option>
+            {events.map((e) => (
+              <option key={e._id as string} value={e._id as string}>
+                {e.title as string}
+              </option>
+            ))}
+          </select>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0" style={{ scrollbarWidth: "none" }}>
+            <button
+              onClick={() => setFilterType("all")}
+              className={`py-1.5 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                filterType === "all" ? "btn-primary" : "btn-secondary"
+              }`}
+            >
+              All Media
+            </button>
+            <button
+              onClick={() => setFilterType("photos")}
+              className={`py-1.5 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                filterType === "photos" ? "btn-primary" : "btn-secondary"
+              }`}
+            >
+              Photos Only
+            </button>
+            <button
+              onClick={() => setFilterType("videos")}
+              className={`py-1.5 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                filterType === "videos" ? "btn-primary" : "btn-secondary"
+              }`}
+            >
+              Videos Only
+            </button>
+          </div>
         </div>
       </div>
 
@@ -284,14 +286,14 @@ export default function MediaPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass-card p-6 rounded-xl space-y-4"
+                className="glass-card p-4 sm:p-6 rounded-xl space-y-3 sm:space-y-4 overflow-hidden"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3" style={{ borderColor: "hsl(var(--border))" }}>
-                  <div>
-                    <h3 className="font-semibold text-base" style={{ color: "hsl(var(--foreground))" }}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 border-b pb-3" style={{ borderColor: "hsl(var(--border))" }}>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground break-words">
                       {event.title as string}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5 break-words">
                       {photos.length} photos • {clips.length} videos • {event.venue as string}
                     </p>
                   </div>
@@ -300,7 +302,7 @@ export default function MediaPage() {
                       setSelectedEventId(event._id as string);
                       setIsUploadModalOpen(true);
                     }}
-                    className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5 self-start"
+                    className="btn-secondary py-1.5 px-3 text-xs flex items-center justify-center gap-1.5 w-full sm:w-auto flex-shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Media to Event
                   </button>
@@ -520,18 +522,18 @@ export default function MediaPage() {
                   <label className="text-xs font-semibold text-muted-foreground block">
                     Or Add from Direct URL:
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={directUrl}
                       onChange={(e) => setDirectUrl(e.target.value)}
                       placeholder="https://example.com/photo.jpg"
-                      className="input-field text-xs flex-1"
+                      className="input-field text-xs flex-1 min-w-0"
                     />
                     <button
                       type="submit"
                       disabled={!directUrl || uploading}
-                      className="btn-secondary py-2 px-4 text-xs whitespace-nowrap disabled:opacity-50"
+                      className="btn-secondary py-2 px-4 text-xs whitespace-nowrap justify-center disabled:opacity-50"
                     >
                       Add URL
                     </button>
