@@ -164,18 +164,35 @@ export default function AdminSettingsPage() {
             boxShadow: "var(--shadow-sm)",
           }}
         >
-          <div className="flex items-center gap-2.5 pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: "hsl(var(--primary) / 0.12)" }}
-            >
-              <Globe className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-foreground">Brand & Portal Overview</h2>
-              <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                Name and description shown on the website footer
-              </p>
+          <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSiteName("");
+                  setDescription("");
+                }}
+                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Delete and clear all details from this box"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Box Details
+              </button>
+
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: "hsl(var(--primary) / 0.12)" }}
+                >
+                  <Globe className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-foreground">Brand & Portal Overview</h2>
+                  <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                    Name and description shown on the website footer
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -217,84 +234,96 @@ export default function AdminSettingsPage() {
             boxShadow: "var(--shadow-sm)",
           }}
         >
-          <div className="flex items-center gap-2.5 pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: "hsl(var(--accent) / 0.12)" }}
-            >
-              <Building2 className="w-4 h-4" style={{ color: "hsl(var(--accent))" }} />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-foreground">Office & Contact Details</h2>
-              <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                University department office, physical location, and support channels
-              </p>
+          <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+            <div className="flex items-center gap-3">
+              {/* Delete / Clear Box Button on top left */}
+              <button
+                type="button"
+                onClick={() => {
+                  setOfficeName("");
+                  setOfficeLocation("");
+                  setContactEmail("");
+                  setContactPhone("");
+                }}
+                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Delete and clear all details from this box"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Box Details
+              </button>
+
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: "hsl(var(--accent) / 0.12)" }}
+                >
+                  <Building2 className="w-4 h-4" style={{ color: "hsl(var(--accent))" }} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-foreground">Office & Contact Details</h2>
+                  <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                    University department office, physical location, and support channels
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold mb-1 text-foreground">
+              <label className="flex items-center gap-1.5 text-xs font-semibold mb-1 text-foreground">
+                <Building2 className="w-3.5 h-3.5 text-accent" />
                 Office / Authority Name
               </label>
-              <div className="relative">
-                <Building2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
-                  type="text"
-                  value={officeName}
-                  onChange={(e) => setOfficeName(e.target.value)}
-                  placeholder="e.g. Office of Student Affairs"
-                  className="input-field pl-9 text-sm"
-                />
-              </div>
+              <input
+                type="text"
+                value={officeName}
+                onChange={(e) => setOfficeName(e.target.value)}
+                placeholder="e.g. Office of Student Affairs"
+                className="input-field text-sm"
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold mb-1 text-foreground">
+              <label className="flex items-center gap-1.5 text-xs font-semibold mb-1 text-foreground">
+                <MapPin className="w-3.5 h-3.5 text-accent" />
                 Campus Location / Address
               </label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
-                  type="text"
-                  value={officeLocation}
-                  onChange={(e) => setOfficeLocation(e.target.value)}
-                  placeholder="e.g. Main Academic Block, North Campus"
-                  className="input-field pl-9 text-sm"
-                />
-              </div>
+              <input
+                type="text"
+                value={officeLocation}
+                onChange={(e) => setOfficeLocation(e.target.value)}
+                placeholder="e.g. Main Academic Block, North Campus"
+                className="input-field text-sm"
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold mb-1 text-foreground">
+              <label className="flex items-center gap-1.5 text-xs font-semibold mb-1 text-foreground">
+                <Mail className="w-3.5 h-3.5 text-accent" />
                 Official Contact Email
               </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
-                  type="email"
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="e.g. events@campuspulse.edu"
-                  className="input-field pl-9 text-sm"
-                />
-              </div>
+              <input
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="e.g. events@campuspulse.edu"
+                className="input-field text-sm"
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold mb-1 text-foreground">
+              <label className="flex items-center gap-1.5 text-xs font-semibold mb-1 text-foreground">
+                <Phone className="w-3.5 h-3.5 text-accent" />
                 Official Contact Phone (Optional)
               </label>
-              <div className="relative">
-                <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
-                  type="text"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="e.g. +91 98765 43210"
-                  className="input-field pl-9 text-sm"
-                />
-              </div>
+              <input
+                type="text"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="e.g. +91 98765 43210"
+                className="input-field text-sm"
+              />
             </div>
           </div>
         </div>
@@ -390,18 +419,35 @@ export default function AdminSettingsPage() {
             boxShadow: "var(--shadow-sm)",
           }}
         >
-          <div className="flex items-center gap-2.5 pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: "hsl(35 92% 45% / 0.12)" }}
-            >
-              <ShieldCheck className="w-4 h-4" style={{ color: "hsl(35 92% 45%)" }} />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-foreground">Copyright & Council Attribution</h2>
-              <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                Bottom bar text shown across all pages
-              </p>
+          <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setCopyrightText("");
+                  setCouncilNote("");
+                }}
+                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Delete and clear all details from this box"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Box Details
+              </button>
+
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: "hsl(35 92% 45% / 0.12)" }}
+                >
+                  <ShieldCheck className="w-4 h-4" style={{ color: "hsl(35 92% 45%)" }} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-foreground">Copyright & Council Attribution</h2>
+                  <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                    Bottom bar text shown across all pages
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
