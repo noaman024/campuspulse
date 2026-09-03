@@ -19,6 +19,7 @@ import {
   UserCheck,
   Check,
   X,
+  Settings,
 } from "lucide-react";
 import {
   getDashboardStats,
@@ -142,6 +143,9 @@ export default function AdminDashboard() {
           </Link>
           <Link href="/admin/reports" className="btn-secondary py-2 px-3.5 text-xs">
             <FileText className="w-3.5 h-3.5" /> Reports
+          </Link>
+          <Link href="/admin/settings" className="btn-secondary py-2 px-3.5 text-xs">
+            <Settings className="w-3.5 h-3.5" /> Site Settings
           </Link>
         </div>
       </div>

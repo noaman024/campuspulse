@@ -12,6 +12,7 @@ import {
   Image,
   ChevronLeft,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -24,6 +25,7 @@ const sidebarLinks = [
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/reports", label: "Reports", icon: FileText },
   { href: "/admin/media", label: "Media", icon: Image },
+  { href: "/admin/settings", label: "Site Settings", icon: Settings },
 ];
 
 export default function Sidebar() {
