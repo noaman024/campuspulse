@@ -11,9 +11,9 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=campus_pulse_jwt_secret_key_2026_production_safe
-      - MONGODB_URI=mongodb://mdnoaman024_db_user:N030907@ac-bar3zxx-shard-00-00.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-01.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-02.kei9pjd.mongodb.net:27017/campuspulse?ssl=true&replicaSet=atlas-48mkzo-shard-0&authSource=admin&retryWrites=true&w=majority
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - MONGODB_URI=${MONGODB_URI}
     volumes:
       - uploads_data:/app/public/uploads
 

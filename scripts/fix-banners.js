@@ -1,7 +1,20 @@
 const { MongoClient } = require("mongodb");
+const fs = require("fs");
 
-const uri =
-  "mongodb://mdnoaman024_db_user:N030907@ac-bar3zxx-shard-00-00.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-01.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-02.kei9pjd.mongodb.net:27017/campuspulse?ssl=true&replicaSet=atlas-48mkzo-shard-0&authSource=admin&retryWrites=true&w=majority";
+let uri = process.env.MONGODB_URI;
+if (!uri && fs.existsSync(".env.local")) {
+  const envContent = fs.readFileSync(".env.local", "utf8");
+  for (const line of envContent.split("\n")) {
+    if (line.startsWith("MONGODB_URI=")) {
+      uri = line.replace("MONGODB_URI=", "").trim().replace(/^['"]|['"]$/g, "");
+    }
+  }
+}
+
+if (!uri) {
+  console.error("Error: MONGODB_URI is not set. Please define it in your .env.local file or environment.");
+  process.exit(1);
+}
 
 const defaultBanners = {
   Technical: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",

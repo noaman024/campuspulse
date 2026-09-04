@@ -5,9 +5,22 @@ dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
 
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const fs = require("fs");
 
-const MONGODB_URI =
-  "mongodb://mdnoaman024_db_user:N030907@ac-bar3zxx-shard-00-00.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-01.kei9pjd.mongodb.net:27017,ac-bar3zxx-shard-00-02.kei9pjd.mongodb.net:27017/campuspulse?ssl=true&replicaSet=atlas-48mkzo-shard-0&authSource=admin&retryWrites=true&w=majority";
+let MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI && fs.existsSync(".env.local")) {
+  const envContent = fs.readFileSync(".env.local", "utf8");
+  for (const line of envContent.split("\n")) {
+    if (line.startsWith("MONGODB_URI=")) {
+      MONGODB_URI = line.replace("MONGODB_URI=", "").trim().replace(/^['"]|['"]$/g, "");
+    }
+  }
+}
+
+if (!MONGODB_URI) {
+  console.error("Error: MONGODB_URI is not set. Please define it in your .env.local file or environment.");
+  process.exit(1);
+}
 
 async function run() {
   console.log("Connecting to CampusPulse Database...");
