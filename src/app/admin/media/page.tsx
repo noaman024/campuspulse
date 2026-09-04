@@ -32,6 +32,7 @@ export default function MediaPage() {
   const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
   const [directUrl, setDirectUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [modalDragging, setModalDragging] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
@@ -167,19 +168,31 @@ export default function MediaPage() {
 
   if (loading) return <LoadingSpinner size="lg" text="Loading media gallery..." fullPage />;
 
+  const getEventClips = (e: Record<string, unknown>): string[] => {
+    const gallery = (e.mediaGallery || {}) as Record<string, unknown>;
+    const raw = (((gallery.rawClips || []) as string[]) || []).filter(
+      (c) => typeof c === "string" && c.trim() && !c.startsWith("file://")
+    );
+    const highlight = gallery.generatedHighlightVideoUrl as string | undefined;
+    if (highlight && highlight.trim() && !highlight.startsWith("file://") && !raw.includes(highlight)) {
+      raw.unshift(highlight);
+    }
+    return raw;
+  };
+
   const allPhotosCount = events.reduce(
     (s, e) => s + ((e.mediaGallery as Record<string, unknown>)?.photos as string[] || []).length,
     0
   );
   const allClipsCount = events.reduce(
-    (s, e) => s + ((e.mediaGallery as Record<string, unknown>)?.rawClips as string[] || []).length,
+    (s, e) => s + getEventClips(e).length,
     0
   );
 
   const filteredEvents = events.filter((e) => {
     if (filterEvent !== "all" && e._id !== filterEvent) return false;
     const photos = ((e.mediaGallery as Record<string, unknown>)?.photos as string[]) || [];
-    const clips = ((e.mediaGallery as Record<string, unknown>)?.rawClips as string[]) || [];
+    const clips = getEventClips(e);
     if (filterType === "photos") return photos.length > 0;
     if (filterType === "videos") return clips.length > 0;
     return photos.length > 0 || clips.length > 0;
@@ -306,7 +319,7 @@ export default function MediaPage() {
           {filteredEvents.map((event, i) => {
             const gallery = event.mediaGallery as Record<string, unknown>;
             const photos = (gallery?.photos as string[]) || [];
-            const clips = (gallery?.rawClips as string[]) || [];
+            const clips = getEventClips(event);
 
             return (
               <motion.div
@@ -545,12 +558,40 @@ export default function MediaPage() {
 
                 {/* File Dropzone */}
                 <div
-                  className="border-2 border-dashed rounded-xl p-6 text-center hover:border-primary transition-colors cursor-pointer"
-                  style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--surface))" }}
-                  onClick={() => document.getElementById("file-upload-input")?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setModalDragging(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setModalDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setModalDragging(false);
+                  }}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setModalDragging(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                      await handleFileUpload(e.dataTransfer.files);
+                    }
+                  }}
+                  onClick={() => !uploading && document.getElementById("file-upload-input")?.click()}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
+                    modalDragging
+                      ? "border-primary bg-primary/10 scale-[1.01] ring-4 ring-primary/20"
+                      : "border-border hover:border-primary bg-surface hover:bg-muted/30"
+                  }`}
                 >
-                  <Upload className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <p className="text-sm font-semibold text-foreground">Click or Drag & Drop to Upload</p>
+                  <Upload className={`w-8 h-8 mx-auto mb-2 transition-transform ${modalDragging ? "scale-125 text-primary" : "text-primary"}`} />
+                  <p className="text-sm font-semibold text-foreground">
+                    {modalDragging ? "Drop files to upload now!" : "Click or Drag & Drop to Upload"}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {mediaType === "photo" ? "Supports PNG, JPG, WEBP, GIF (Multiple files allowed)" : "Supports MP4, WEBM, MOV video clips"}
                   </p>
@@ -565,17 +606,47 @@ export default function MediaPage() {
                   />
                 </div>
 
+                {/* Quick Preset Photos in Modal */}
+                {mediaType === "photo" && (
+                  <div className="pt-2 border-t space-y-1.5" style={{ borderColor: "hsl(var(--border))" }}>
+                    <p className="text-[11px] font-medium text-muted-foreground">
+                      Or 1-click add a preset photo:
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                      {BANNER_PRESETS.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await addEventMedia(selectedEventId, { photos: [preset.url] });
+                              setToast({ message: `Added "${preset.label}" to event!`, type: "success" });
+                              setIsUploadModalOpen(false);
+                              await loadData();
+                            } catch {
+                              setToast({ message: "Failed to add preset", type: "error" });
+                            }
+                          }}
+                          className="text-[11px] px-2 py-1 rounded border border-border bg-muted/40 hover:bg-primary hover:text-white transition-colors"
+                        >
+                          + {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Direct URL Alternative */}
                 <form onSubmit={handleAddDirectUrl} className="pt-2 border-t space-y-2" style={{ borderColor: "hsl(var(--border))" }}>
                   <label className="text-xs font-semibold text-muted-foreground block">
-                    Or Add from Direct URL:
+                    Or Add from Direct URL or Local File:
                   </label>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={directUrl}
                       onChange={(e) => setDirectUrl(e.target.value)}
-                      placeholder="https://example.com/photo.jpg"
+                      placeholder="https://example.com/media.mp4 or file path..."
                       className="input-field text-xs flex-1 min-w-0"
                     />
                     <button
@@ -583,7 +654,7 @@ export default function MediaPage() {
                       disabled={!directUrl || uploading}
                       className="btn-secondary py-2 px-4 text-xs whitespace-nowrap justify-center disabled:opacity-50"
                     >
-                      Add URL
+                      Add
                     </button>
                   </div>
                 </form>

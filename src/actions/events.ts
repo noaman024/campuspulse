@@ -3,6 +3,7 @@
 import dbConnect from "@/lib/db/connection";
 import Event, { IEvent } from "@/models/Event";
 import { requireAdmin, getCurrentUser } from "@/lib/auth/rbac";
+import { resolveLocalOrDirectUrlAction } from "@/actions/upload";
 import { v4 as uuidv4 } from "uuid";
 
 function slugify(text: string): string {
@@ -44,12 +45,15 @@ export async function createEvent(data: {
     counter++;
   }
 
+  const resolvedBanner = data.bannerUrl ? await resolveLocalOrDirectUrlAction(data.bannerUrl) : undefined;
+  const resolvedVideo = data.videoUrl ? await resolveLocalOrDirectUrlAction(data.videoUrl) : undefined;
+
   const event = await Event.create({
     title: data.title,
     description: data.description,
     category: data.category as "Technical" | "Cultural" | "Sports" | "Workshop",
     tags: data.tags,
-    bannerUrl: data.bannerUrl,
+    bannerUrl: resolvedBanner,
     venue: data.venue,
     maxCapacity: data.maxCapacity,
     slug,
@@ -57,9 +61,9 @@ export async function createEvent(data: {
     eventDate: new Date(data.eventDate),
     status: (data.status || "upcoming") as "draft" | "upcoming" | "ongoing" | "completed" | "cancelled",
     mediaGallery: {
-      photos: [],
-      rawClips: [],
-      generatedHighlightVideoUrl: data.videoUrl || undefined,
+      photos: resolvedBanner ? [resolvedBanner] : [],
+      rawClips: resolvedVideo ? [resolvedVideo] : [],
+      generatedHighlightVideoUrl: resolvedVideo || undefined,
     },
     reportData: {
       chiefGuest: data.chiefGuest || undefined,
@@ -99,8 +103,24 @@ export async function updateEvent(
     updateData.eventDate = new Date(data.eventDate);
   }
 
+  if (data.bannerUrl !== undefined) {
+    const resolved = await resolveLocalOrDirectUrlAction(data.bannerUrl);
+    updateData.bannerUrl = resolved;
+    if (resolved) {
+      await Event.findByIdAndUpdate(eventId, {
+        $addToSet: { "mediaGallery.photos": resolved },
+      });
+    }
+  }
+
   if (data.videoUrl !== undefined) {
-    updateData["mediaGallery.generatedHighlightVideoUrl"] = data.videoUrl;
+    const resolved = await resolveLocalOrDirectUrlAction(data.videoUrl);
+    updateData["mediaGallery.generatedHighlightVideoUrl"] = resolved;
+    if (resolved) {
+      await Event.findByIdAndUpdate(eventId, {
+        $addToSet: { "mediaGallery.rawClips": resolved },
+      });
+    }
   }
 
   if (data.chiefGuest !== undefined) updateData["reportData.chiefGuest"] = data.chiefGuest;
@@ -353,8 +373,11 @@ export async function addEventMedia(
   }
 
   if (media.photos && media.photos.length > 0) {
+    const resolvedPhotos = await Promise.all(
+      media.photos.map((p) => resolveLocalOrDirectUrlAction(p))
+    );
     const existingPhotos = new Set(event.mediaGallery.photos || []);
-    media.photos.forEach((p) => {
+    resolvedPhotos.forEach((p) => {
       if (p && typeof p === "string" && !existingPhotos.has(p)) {
         event.mediaGallery.photos.push(p);
       }
@@ -362,17 +385,24 @@ export async function addEventMedia(
 
     // If event has no banner or banner is empty, auto-set to the first uploaded photo
     if (!event.bannerUrl || event.bannerUrl.trim() === "" || event.bannerUrl.startsWith("file://")) {
-      event.bannerUrl = media.photos[0];
+      event.bannerUrl = resolvedPhotos[0];
     }
   }
 
   if (media.rawClips && media.rawClips.length > 0) {
+    const resolvedClips = await Promise.all(
+      media.rawClips.map((c) => resolveLocalOrDirectUrlAction(c))
+    );
     const existingClips = new Set(event.mediaGallery.rawClips || []);
-    media.rawClips.forEach((c) => {
+    resolvedClips.forEach((c) => {
       if (c && typeof c === "string" && !existingClips.has(c)) {
         event.mediaGallery.rawClips.push(c);
       }
     });
+
+    if (!event.mediaGallery.generatedHighlightVideoUrl || event.mediaGallery.generatedHighlightVideoUrl.startsWith("file://")) {
+      event.mediaGallery.generatedHighlightVideoUrl = resolvedClips[0];
+    }
   }
 
   event.markModified("mediaGallery");

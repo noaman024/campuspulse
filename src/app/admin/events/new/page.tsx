@@ -23,6 +23,7 @@ import {
 import { createEvent } from "@/actions/events";
 import { uploadMediaAction } from "@/actions/upload";
 import { BANNER_PRESETS } from "@/lib/constants/event-presets";
+import DragDropUpload from "@/components/ui/DragDropUpload";
 import Link from "next/link";
 
 const categories = ["Technical", "Cultural", "Sports", "Workshop"];
@@ -280,41 +281,13 @@ export default function NewEventPage() {
 
           {/* Banner Image Section */}
           <div className="p-4 rounded-xl border space-y-3" style={{ background: "hsl(var(--surface))", borderColor: "hsl(var(--border))" }}>
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold flex items-center gap-1.5" style={{ color: "hsl(var(--foreground))" }}>
-                <ImageIcon className="w-4 h-4 text-primary" /> Event Banner Image
-              </label>
-              {form.bannerUrl && (
-                <button
-                  type="button"
-                  onClick={() => updateField("bannerUrl", "")}
-                  className="text-xs text-red-400 hover:underline flex items-center gap-1"
-                >
-                  <X className="w-3 h-3" /> Remove
-                </button>
-              )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 items-start">
-              <input
-                type="text"
-                value={form.bannerUrl}
-                onChange={(e) => updateField("bannerUrl", e.target.value)}
-                placeholder="Paste Image URL or upload a file below..."
-                className="input-field flex-1 text-xs"
-              />
-              <label className="btn-secondary py-2 px-3 text-xs cursor-pointer flex items-center gap-1.5 whitespace-nowrap">
-                <Upload className="w-3.5 h-3.5" />
-                {uploadingImage ? "Uploading..." : "Upload File"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "image")}
-                  className="hidden"
-                  disabled={uploadingImage}
-                />
-              </label>
-            </div>
+            <DragDropUpload
+              type="image"
+              value={form.bannerUrl}
+              onChange={(url) => updateField("bannerUrl", url)}
+              label="Event Banner Image"
+              description="Drag & drop a banner photo here (PNG, JPG, WEBP) or click to browse"
+            />
 
             {/* Quick Presets */}
             <div className="space-y-1.5 pt-1">
@@ -338,86 +311,17 @@ export default function NewEventPage() {
                 ))}
               </div>
             </div>
-
-            {form.bannerUrl && form.bannerUrl.startsWith("file://") && (
-              <p className="text-xs text-amber-400 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                ⚠️ Local <code>file:///</code> paths cannot be loaded by web browsers. Please click &apos;Upload File&apos; or pick a preset.
-              </p>
-            )}
-
-            {form.bannerUrl && !form.bannerUrl.startsWith("file://") && (
-              <div className="relative w-full h-44 rounded-lg overflow-hidden border mt-2 bg-muted/40 group">
-                <img
-                  src={form.bannerUrl}
-                  alt="Banner Preview"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
-                <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px] font-medium backdrop-blur-sm">
-                  Active Banner Preview
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Promo Video Section */}
           <div className="p-4 rounded-xl border space-y-3" style={{ background: "hsl(var(--surface))", borderColor: "hsl(var(--border))" }}>
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold flex items-center gap-1.5" style={{ color: "hsl(var(--foreground))" }}>
-                <Video className="w-4 h-4 text-accent" /> Promo Video Clip / Teaser (Optional)
-              </label>
-              {form.videoUrl && (
-                <button
-                  type="button"
-                  onClick={() => updateField("videoUrl", "")}
-                  className="text-xs text-red-400 hover:underline flex items-center gap-1"
-                >
-                  <X className="w-3 h-3" /> Remove
-                </button>
-              )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 items-start">
-              <input
-                type="text"
-                value={form.videoUrl}
-                onChange={(e) => updateField("videoUrl", e.target.value)}
-                placeholder="Video URL (MP4, YouTube, or direct upload)..."
-                className="input-field flex-1 text-xs"
-              />
-              <label className="btn-secondary py-2 px-3 text-xs cursor-pointer flex items-center gap-1.5 whitespace-nowrap">
-                <Upload className="w-3.5 h-3.5" />
-                {uploadingVideo ? "Uploading..." : "Upload Video"}
-                <input
-                  type="file"
-                  accept="video/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "video")}
-                  className="hidden"
-                  disabled={uploadingVideo}
-                />
-              </label>
-            </div>
-
-            {form.videoUrl && (
-              <div className="relative w-full h-52 rounded-lg overflow-hidden border mt-2 bg-black/60 flex items-center justify-center">
-                {form.videoUrl.includes("youtube.com") || form.videoUrl.includes("youtu.be") ? (
-                  <iframe
-                    src={
-                      form.videoUrl.includes("youtu.be/")
-                        ? `https://www.youtube.com/embed/${form.videoUrl.split("youtu.be/")[1]?.split("?")[0]}`
-                        : `https://www.youtube.com/embed/${form.videoUrl.split("v=")[1]?.split("&")[0]}`
-                    }
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video src={form.videoUrl} controls className="w-full h-full max-h-52 object-contain" />
-                )}
-              </div>
-            )}
+            <DragDropUpload
+              type="video"
+              value={form.videoUrl}
+              onChange={(url) => updateField("videoUrl", url)}
+              label="Promo Video Clip / Teaser (Optional)"
+              description="Drag & drop a video file (MP4, WEBM, MOV) or paste YouTube / direct link"
+            />
           </div>
 
           {/* Report Pre-Configuration Details */}
