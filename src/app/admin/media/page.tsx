@@ -15,8 +15,11 @@ import {
   X,
   ExternalLink,
   Filter,
+  Star,
 } from "lucide-react";
-import { getAdminEvents, addEventMedia, removeEventMedia } from "@/actions/events";
+import { getAdminEvents, addEventMedia, removeEventMedia, setEventBanner } from "@/actions/events";
+import { uploadMediaAction } from "@/actions/upload";
+import { BANNER_PRESETS } from "@/lib/constants/event-presets";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Toast from "@/components/ui/Toast";
@@ -68,13 +71,20 @@ export default function MediaPage() {
         const formData = new FormData();
         formData.append("file", files[i]);
 
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Upload failed");
-        uploadedUrls.push(data.url);
+        let fileUrl = "";
+        try {
+          const sRes = await uploadMediaAction(formData);
+          if (sRes.success && sRes.url) fileUrl = sRes.url;
+        } catch {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Upload failed");
+          fileUrl = data.url;
+        }
+        uploadedUrls.push(fileUrl);
       }
 
       if (mediaType === "photo") {
@@ -97,6 +107,14 @@ export default function MediaPage() {
     e.preventDefault();
     if (!directUrl || !selectedEventId) return;
 
+    if (directUrl.startsWith("file://")) {
+      setToast({
+        message: "Local file:/// paths cannot be viewed in web browsers. Please upload the file instead.",
+        type: "error",
+      });
+      return;
+    }
+
     setUploading(true);
     try {
       if (mediaType === "photo") {
@@ -112,6 +130,16 @@ export default function MediaPage() {
       setToast({ message: err instanceof Error ? err.message : "Failed to add media", type: "error" });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleSetBanner = async (eventId: string, url: string) => {
+    try {
+      await setEventBanner(eventId, url);
+      setToast({ message: "Event banner updated successfully!", type: "success" });
+      await loadData();
+    } catch (err) {
+      setToast({ message: err instanceof Error ? err.message : "Failed to set banner", type: "error" });
     }
   };
 
@@ -315,46 +343,66 @@ export default function MediaPage() {
                       <ImageIcon className="w-3.5 h-3.5 text-primary" /> Photos ({photos.length})
                     </h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                      {photos.map((photo, pi) => (
-                        <div
-                          key={pi}
-                          className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm"
-                          style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}
-                        >
-                          <img
-                            src={photo}
-                            alt={`Photo ${pi + 1}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            loading="lazy"
-                          />
-                          {/* Hover Overlay */}
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
-                            <button
-                              onClick={() => setActiveMedia({ url: photo, type: "photo", title: event.title as string })}
-                              className="p-1.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-black transition-colors"
-                              title="View Fullsize"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <div className="flex items-center gap-1.5">
+                      {photos.map((photo, pi) => {
+                        const isCurrentBanner = (event.bannerUrl as string) === photo;
+                        return (
+                          <div
+                            key={pi}
+                            className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm"
+                            style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}
+                          >
+                            <img
+                              src={photo}
+                              alt={`Photo ${pi + 1}`}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              loading="lazy"
+                            />
+                            {/* Current Banner Badge */}
+                            {isCurrentBanner && (
+                              <div className="absolute top-1.5 left-1.5 z-10 px-2 py-0.5 rounded bg-primary text-white text-[10px] font-semibold flex items-center gap-1 shadow-md">
+                                <Star className="w-2.5 h-2.5 fill-white" /> Banner
+                              </div>
+                            )}
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
                               <button
-                                onClick={() => copyToClipboard(photo)}
+                                onClick={() => setActiveMedia({ url: photo, type: "photo", title: event.title as string })}
                                 className="p-1.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-black transition-colors"
-                                title="Copy Link"
+                                title="View Fullsize"
                               >
-                                {copiedUrl === photo ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                <Eye className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={() => handleDeleteMedia(event._id as string, photo, "photo")}
-                                className="p-1.5 rounded-full bg-red-500/30 hover:bg-red-500 text-white transition-colors"
-                                title="Delete Photo"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => handleSetBanner(event._id as string, photo)}
+                                  className={`p-1.5 rounded-full transition-colors ${
+                                    isCurrentBanner
+                                      ? "bg-primary text-white"
+                                      : "bg-amber-500/30 hover:bg-amber-500 text-white"
+                                  }`}
+                                  title={isCurrentBanner ? "Current Event Banner" : "Set as Event Banner"}
+                                >
+                                  <Star className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => copyToClipboard(photo)}
+                                  className="p-1.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-black transition-colors"
+                                  title="Copy Link"
+                                >
+                                  {copiedUrl === photo ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteMedia(event._id as string, photo, "photo")}
+                                  className="p-1.5 rounded-full bg-red-500/30 hover:bg-red-500 text-white transition-colors"
+                                  title="Delete Photo"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

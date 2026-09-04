@@ -345,23 +345,61 @@ export async function addEventMedia(
   if (!event.mediaGallery) {
     event.mediaGallery = { photos: [], rawClips: [] };
   }
+  if (!Array.isArray(event.mediaGallery.photos)) {
+    event.mediaGallery.photos = [];
+  }
+  if (!Array.isArray(event.mediaGallery.rawClips)) {
+    event.mediaGallery.rawClips = [];
+  }
 
   if (media.photos && media.photos.length > 0) {
     const existingPhotos = new Set(event.mediaGallery.photos || []);
     media.photos.forEach((p) => {
-      if (p && !existingPhotos.has(p)) {
+      if (p && typeof p === "string" && !existingPhotos.has(p)) {
         event.mediaGallery.photos.push(p);
       }
     });
+
+    // If event has no banner or banner is empty, auto-set to the first uploaded photo
+    if (!event.bannerUrl || event.bannerUrl.trim() === "" || event.bannerUrl.startsWith("file://")) {
+      event.bannerUrl = media.photos[0];
+    }
   }
 
   if (media.rawClips && media.rawClips.length > 0) {
     const existingClips = new Set(event.mediaGallery.rawClips || []);
     media.rawClips.forEach((c) => {
-      if (c && !existingClips.has(c)) {
+      if (c && typeof c === "string" && !existingClips.has(c)) {
         event.mediaGallery.rawClips.push(c);
       }
     });
+  }
+
+  event.markModified("mediaGallery");
+  await event.save();
+  return JSON.parse(JSON.stringify(event));
+}
+
+export async function setEventBanner(eventId: string, bannerUrl: string) {
+  await requireAdmin();
+  await dbConnect();
+
+  const event = await Event.findById(eventId);
+  if (!event) throw new Error("Event not found");
+
+  event.bannerUrl = bannerUrl;
+
+  if (!event.mediaGallery) {
+    event.mediaGallery = { photos: [], rawClips: [] };
+  }
+  if (!Array.isArray(event.mediaGallery.photos)) {
+    event.mediaGallery.photos = [];
+  }
+
+  // Ensure this photo is also in the photos list
+  if (bannerUrl && !event.mediaGallery.photos.includes(bannerUrl)) {
+    event.mediaGallery.photos.unshift(bannerUrl);
+    event.markModified("mediaGallery");
   }
 
   await event.save();
@@ -382,6 +420,10 @@ export async function removeEventMedia(
     event.mediaGallery.photos = event.mediaGallery.photos.filter(
       (p) => p !== media.photoUrl
     );
+    // If the banner being removed is this photo, switch to the next available photo or clear
+    if (event.bannerUrl === media.photoUrl) {
+      event.bannerUrl = event.mediaGallery.photos[0] || "";
+    }
   }
 
   if (media.clipUrl && event.mediaGallery?.rawClips) {
@@ -390,6 +432,7 @@ export async function removeEventMedia(
     );
   }
 
+  event.markModified("mediaGallery");
   await event.save();
   return JSON.parse(JSON.stringify(event));
 }

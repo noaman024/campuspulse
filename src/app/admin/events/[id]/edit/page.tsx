@@ -21,6 +21,8 @@ import {
   X,
 } from "lucide-react";
 import { getEventById, updateEvent } from "@/actions/events";
+import { uploadMediaAction } from "@/actions/upload";
+import { BANNER_PRESETS } from "@/lib/constants/event-presets";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -36,6 +38,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [error, setError] = useState("");
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -58,6 +61,11 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
       try {
         const event = await getEventById(id);
         if (event) {
+          setGalleryPhotos(
+            ((event.mediaGallery?.photos || []) as string[]).filter(
+              (p) => typeof p === "string" && p.trim() && !p.startsWith("file://")
+            )
+          );
           setForm({
             title: event.title,
             description: event.description,
@@ -96,17 +104,26 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
     else setUploadingVideo(true);
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload failed");
+      let fileUrl = "";
+      try {
+        const res = await uploadMediaAction(formData);
+        if (res.success && res.url) {
+          fileUrl = res.url;
+        }
+      } catch {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        fileUrl = data.url;
+      }
 
       if (type === "image") {
-        updateField("bannerUrl", data.url);
+        updateField("bannerUrl", fileUrl);
       } else {
-        updateField("videoUrl", data.url);
+        updateField("videoUrl", fileUrl);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload file");
@@ -323,7 +340,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                 type="text"
                 value={form.bannerUrl}
                 onChange={(e) => updateField("bannerUrl", e.target.value)}
-                placeholder="Image URL or upload file below..."
+                placeholder="Paste Image URL or upload a file below..."
                 className="input-field flex-1 text-xs"
               />
               <label className="btn-secondary py-2 px-3 text-xs cursor-pointer flex items-center gap-1.5 whitespace-nowrap">
@@ -339,14 +356,62 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               </label>
             </div>
 
+            {/* Quick Presets */}
+            <div className="space-y-1.5 pt-1">
+              <p className="text-[11px] font-medium text-muted-foreground">
+                Or choose a quick preset banner:
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {BANNER_PRESETS.filter((p) => p.category === form.category).map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => updateField("bannerUrl", preset.url)}
+                    className={`text-[11px] px-2.5 py-1 rounded-md border transition-all ${
+                      form.bannerUrl === preset.url
+                        ? "bg-primary text-primary-foreground border-primary font-medium"
+                        : "bg-background/80 hover:bg-muted text-muted-foreground border-border"
+                    }`}
+                  >
+                    ✨ {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Select from existing gallery photos */}
+            {galleryPhotos.length > 0 && (
+              <div className="space-y-1.5 pt-2 border-t border-border/50">
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  Or select from uploaded gallery photos:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {galleryPhotos.map((photo, pIdx) => (
+                    <button
+                      key={pIdx}
+                      type="button"
+                      onClick={() => updateField("bannerUrl", photo)}
+                      className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${
+                        form.bannerUrl === photo
+                          ? "border-primary ring-2 ring-primary/40 scale-105"
+                          : "border-border opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <img src={photo} alt={`Gallery ${pIdx}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {form.bannerUrl && form.bannerUrl.startsWith("file://") && (
               <p className="text-xs text-amber-400 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                ⚠️ Local <code>file:///</code> paths cannot be loaded by web browsers. Please click &apos;Upload File&apos; to upload this image to the server.
+                ⚠️ Local <code>file:///</code> paths cannot be loaded by web browsers. Please click &apos;Upload File&apos; or pick a preset.
               </p>
             )}
 
             {form.bannerUrl && !form.bannerUrl.startsWith("file://") && (
-              <div className="relative w-full h-40 rounded-lg overflow-hidden border mt-2 bg-muted/40">
+              <div className="relative w-full h-44 rounded-lg overflow-hidden border mt-2 bg-muted/40 group">
                 <img
                   src={form.bannerUrl}
                   alt="Banner Preview"
@@ -355,6 +420,9 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     (e.target as HTMLElement).style.display = "none";
                   }}
                 />
+                <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px] font-medium backdrop-blur-sm">
+                  Active Banner Preview
+                </div>
               </div>
             )}
           </div>

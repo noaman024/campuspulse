@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Modal from "@/components/ui/Modal";
+import { getEventDisplayBanner } from "@/lib/constants/event-presets";
 
 const statusStyles: Record<string, { bg: string; color: string }> = {
   upcoming: { bg: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" },
@@ -140,10 +141,18 @@ export default function AdminEventsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div
-                            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ background: "hsl(var(--primary) / 0.1)" }}
+                            className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 border"
+                            style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--primary) / 0.1)" }}
                           >
-                            <Calendar className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
+                            {getEventDisplayBanner(event as any) ? (
+                              <img
+                                src={getEventDisplayBanner(event as any)}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Calendar className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
+                            )}
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate max-w-[200px]" style={{ color: "hsl(var(--foreground))" }}>

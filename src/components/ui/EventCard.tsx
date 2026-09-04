@@ -7,6 +7,8 @@ import { Calendar, MapPin, Users, ArrowRight, Share2 } from "lucide-react";
 import { format } from "date-fns";
 import ShareEventModal from "./ShareEventModal";
 
+import { getEventDisplayBanner } from "@/lib/constants/event-presets";
+
 interface EventCardProps {
   event: {
     _id: string;
@@ -16,6 +18,10 @@ interface EventCardProps {
     category: string;
     tags: string[];
     bannerUrl?: string;
+    mediaGallery?: {
+      photos?: string[];
+      rawClips?: string[];
+    };
     eventDate: string;
     venue: string;
     status: string;
@@ -41,8 +47,8 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
   const isFull = regCount >= event.maxCapacity;
   const fillPct = Math.min(100, Math.round((regCount / (event.maxCapacity || 1)) * 100));
 
-  const hasBanner =
-    Boolean(event.bannerUrl) && !imgError && !event.bannerUrl?.startsWith("file://");
+  const bannerSrc = getEventDisplayBanner(event);
+  const hasBanner = Boolean(bannerSrc) && !imgError;
 
   return (
     <>
@@ -77,7 +83,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
             >
               {hasBanner && (
                 <img
-                  src={event.bannerUrl}
+                  src={bannerSrc}
                   alt={event.title}
                   onError={() => setImgError(true)}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

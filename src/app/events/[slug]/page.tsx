@@ -22,10 +22,12 @@ import {
   User,
   ClipboardList,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import { getEventBySlug, rsvpEvent, cancelRsvp } from "@/actions/events";
 import { getEventQuestions, askQuestion, upvoteQuestion } from "@/actions/qna";
 import { getFeedbackFormByEvent } from "@/actions/feedback";
+import { getEventDisplayBanner } from "@/lib/constants/event-presets";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -183,16 +185,21 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
   const isFull = regCount >= (event.maxCapacity as number);
   const canRsvp = (event.status === "upcoming" || event.status === "ongoing") && !isFull && !isRegistered;
 
-  const hasValidBanner =
-    Boolean(event.bannerUrl) &&
-    !bannerError &&
-    !String(event.bannerUrl).startsWith("file://");
-
   const mediaGallery = (event.mediaGallery || {}) as Record<string, unknown>;
-  const photos = (mediaGallery.photos || []) as string[];
+  const photos = (((mediaGallery.photos || []) as string[]) || []).filter(
+    (p) => typeof p === "string" && p.trim() && !p.startsWith("file://")
+  );
   const rawClips = (mediaGallery.rawClips || []) as string[];
   const highlightVideo = (mediaGallery.generatedHighlightVideoUrl || "") as string;
   const reportData = (event.reportData || {}) as Record<string, unknown>;
+
+  const displayBanner = getEventDisplayBanner({
+    bannerUrl: (event.bannerUrl as string) || undefined,
+    category: event.category as string,
+    mediaGallery: { photos },
+  });
+
+  const hasValidBanner = Boolean(displayBanner) && !bannerError;
 
   return (
     <div className="min-h-screen gradient-mesh">
@@ -205,7 +212,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
       >
         {hasValidBanner && (
           <img
-            src={event.bannerUrl as string}
+            src={displayBanner}
             alt={event.title as string}
             onError={() => setBannerError(true)}
             className="absolute inset-0 w-full h-full object-cover"
@@ -320,17 +327,30 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                 )}
 
                 {/* Photos Gallery Showcase */}
-                {photos.length > 0 && (
+                {(photos.length > 0 || (displayBanner && !displayBanner.startsWith("file://"))) && (
                   <div className="glass-card p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-bold text-foreground">📸 Event Photo Gallery</h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-foreground">📸 Event Photo Gallery</h3>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                        {photos.length > 0 ? `${photos.length} Photo${photos.length > 1 ? "s" : ""}` : "Featured Photo"}
+                      </span>
+                    </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {photos.map((photo, pIdx) => (
-                        <div key={pIdx} className="relative aspect-video rounded-xl overflow-hidden border bg-muted group">
+                      {(photos.length > 0 ? photos : [displayBanner]).map((photo, pIdx) => (
+                        <div key={pIdx} className="relative aspect-video rounded-xl overflow-hidden border bg-muted group shadow-sm">
                           <img
                             src={photo}
                             alt={`Event Photo ${pIdx + 1}`}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
+                          <a
+                            href={photo}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium gap-1"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" /> Full Size
+                          </a>
                         </div>
                       ))}
                     </div>
