@@ -109,7 +109,7 @@ export default function Footer() {
               <span className="text-base font-extrabold tracking-tight text-foreground">
                 {data.siteName.includes("CampusPulse") ? (
                   <>
-                    Campus<span className="gradient-text">Pulse</span>
+                    Campus<span className="text-blue-500">Pulse</span>
                   </>
                 ) : (
                   data.siteName

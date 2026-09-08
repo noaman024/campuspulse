@@ -19,7 +19,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem("campuspulse-theme") as Theme | null;
-    const preferred = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const preferred = stored || "dark";
     setThemeState(preferred);
     document.documentElement.classList.toggle("dark", preferred === "dark");
   }, []);

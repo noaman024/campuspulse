@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import CookieConsentBanner from "@/components/ui/CookieConsentBanner";
 
 export const viewport: Viewport = {
-  themeColor: "#6366f1",
+  themeColor: "#08090D",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -83,7 +83,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"

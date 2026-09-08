@@ -104,7 +104,7 @@ export default function Navbar() {
               </div>
               <div>
                 <span className="text-[17px] font-800 tracking-tight text-foreground leading-none">
-                  Campus<span className="gradient-text font-extrabold">Pulse</span>
+                  Campus<span className="text-blue-500 font-extrabold">Pulse</span>
                 </span>
                 <p className="text-[9px] text-muted-foreground font-semibold tracking-widest mt-0.5 uppercase">
                   University Portal

@@ -575,9 +575,9 @@ export default function AdminSettingsPage() {
             <div className="flex items-center gap-2.5">
               <div
                 className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: "hsl(158 64% 38% / 0.12)" }}
+                style={{ background: "hsl(160 84% 38% / 0.12)" }}
               >
-                <FileText className="w-4 h-4" style={{ color: "hsl(158 64% 38%)" }} />
+                <FileText className="w-4 h-4" style={{ color: "hsl(160 84% 38%)" }} />
               </div>
               <div>
                 <h2 className="text-sm font-bold text-foreground">University Departments</h2>

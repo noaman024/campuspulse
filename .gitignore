@@ -44,3 +44,8 @@ next-env.d.ts
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# agent & ide files
+.agents/
+.aider-desk/
+skills-lock.json
+

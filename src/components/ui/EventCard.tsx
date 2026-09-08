@@ -32,17 +32,17 @@ interface EventCardProps {
 }
 
 const CAT_COLOR: Record<string, string> = {
-  Technical: "214 89% 52%",
-  Cultural:  "346 80% 50%",
-  Sports:    "158 64% 38%",
-  Workshop:  "35 92% 45%",
+  Technical: "217 91% 60%",
+  Cultural:  "248 85% 64%",
+  Sports:    "150 70% 50%",
+  Workshop:  "38 92% 52%",
 };
 
 export default function EventCard({ event, index = 0 }: EventCardProps) {
   const [imgError, setImgError] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
-  const color = CAT_COLOR[event.category] || "214 89% 52%";
+  const color = CAT_COLOR[event.category] || "217 91% 60%";
   const regCount = event.registeredUsers?.length ?? 0;
   const isFull = regCount >= event.maxCapacity;
   const fillPct = Math.min(100, Math.round((regCount / (event.maxCapacity || 1)) * 100));

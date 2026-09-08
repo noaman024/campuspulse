@@ -61,10 +61,10 @@ interface RegistrationItem {
 }
 
 const CAT_COLORS: Record<string, string> = {
-  Technical: "214 89% 52%",
-  Cultural:  "346 80% 50%",
-  Sports:    "158 64% 38%",
-  Workshop:  "35 92% 45%",
+  Technical: "217 91% 60%",
+  Cultural:  "248 85% 64%",
+  Sports:    "150 70% 50%",
+  Workshop:  "38 92% 52%",
 };
 
 export default function AdminDashboard() {
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
       label: "Total Events",
       value: stats?.totalEvents ?? 0,
       icon: Calendar,
-      color: "214 89% 52%",
+      color: "166 85% 47%",
       actionHint: "Click to view all events",
     },
     {
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
       label: "Upcoming Events",
       value: stats?.upcomingEvents ?? 0,
       icon: Clock,
-      color: "35 92% 45%",
+      color: "42 96% 54%",
       actionHint: "Click to view schedule",
     },
     {
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
       label: "Total Users",
       value: stats?.totalUsers ?? 0,
       icon: Users,
-      color: "199 89% 48%",
+      color: "340 50% 55%",
       actionHint: "Click for Students & Admins",
     },
     {
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
       value: stats?.totalRegistrations ?? 0,
       isSpecialRegistrationCard: true,
       icon: TrendingUp,
-      color: "158 64% 38%",
+      color: "156 84% 45%",
       actionHint: "Click to view per-event count",
     },
     {
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
       label: "Attendance Rate",
       value: `${stats?.attendanceRate ?? 0}%`,
       icon: CheckCircle,
-      color: "346 80% 50%",
+      color: "345 88% 58%",
       actionHint: "Click for turnout details",
     },
     {
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
       label: "Feedback Surveys",
       value: stats?.totalFeedbackForms ?? 0,
       icon: ClipboardList,
-      color: "214 89% 52%",
+      color: "166 85% 47%",
       actionHint: "Click to manage surveys",
     },
     {
@@ -228,7 +228,7 @@ export default function AdminDashboard() {
       label: "Student Responses",
       value: stats?.totalFeedbackSubmissions ?? 0,
       icon: MessageSquare,
-      color: "35 92% 45%",
+      color: "42 96% 54%",
       actionHint: "Click for survey responses",
     },
     {
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
       label: "Completed Events",
       value: stats?.completedEvents ?? 0,
       icon: BarChart3,
-      color: "158 64% 38%",
+      color: "156 84% 45%",
       actionHint: "Click for past summaries",
     },
   ];
@@ -413,8 +413,8 @@ export default function AdminDashboard() {
                       <span
                         className="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide"
                         style={{
-                          background: `hsl(${CAT_COLORS[reg.eventCategory] || "214 89% 52%"} / 0.12)`,
-                          color: `hsl(${CAT_COLORS[reg.eventCategory] || "214 89% 52%"})`,
+                          background: `hsl(${CAT_COLORS[reg.eventCategory] || "166 85% 47%"} / 0.12)`,
+                          color: `hsl(${CAT_COLORS[reg.eventCategory] || "166 85% 47%"})`,
                         }}
                       >
                         {reg.eventCategory}
@@ -484,7 +484,7 @@ export default function AdminDashboard() {
               <p className="text-xs text-center py-10" style={{ color: "hsl(var(--fg-muted))" }}>No events found.</p>
             ) : (
               recent.map((event, i) => {
-                const color = CAT_COLORS[event.category as string] || "214 89% 52%";
+                const color = CAT_COLORS[event.category as string] || "166 85% 47%";
                 return (
                   <motion.div
                     key={event._id as string}
@@ -568,7 +568,7 @@ export default function AdminDashboard() {
               categories.map((cat, i) => {
                 const total = categories.reduce((s, c) => s + c.count, 0);
                 const pct = total > 0 ? Math.round((cat.count / total) * 100) : 0;
-                const color = CAT_COLORS[cat.category] || "214 89% 52%";
+                const color = CAT_COLORS[cat.category] || "166 85% 47%";
                 return (
                   <div key={cat.category}>
                     <div className="flex items-center justify-between mb-1.5">
@@ -624,7 +624,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(199 89% 48% / 0.15)", color: "hsl(199 89% 48%)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(340 50% 55% / 0.15)", color: "hsl(340 50% 55%)" }}>
                         <Users className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -751,7 +751,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(158 64% 38% / 0.15)", color: "hsl(158 64% 38%)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(156 84% 45% / 0.15)", color: "hsl(156 84% 45%)" }}>
                         <TrendingUp className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -929,7 +929,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(214 89% 52% / 0.15)", color: "hsl(214 89% 52%)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(166 85% 47% / 0.15)", color: "hsl(166 85% 47%)" }}>
                         <Calendar className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -999,7 +999,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(346 80% 50% / 0.15)", color: "hsl(346 80% 50%)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(345 88% 58% / 0.15)", color: "hsl(345 88% 58%)" }}>
                         <CheckCircle className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -1052,7 +1052,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(214 89% 52% / 0.15)", color: "hsl(214 89% 52%)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(166 85% 47% / 0.15)", color: "hsl(166 85% 47%)" }}>
                         <ClipboardList className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -1089,7 +1089,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="p-4 sm:p-5 border-b flex items-center justify-between" style={{ borderColor: "hsl(var(--border))" }}>
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(158 64% 38% / 0.15)", color: "hsl(158 64% 38%)" }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "hsl(156 84% 45% / 0.15)", color: "hsl(156 84% 45%)" }}>
                         <BarChart3 className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
