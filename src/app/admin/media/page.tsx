@@ -16,6 +16,8 @@ import {
   ExternalLink,
   Filter,
   Star,
+  Sparkles,
+  Share2,
 } from "lucide-react";
 import { getAdminEvents, addEventMedia, removeEventMedia, setEventBanner } from "@/actions/events";
 import { uploadMediaAction } from "@/actions/upload";
@@ -23,6 +25,7 @@ import { BANNER_PRESETS } from "@/lib/constants/event-presets";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Toast from "@/components/ui/Toast";
+import SocialMediaStudioModal from "@/components/media/SocialMediaStudioModal";
 
 export default function MediaPage() {
   const [events, setEvents] = useState<Record<string, unknown>[]>([]);
@@ -42,6 +45,19 @@ export default function MediaPage() {
 
   // Lightbox preview
   const [activeMedia, setActiveMedia] = useState<{ url: string; type: "photo" | "video"; title: string } | null>(null);
+
+  // Social Studio State
+  const [isStudioOpen, setIsStudioOpen] = useState(false);
+  const [studioEventId, setStudioEventId] = useState<string>("");
+  const [studioMediaUrl, setStudioMediaUrl] = useState<string>("");
+  const [studioMediaType, setStudioMediaType] = useState<"photo" | "video">("photo");
+
+  const openStudioForMedia = (eventId: string, url: string, type: "photo" | "video") => {
+    setStudioEventId(eventId);
+    setStudioMediaUrl(url);
+    setStudioMediaType(type);
+    setIsStudioOpen(true);
+  };
 
   const loadData = async () => {
     try {
@@ -212,12 +228,25 @@ export default function MediaPage() {
             Upload, preview, and manage high-resolution photos and video clips for campus events
           </p>
         </div>
-        <button
-          onClick={() => setIsUploadModalOpen(true)}
-          className="btn-primary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 w-full sm:w-auto flex-shrink-0"
-        >
-          <Upload className="w-4 h-4" /> Upload Media
-        </button>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto flex-shrink-0">
+          <button
+            onClick={() => {
+              setStudioEventId("");
+              setStudioMediaUrl("");
+              setIsStudioOpen(true);
+            }}
+            className="btn-primary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial shadow-lg shadow-blue-600/20"
+          >
+            <Sparkles className="w-4 h-4 text-white" />
+            <span>AI Social Studio</span>
+          </button>
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="btn-secondary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
+          >
+            <Upload className="w-4 h-4" /> Upload Media
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -387,6 +416,13 @@ export default function MediaPage() {
                               </button>
                               <div className="flex items-center gap-1.5">
                                 <button
+                                  onClick={() => openStudioForMedia(event._id as string, photo, "photo")}
+                                  className="p-1.5 rounded-full bg-blue-600/40 hover:bg-blue-600 text-white transition-colors"
+                                  title="AI Social Broadcast"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                </button>
+                                <button
                                   onClick={() => handleSetBanner(event._id as string, photo)}
                                   className={`p-1.5 rounded-full transition-colors ${
                                     isCurrentBanner
@@ -452,6 +488,13 @@ export default function MediaPage() {
                           <div className="flex items-center justify-between pt-1">
                             <span className="text-xs text-muted-foreground truncate flex-1">Clip #{ci + 1}</span>
                             <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => openStudioForMedia(event._id as string, clip, "video")}
+                                className="p-1 text-muted-foreground hover:text-blue-400"
+                                title="AI Social Broadcast Clip"
+                              >
+                                <Sparkles className="w-3.5 h-3.5" />
+                              </button>
                               <button
                                 onClick={() => copyToClipboard(clip)}
                                 className="p-1 text-muted-foreground hover:text-foreground"
@@ -716,6 +759,15 @@ export default function MediaPage() {
           </div>
         )}
       </AnimatePresence>
+      {/* Social Media Studio Modal */}
+      <SocialMediaStudioModal
+        isOpen={isStudioOpen}
+        onClose={() => setIsStudioOpen(false)}
+        events={events as any}
+        preselectedEventId={studioEventId}
+        preselectedMediaUrl={studioMediaUrl}
+        preselectedMediaType={studioMediaType}
+      />
     </div>
   );
 }

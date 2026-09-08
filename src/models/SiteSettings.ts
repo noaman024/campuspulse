@@ -18,6 +18,64 @@ export interface ISiteSettings extends Document {
   policyLinks: ILinkItem[];
   copyrightText: string;
   councilNote: string;
+  socialSettings?: {
+    geminiApiKey?: string;
+    socialWebhookUrl?: string;
+    defaultHashtags?: string;
+    accounts?: {
+      instagram?: {
+        enabled: boolean;
+        status: "connected" | "disconnected" | "error";
+        handle?: string;
+        accountId?: string;
+        accessToken?: string;
+        lastTested?: Date;
+      };
+      facebook?: {
+        enabled: boolean;
+        status: "connected" | "disconnected" | "error";
+        pageName?: string;
+        pageId?: string;
+        accessToken?: string;
+        lastTested?: Date;
+      };
+      twitter?: {
+        enabled: boolean;
+        status: "connected" | "disconnected" | "error";
+        handle?: string;
+        apiKey?: string;
+        apiSecret?: string;
+        accessToken?: string;
+        accessSecret?: string;
+        bearerToken?: string;
+        lastTested?: Date;
+      };
+      linkedin?: {
+        enabled: boolean;
+        status: "connected" | "disconnected" | "error";
+        orgName?: string;
+        orgUrn?: string;
+        accessToken?: string;
+        lastTested?: Date;
+      };
+      telegram?: {
+        enabled: boolean;
+        status: "connected" | "disconnected" | "error";
+        channelHandle?: string;
+        botToken?: string;
+        chatId?: string;
+        lastTested?: Date;
+      };
+      universal?: {
+        enabled: boolean;
+        status: "connected" | "disconnected" | "error";
+        provider?: "ayrshare" | "buffer" | "webhook";
+        apiKey?: string;
+        webhookUrl?: string;
+        lastTested?: Date;
+      };
+    };
+  };
   updatedAt: Date;
 }
 
@@ -77,6 +135,15 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     councilNote: {
       type: String,
       default: "Student Affairs & Technical Council",
+    },
+    socialSettings: {
+      geminiApiKey: { type: String, default: "" },
+      socialWebhookUrl: { type: String, default: "" },
+      defaultHashtags: { type: String, default: "#CampusPulse #CollegeLife #CampusEvents #University" },
+      accounts: {
+        type: Schema.Types.Mixed,
+        default: {},
+      },
     },
   },
   {

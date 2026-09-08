@@ -32,6 +32,7 @@ import {
 } from "@/actions/admin-users";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Toast from "@/components/ui/Toast";
+import ConnectedAccountsManager from "@/components/media/ConnectedAccountsManager";
 
 interface LinkItem {
   label: string;
@@ -53,6 +54,12 @@ export default function AdminSettingsPage() {
   const [departments, setDepartments] = useState<LinkItem[]>([]);
   const [copyrightText, setCopyrightText] = useState("");
   const [councilNote, setCouncilNote] = useState("");
+
+  // Social & AI Settings State
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [socialWebhookUrl, setSocialWebhookUrl] = useState("");
+  const [defaultHashtags, setDefaultHashtags] = useState("#CampusPulse #CollegeLife #CampusEvents");
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
 
   // New department input state
   const [newDeptLabel, setNewDeptLabel] = useState("");
@@ -92,6 +99,11 @@ export default function AdminSettingsPage() {
           setDepartments(settingsData.departments || []);
           setCopyrightText(settingsData.copyrightText || "");
           setCouncilNote(settingsData.councilNote || "");
+          if (settingsData.socialSettings) {
+            setGeminiApiKey(settingsData.socialSettings.geminiApiKey || "");
+            setSocialWebhookUrl(settingsData.socialSettings.socialWebhookUrl || "");
+            setDefaultHashtags(settingsData.socialSettings.defaultHashtags || "#CampusPulse #CollegeLife #CampusEvents");
+          }
         }
         if (adminsData && Array.isArray(adminsData)) {
           setAdminUsers(adminsData);
@@ -177,6 +189,11 @@ export default function AdminSettingsPage() {
         departments,
         copyrightText,
         councilNote,
+        socialSettings: {
+          geminiApiKey,
+          socialWebhookUrl,
+          defaultHashtags,
+        },
       });
       setToast({ message: "Site settings and footer updated successfully!", type: "success" });
     } catch (err) {
@@ -709,6 +726,104 @@ export default function AdminSettingsPage() {
                 placeholder="e.g. Student Affairs & Technical Council"
                 className="input-field text-sm"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: AI Social Media & Webhook Automation */}
+        <div
+          className="p-6 rounded-2xl border space-y-4"
+          style={{
+            background: "hsl(var(--surface-raised))",
+            borderColor: "hsl(var(--border))",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center bg-blue-500/15"
+              >
+                <Sparkles className="w-4 h-4 text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-foreground">AI Social Media Studio & Webhook</h2>
+                <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                  Configure Google Gemini API for auto-captions and Webhook for instant multi-platform posting
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {/* Gemini API Key */}
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-foreground flex items-center justify-between">
+                <span>Google Gemini API Key</span>
+                <span className="text-[10px] text-blue-400 font-normal">Powers AI Captions & Hashtags</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showGeminiKey ? "text" : "password"}
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  placeholder="AIzaSy... (Leave empty to use built-in smart engine)"
+                  className="input-field text-sm pr-10 font-mono text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowGeminiKey(!showGeminiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+                >
+                  {showGeminiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Get a free key from Google AI Studio (aistudio.google.com). If empty, CampusPulse uses its built-in smart AI generator.
+              </p>
+            </div>
+
+            {/* Social Webhook URL */}
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-foreground flex items-center justify-between">
+                <span>Social Media Webhook URL (Zapier / Buffer / Make)</span>
+                <span className="text-[10px] text-emerald-400 font-normal">Auto-post to Instagram/Facebook/LinkedIn</span>
+              </label>
+              <input
+                type="url"
+                value={socialWebhookUrl}
+                onChange={(e) => setSocialWebhookUrl(e.target.value)}
+                placeholder="https://hooks.zapier.com/hooks/catch/... or https://hook.eu1.make.com/..."
+                className="input-field text-sm font-mono text-xs"
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                When you click &ldquo;Publish to All&rdquo; in the Social Studio, CampusPulse sends a structured JSON payload to this webhook.
+              </p>
+            </div>
+
+            {/* Default Hashtags */}
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-foreground">
+                Default Campus Hashtags
+              </label>
+              <input
+                type="text"
+                value={defaultHashtags}
+                onChange={(e) => setDefaultHashtags(e.target.value)}
+                placeholder="#CampusPulse #CollegeLife #UniversityEvents"
+                className="input-field text-sm"
+              />
+            </div>
+
+            {/* Connected Social Accounts Manager */}
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <div>
+                <h3 className="text-xs font-bold text-foreground">Linked Social Media Accounts</h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Connect your campus Instagram, Facebook Page, Twitter/X, LinkedIn, and Telegram accounts for direct 1-click publishing
+                </p>
+              </div>
+              <ConnectedAccountsManager />
             </div>
           </div>
         </div>
