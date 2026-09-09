@@ -109,7 +109,7 @@ function generateSmartFallbackCaptions({
   };
 }
 
-/* ─── AI Caption Generator (Google Gemini API with Smart Fallback) ─── */
+/* ─── Social Caption Generator (Smart Engine with API Fallback) ─── */
 export async function generateSocialCaptionsAction(data: {
   eventTitle: string;
   eventDetails: string;

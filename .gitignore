@@ -48,4 +48,8 @@ next-env.d.ts
 .agents/
 .aider-desk/
 skills-lock.json
+AGENTS.md
+CLAUDE.md
+implementation_plan.md
+walkthrough.md
 

@@ -204,7 +204,7 @@ export default function SocialMediaStudioModal({
     }
   };
 
-  // Generate captions using Gemini AI
+  // Generate captions using smart broadcast engine
   const handleGenerateCaptions = async () => {
     const eventTitleToUse = customEventTitle.trim() || activeEvent?.title || "Campus Spotlight";
     if (!eventTitleToUse) {
@@ -241,8 +241,8 @@ export default function SocialMediaStudioModal({
       setStatusMessage({
         text:
           res.provider === "gemini"
-            ? "✨ Generated with Google Gemini AI!"
-            : "⚡ Generated with Smart AI Engine (Add Gemini API key in Settings for deeper models)!",
+            ? "✨ Captions generated successfully!"
+            : "⚡ Captions generated using campus smart templates!",
         type: "success",
       });
     } catch (err) {
@@ -364,14 +364,14 @@ export default function SocialMediaStudioModal({
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                    AI Social Media Broadcast Studio
+                    Social Media Broadcast Studio
                   </h2>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
                     Admin Exclusive
                   </span>
                 </div>
                 <p className="text-xs text-slate-400">
-                  Auto-generate platform-tailored captions with Google Gemini & publish across social channels
+                  Auto-generate platform-tailored captions & publish across official campus channels
                 </p>
               </div>
             </div>
@@ -409,7 +409,7 @@ export default function SocialMediaStudioModal({
 
           {/* Body Content: 2-Column Grid */}
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* ─── LEFT COLUMN: MEDIA & AI PROMPT (5 COLS) ─── */}
+            {/* ─── LEFT COLUMN: MEDIA & EVENT DETAILS (5 COLS) ─── */}
             <div className="lg:col-span-5 space-y-5">
               {/* Media Selection Mode Toggle */}
               <div className="space-y-2">
@@ -641,12 +641,12 @@ export default function SocialMediaStudioModal({
                   {generating ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Writing Captions with Gemini AI...</span>
+                      <span>Generating Captions...</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 text-white" />
-                      <span>Generate AI Captions & Hashtags</span>
+                      <span>Auto-Generate Captions & Hashtags</span>
                     </>
                   )}
                 </button>
@@ -721,7 +721,7 @@ export default function SocialMediaStudioModal({
                       onChange={(e) =>
                         setCaptions({ ...captions, [activePlatform]: e.target.value })
                       }
-                      placeholder={`AI generated caption for ${activePlatform} will appear here. Click "Generate AI Captions" to begin!`}
+                      placeholder={`Caption for ${activePlatform} will appear here. Click "Auto-Generate Captions" to begin!`}
                       className="input-field text-xs bg-slate-900/80 border-white/10 flex-1 min-h-[220px] font-sans leading-relaxed resize-none p-3.5"
                     />
 

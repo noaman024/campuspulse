@@ -730,7 +730,7 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Section 5: AI Social Media & Webhook Automation */}
+        {/* Section 5: Social Media Broadcast & Webhook Automation */}
         <div
           className="p-6 rounded-2xl border space-y-4"
           style={{
@@ -747,27 +747,27 @@ export default function AdminSettingsPage() {
                 <Sparkles className="w-4 h-4 text-blue-400" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-foreground">AI Social Media Studio & Webhook</h2>
+                <h2 className="text-sm font-bold text-foreground">Social Media Broadcast Studio & Webhook</h2>
                 <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
-                  Configure Google Gemini API for auto-captions and Webhook for instant multi-platform posting
+                  Configure caption generator and Webhook for instant multi-platform posting
                 </p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
-            {/* Gemini API Key */}
+            {/* Cloud Caption API Key */}
             <div>
               <label className="block text-xs font-semibold mb-1 text-foreground flex items-center justify-between">
-                <span>Google Gemini API Key</span>
-                <span className="text-[10px] text-blue-400 font-normal">Powers AI Captions & Hashtags</span>
+                <span>Cloud Caption API Key (Google Cloud / Gemini)</span>
+                <span className="text-[10px] text-blue-400 font-normal">Powers Smart Captions & Multi-Platform Posting</span>
               </label>
               <div className="relative">
                 <input
                   type={showGeminiKey ? "text" : "password"}
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
-                  placeholder="AIzaSy... (Leave empty to use built-in smart engine)"
+                  placeholder="Enter API key (Leave empty to use built-in smart engine)"
                   className="input-field text-sm pr-10 font-mono text-xs"
                 />
                 <button
@@ -779,7 +779,7 @@ export default function AdminSettingsPage() {
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground mt-1">
-                Get a free key from Google AI Studio (aistudio.google.com). If empty, CampusPulse uses its built-in smart AI generator.
+                Optional cloud API key for automated caption generation. If empty, CampusPulse uses its built-in smart campus template engine.
               </p>
             </div>
 

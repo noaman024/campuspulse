@@ -238,7 +238,7 @@ export default function MediaPage() {
             className="btn-primary py-2.5 px-4 text-xs sm:text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial shadow-lg shadow-blue-600/20"
           >
             <Sparkles className="w-4 h-4 text-white" />
-            <span>AI Social Studio</span>
+            <span>Social Studio</span>
           </button>
           <button
             onClick={() => setIsUploadModalOpen(true)}
@@ -418,7 +418,7 @@ export default function MediaPage() {
                                 <button
                                   onClick={() => openStudioForMedia(event._id as string, photo, "photo")}
                                   className="p-1.5 rounded-full bg-blue-600/40 hover:bg-blue-600 text-white transition-colors"
-                                  title="AI Social Broadcast"
+                                  title="Social Broadcast"
                                 >
                                   <Sparkles className="w-3.5 h-3.5" />
                                 </button>
@@ -491,7 +491,7 @@ export default function MediaPage() {
                               <button
                                 onClick={() => openStudioForMedia(event._id as string, clip, "video")}
                                 className="p-1 text-muted-foreground hover:text-blue-400"
-                                title="AI Social Broadcast Clip"
+                                title="Social Broadcast Clip"
                               >
                                 <Sparkles className="w-3.5 h-3.5" />
                               </button>
