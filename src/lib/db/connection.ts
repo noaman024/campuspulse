@@ -2,14 +2,13 @@ import mongoose from "mongoose";
 import dns from "dns";
 
 // Fix for Node.js SRV record resolution behind restricted local DNS / WiFi
-dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
-
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
-  );
+// Guarded against Vercel/serverless environments where custom DNS servers might be restricted
+try {
+  if (!process.env.VERCEL) {
+    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+  }
+} catch {
+  // Ignore in serverless/restricted environments
 }
 
 interface MongooseCache {
@@ -32,6 +31,14 @@ if (!global.mongooseCache) {
 }
 
 async function dbConnect(): Promise<typeof mongoose> {
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    throw new Error(
+      "Please define the MONGODB_URI environment variable in your deployment environment."
+    );
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -42,7 +49,7 @@ async function dbConnect(): Promise<typeof mongoose> {
       maxPoolSize: 10,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {
+    cached.promise = mongoose.connect(uri, opts).then((m) => {
       return m;
     });
   }

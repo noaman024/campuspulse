@@ -70,17 +70,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let eventRoutes: MetadataRoute.Sitemap = [];
   try {
-    await dbConnect();
-    const events = await Event.find({ status: { $ne: 'cancelled' } })
-      .select('slug updatedAt')
-      .lean();
+    if (process.env.MONGODB_URI) {
+      await dbConnect();
+      const events = await Event.find({ status: { $ne: 'cancelled' } })
+        .select('slug updatedAt')
+        .lean();
 
-    eventRoutes = events.map((event) => ({
-      url: `${baseUrl}/events/${event.slug}`,
-      lastModified: event.updatedAt || new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.85,
-    }));
+      eventRoutes = events.map((event) => ({
+        url: `${baseUrl}/events/${event.slug}`,
+        lastModified: event.updatedAt || new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.85,
+      }));
+    }
   } catch (err) {
     console.error('Error generating dynamic sitemap for events:', err);
   }

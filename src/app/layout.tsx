@@ -13,8 +13,12 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+const siteUrl = process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.startsWith("http")
+  ? process.env.NEXTAUTH_URL
+  : "https://campuspulse.vercel.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://campuspulse.vercel.app"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "CampusPulse — Campus Event Discovery, Feedback & Media Hub",
     template: "%s | CampusPulse",
