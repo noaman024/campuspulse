@@ -29,7 +29,7 @@ const DEFAULT_FOOTER: FooterSettings = {
   description:
     "Official university event management system for symposiums, hackathons, cultural fests, sports meets, and verified digital entry passes.",
   officeName: "Office of Student Affairs",
-  officeLocation: "Main Academic Block, North Campus",
+  officeLocation: "P. R. Pote Patil Campus, Amravati, Maharashtra",
   contactEmail: "events@campuspulse.edu",
   contactPhone: "+91 98765 43210",
   departments: [

@@ -22,6 +22,8 @@ import {
   ChevronRight,
   Compass,
   Check,
+  Building2,
+  MapPin,
 } from "lucide-react";
 
 /* ─── Animated Counter Hook ─── */
@@ -265,7 +267,7 @@ export default function HomePage() {
             }}
           >
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span>CAMPUSPULSE • OFFICIAL UNIVERSITY EVENT PLATFORM</span>
+            <span>P. R. POTE PATIL CAMPUS • OFFICIAL EVENT PLATFORM</span>
           </motion.div>
 
           {/* Main Hero Headline */}
@@ -340,6 +342,69 @@ export default function HomePage() {
               <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
               Contactless Gate Check-In
             </span>
+          </motion.div>
+
+          {/* ─── College Campus Gateway Spotlight ─── */}
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full max-w-4xl mx-auto mt-10 rounded-2xl overflow-hidden border shadow-2xl group text-left"
+            style={{
+              borderColor: "rgba(255, 255, 255, 0.12)",
+              background: "linear-gradient(180deg, rgba(16, 22, 34, 0.95) 0%, rgba(10, 14, 23, 0.98) 100%)",
+            }}
+          >
+            {/* Ambient background glow */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/30 via-indigo-600/20 to-blue-500/30 rounded-3xl blur-2xl opacity-60 pointer-events-none" />
+
+            <div className="relative overflow-hidden rounded-2xl">
+              {/* Image Container */}
+              <div className="relative aspect-[16/9] sm:aspect-[2.3/1] w-full overflow-hidden bg-slate-950">
+                <img
+                  src="/college-gate.jpg"
+                  alt="P. R. Pote Patil Group of Educational Institutes, Amravati — Main Campus Entrance"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+                {/* Subtle gradient vignette to blend into dark theme */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10 pointer-events-none" />
+
+                {/* Top Floating Badge */}
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900/80 backdrop-blur-md border border-white/20 text-white shadow-lg">
+                    <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Official University Campus</span>
+                  </span>
+                </div>
+
+                {/* Bottom Overlay Info Banner */}
+                <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-blue-400">
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-blue-300">
+                        Amravati, Maharashtra
+                      </span>
+                    </div>
+                    <h2 className="text-base sm:text-2xl font-bold text-white tracking-tight leading-snug drop-shadow-md">
+                      P. R. Pote Patil Group of Educational Institutes
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-300 font-normal drop-shadow">
+                      Main Campus Gateway & Central Event Grounds
+                    </p>
+                  </div>
+
+                  <Link
+                    href="/events"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white backdrop-blur-md border border-blue-400/40 transition-all shadow-lg shadow-blue-600/30 self-start sm:self-end flex-shrink-0"
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>View Campus Events</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           {/* Platform Workflow Preview */}
