@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Zap, Mail, Lock, User, Building, Hash, UserPlus, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
+import { Zap, Mail, Lock, User, Building, Hash, UserPlus, Eye, EyeOff, AlertCircle, CheckCircle, Building2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -58,29 +58,51 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 gradient-mesh">
+    <div className="relative min-h-[90vh] flex items-center justify-center px-4 py-12 overflow-hidden">
+      {/* College Campus Gate Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <img
+          src="/college-gate.jpg"
+          alt="P. R. Pote Patil College Campus"
+          className="w-full h-full object-cover object-center filter brightness-[0.42] contrast-[1.05] scale-105"
+        />
+        {/* Deep dark gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/60 to-[hsl(var(--bg))]" />
+        <div className="absolute inset-0 bg-blue-950/20 pointer-events-none" />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="relative z-10 w-full max-w-md"
       >
-        <div className="glass-card p-8 rounded-2xl">
+        <div
+          className="p-8 rounded-2xl border shadow-2xl backdrop-blur-xl"
+          style={{
+            background: "rgba(14, 18, 28, 0.90)",
+            borderColor: "rgba(255, 255, 255, 0.12)",
+          }}
+        >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg">
+            <Link href="/" className="inline-flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <span className="text-xl font-bold tracking-tight text-white">
                 Campus<span className="gradient-text">Pulse</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: "hsl(var(--foreground))" }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[11px] font-semibold text-blue-300 mb-3">
+              <Building2 className="w-3 h-3 text-blue-400" />
+              <span>P. R. Pote Patil Institutes</span>
+            </div>
+            <h1 className="text-2xl font-bold mb-2 text-white">
               Create Account
             </h1>
-            <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
-              Join the campus community today
+            <p className="text-sm text-slate-400">
+              Join CampusPulse with your student or faculty details
             </p>
           </div>
 
