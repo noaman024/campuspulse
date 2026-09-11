@@ -59,11 +59,10 @@ function LoginContent() {
         <img
           src="/college-gate.jpg"
           alt="P. R. Pote Patil College Campus"
-          className="w-full h-full object-cover object-center filter brightness-[0.42] contrast-[1.05] scale-105"
+          className="w-full h-full object-cover object-center"
         />
-        {/* Deep dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/60 to-[hsl(var(--bg))]" />
-        <div className="absolute inset-0 bg-blue-950/20 pointer-events-none" />
+        {/* Pure neutral dark overlay - zero blur, zero theme haze */}
+        <div className="absolute inset-0 bg-black/55" />
       </div>
 
       <motion.div

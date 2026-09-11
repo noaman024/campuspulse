@@ -254,12 +254,11 @@ export default function HomePage() {
           <img
             src="/college-gate.jpg"
             alt="P. R. Pote Patil College Campus Gate"
-            className="w-full h-full object-cover object-center filter brightness-[0.48] contrast-[1.08] scale-105"
+            className="w-full h-full object-cover object-center"
           />
-          {/* Balanced dark gradients to ensure the college gate is clearly visible while headline text pops */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/50 to-[hsl(var(--bg))]" />
-          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[hsl(var(--bg))] via-[hsl(var(--bg))/90] to-transparent" />
-          <div className="absolute inset-0 bg-blue-950/20 pointer-events-none" />
+          {/* Pure neutral dark scrim - preserves natural colors & sharpness with zero theme haze or blur */}
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
         </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
@@ -268,12 +267,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-8 text-xs font-bold backdrop-blur-md"
-            style={{
-              background: "rgba(16, 22, 34, 0.85)",
-              borderColor: "rgba(59, 130, 246, 0.4)",
-              color: "#93C5FD",
-            }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-8 text-xs font-bold backdrop-blur-md bg-black/60 border-blue-400/40 text-blue-300 shadow-lg"
           >
             <Building2 className="w-3.5 h-3.5 text-blue-400" />
             <span>P. R. POTE PATIL COLLEGE CAMPUS • OFFICIAL EVENT PORTAL</span>
@@ -284,7 +278,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-            className="text-foreground mb-6"
+            className="text-white mb-6 drop-shadow-xl"
             style={{
               fontSize: "clamp(2.5rem, 6.5vw, 4.75rem)",
               fontWeight: 800,
@@ -301,8 +295,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.16 }}
-            className="text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-normal"
-            style={{ color: "hsl(var(--fg-muted))" }}
+            className="text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-normal text-slate-200 drop-shadow-md"
           >
             One unified hub for university event discovery, digital QR hall passes, live coordinator Q&A, and campus feedback. Click below to explore all live events.
           </motion.p>
@@ -316,7 +309,7 @@ export default function HomePage() {
           >
             <Link
               href="/events"
-              className="btn-primary py-3.5 px-8 text-sm rounded-xl font-semibold w-full sm:w-auto shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
+              className="btn-primary py-3.5 px-8 text-sm rounded-xl font-semibold w-full sm:w-auto shadow-xl shadow-blue-600/40 flex items-center justify-center gap-2"
             >
               <Compass className="w-4 h-4 text-white" />
               <span>Explore Events</span>
@@ -324,7 +317,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/register"
-              className="btn-secondary py-3.5 px-8 text-sm rounded-xl font-semibold w-full sm:w-auto flex items-center justify-center gap-2"
+              className="py-3.5 px-8 text-sm rounded-xl font-semibold w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/25 transition-all shadow-lg"
             >
               <Users className="w-4 h-4" />
               <span>Join as Student</span>
@@ -336,19 +329,18 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.32 }}
-            className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 mt-8 text-xs font-medium"
-            style={{ color: "hsl(var(--fg-subtle))" }}
+            className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 mt-8 text-xs font-medium text-slate-200 drop-shadow"
           >
             <span className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-blue-500" />
+              <Shield className="w-3.5 h-3.5 text-blue-400" />
               100% Verified QR Digital Passes
             </span>
             <span className="flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-blue-500" />
+              <Globe className="w-3.5 h-3.5 text-blue-400" />
               12 University Academic Departments
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
+              <CheckCircle className="w-3.5 h-3.5 text-blue-400" />
               Contactless Gate Check-In
             </span>
           </motion.div>
