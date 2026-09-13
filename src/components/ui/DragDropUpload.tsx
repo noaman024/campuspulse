@@ -74,9 +74,9 @@ export default function DragDropUpload({
       }
 
       // 2. High-reliability fallback: Read file directly on client as Data URI / Object URL
-      // This ensures ANY video file or photo selected from mobile/desktop is 100% accepted without failure!
+      // This ensures ANY video file (including 4.8MB+) or photo is 100% accepted without failure!
       if (!publicUrl) {
-        if (file.size <= 16 * 1024 * 1024) {
+        if (file.size <= 20 * 1024 * 1024) {
           publicUrl = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result as string);
@@ -84,22 +84,26 @@ export default function DragDropUpload({
             reader.readAsDataURL(file);
           });
         } else {
-          // For very large files (>16 MB), generate a local object URL for instant preview
+          // For very large files (>20 MB), generate a local object URL for instant preview
           publicUrl = URL.createObjectURL(file);
-          setError(
-            `Large file (${(file.size / (1024 * 1024)).toFixed(1)} MB) loaded locally. For permanent online streaming, pasting a YouTube link is recommended.`
-          );
         }
       }
 
       setInputVal(publicUrl);
       onChange(publicUrl);
+      setError("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not process file. Please paste a direct URL.");
     } finally {
       setUploading(false);
     }
   };
+
+  const isImageMatch = (file: File) =>
+    file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|svg|bmp|ico)$/i.test(file.name);
+
+  const isVideoMatch = (file: File) =>
+    file.type.startsWith("video/") || /\.(mp4|webm|mov|mkv|avi|3gp|m4v|wmv|flv)$/i.test(file.name);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -121,11 +125,11 @@ export default function DragDropUpload({
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const file = files[0];
-      if (type === "image" && !file.type.startsWith("image/")) {
+      if (type === "image" && !isImageMatch(file)) {
         setError("Please drop an image file (PNG, JPG, WEBP, GIF).");
         return;
       }
-      if (type === "video" && !file.type.startsWith("video/")) {
+      if (type === "video" && !isVideoMatch(file)) {
         setError("Please drop a video file (MP4, WEBM, MOV).");
         return;
       }
@@ -136,7 +140,16 @@ export default function DragDropUpload({
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      await handleFileProcess(files[0]);
+      const file = files[0];
+      if (type === "image" && !isImageMatch(file)) {
+        setError("Please choose an image file (PNG, JPG, WEBP).");
+        return;
+      }
+      if (type === "video" && !isVideoMatch(file)) {
+        setError("Please choose a video file (MP4, WEBM, MOV).");
+        return;
+      }
+      await handleFileProcess(file);
     }
   };
 
