@@ -159,9 +159,15 @@ export default function NewEventPage() {
         outcomes: form.outcomes,
       });
 
+      if (!res.success) {
+        setError(res.error || "Failed to create event. Please try again.");
+        return;
+      }
+
+      const eventData = res.event || res;
       // Show beautiful celebration success card
       setCreatedEvent({
-        slug: res.slug,
+        slug: eventData.slug,
         title: form.title,
         category: form.category,
         venue: form.venue,
@@ -171,13 +177,7 @@ export default function NewEventPage() {
       });
     } catch (err) {
       const rawMsg = err instanceof Error ? err.message : "Failed to create event";
-      if (rawMsg.includes("unexpected response") || rawMsg.includes("An error occurred")) {
-        setError(
-          "Server connection issue or video payload too large. Please ensure date & venue are set, or paste a YouTube video link."
-        );
-      } else {
-        setError(rawMsg);
-      }
+      setError(rawMsg);
     } finally {
       setLoading(false);
     }

@@ -30,63 +30,76 @@ export async function createEvent(data: {
   facultyCoordinator?: string;
   objectives?: string;
   outcomes?: string;
-}) {
-  await requireAdmin();
-  await dbConnect();
+}): Promise<{ success: boolean; event?: any; error?: string }> {
+  try {
+    await requireAdmin();
+    await dbConnect();
 
-  const user = await getCurrentUser();
-  if (!user) throw new Error("User session not found. Please log in again.");
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "User session not found. Please log in again." };
+    }
 
-  if (!data.title || !data.title.trim()) {
-    throw new Error("Event title is required.");
+    if (!data.title || !data.title.trim()) {
+      return { success: false, error: "Event title is required." };
+    }
+    if (!data.description || !data.description.trim()) {
+      return { success: false, error: "Event description is required." };
+    }
+
+    const baseSlug = slugify(data.title.trim()) || `event-${Date.now()}`;
+    let slug = baseSlug;
+    let counter = 1;
+    while (await Event.findOne({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    const resolvedBanner = data.bannerUrl ? await resolveLocalOrDirectUrlAction(data.bannerUrl) : undefined;
+    const resolvedVideo = data.videoUrl ? await resolveLocalOrDirectUrlAction(data.videoUrl) : undefined;
+
+    // Resilient Date parsing: If empty or invalid, fallback to 7 days from now
+    let parsedDate = new Date(data.eventDate);
+    if (!data.eventDate || isNaN(parsedDate.getTime())) {
+      parsedDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    }
+
+    const event = await Event.create({
+      title: data.title.trim(),
+      description: data.description.trim(),
+      category: (data.category as "Technical" | "Cultural" | "Sports" | "Workshop") || "Technical",
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      bannerUrl: resolvedBanner,
+      venue: (data.venue && data.venue.trim()) || "Campus Main Auditorium",
+      maxCapacity: Number(data.maxCapacity) > 0 ? Number(data.maxCapacity) : 100,
+      slug,
+      organizerId: user.id,
+      eventDate: parsedDate,
+      status: (data.status || "upcoming") as "draft" | "upcoming" | "ongoing" | "completed" | "cancelled",
+      mediaGallery: {
+        photos: resolvedBanner ? [resolvedBanner] : [],
+        rawClips: resolvedVideo ? [resolvedVideo] : [],
+        generatedHighlightVideoUrl: resolvedVideo || undefined,
+      },
+      reportData: {
+        chiefGuest: data.chiefGuest || undefined,
+        facultyCoordinator: data.facultyCoordinator || undefined,
+        objectives: data.objectives || undefined,
+        outcomes: data.outcomes || undefined,
+      },
+    });
+
+    return {
+      success: true,
+      event: JSON.parse(JSON.stringify(event)),
+    };
+  } catch (err) {
+    console.error("Error creating event:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to create event. Please verify all details.",
+    };
   }
-  if (!data.description || !data.description.trim()) {
-    throw new Error("Event description is required.");
-  }
-
-  const baseSlug = slugify(data.title.trim()) || `event-${Date.now()}`;
-  let slug = baseSlug;
-  let counter = 1;
-  while (await Event.findOne({ slug })) {
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-  }
-
-  const resolvedBanner = data.bannerUrl ? await resolveLocalOrDirectUrlAction(data.bannerUrl) : undefined;
-  const resolvedVideo = data.videoUrl ? await resolveLocalOrDirectUrlAction(data.videoUrl) : undefined;
-
-  // Resilient Date parsing: If empty or invalid, fallback to 7 days from now
-  let parsedDate = new Date(data.eventDate);
-  if (!data.eventDate || isNaN(parsedDate.getTime())) {
-    parsedDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  }
-
-  const event = await Event.create({
-    title: data.title.trim(),
-    description: data.description.trim(),
-    category: (data.category as "Technical" | "Cultural" | "Sports" | "Workshop") || "Technical",
-    tags: Array.isArray(data.tags) ? data.tags : [],
-    bannerUrl: resolvedBanner,
-    venue: (data.venue && data.venue.trim()) || "Campus Main Auditorium",
-    maxCapacity: Number(data.maxCapacity) > 0 ? Number(data.maxCapacity) : 100,
-    slug,
-    organizerId: user.id,
-    eventDate: parsedDate,
-    status: (data.status || "upcoming") as "draft" | "upcoming" | "ongoing" | "completed" | "cancelled",
-    mediaGallery: {
-      photos: resolvedBanner ? [resolvedBanner] : [],
-      rawClips: resolvedVideo ? [resolvedVideo] : [],
-      generatedHighlightVideoUrl: resolvedVideo || undefined,
-    },
-    reportData: {
-      chiefGuest: data.chiefGuest || undefined,
-      facultyCoordinator: data.facultyCoordinator || undefined,
-      objectives: data.objectives || undefined,
-      outcomes: data.outcomes || undefined,
-    },
-  });
-
-  return JSON.parse(JSON.stringify(event));
 }
 
 export async function updateEvent(
