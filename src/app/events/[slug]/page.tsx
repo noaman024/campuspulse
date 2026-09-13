@@ -50,6 +50,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
   const [questions, setQuestions] = useState<Record<string, unknown>[]>([]);
   const [feedbackForm, setFeedbackForm] = useState<Record<string, unknown> | null>(null);
   const [bannerError, setBannerError] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [qrToken, setQrToken] = useState<string | null>(null);
@@ -308,28 +309,43 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                     <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                       🎬 Event Promo Video & Highlights
                     </h3>
-                    <div className="rounded-xl overflow-hidden border bg-black flex items-center justify-center">
-                      {(() => {
-                        const videoInfo = getVideoEmbedInfo(highlightVideo || rawClips[0]);
-                        if (videoInfo.isEmbed) {
+                    <div className="rounded-xl overflow-hidden border bg-black flex items-center justify-center min-h-[220px]">
+                      {videoError ? (
+                        <div className="p-8 text-center space-y-3">
+                          <p className="text-sm text-muted-foreground">Video clip could not be loaded directly.</p>
+                          <a
+                            href={highlightVideo || rawClips[0]}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition-all"
+                          >
+                            <ExternalLink className="w-4 h-4" /> Open Video Link
+                          </a>
+                        </div>
+                      ) : (
+                        (() => {
+                          const videoInfo = getVideoEmbedInfo(highlightVideo || rawClips[0]);
+                          if (videoInfo.isEmbed) {
+                            return (
+                              <iframe
+                                src={videoInfo.embedUrl}
+                                className="w-full aspect-video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            );
+                          }
                           return (
-                            <iframe
+                            <video
                               src={videoInfo.embedUrl}
-                              className="w-full aspect-video"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
+                              controls
+                              playsInline
+                              onError={() => setVideoError(true)}
+                              className="w-full aspect-video max-h-[480px] object-contain"
                             />
                           );
-                        }
-                        return (
-                          <video
-                            src={videoInfo.embedUrl}
-                            controls
-                            playsInline
-                            className="w-full aspect-video max-h-[480px] object-contain"
-                          />
-                        );
-                      })()}
+                        })()
+                      )}
                     </div>
                   </div>
                 )}
