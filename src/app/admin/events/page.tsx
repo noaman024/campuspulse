@@ -11,6 +11,7 @@ import {
   Edit,
   Trash2,
   Eye,
+  CheckCircle,
 } from "lucide-react";
 import { getAdminEvents, deleteEvent } from "@/actions/events";
 import { format } from "date-fns";
@@ -33,6 +34,20 @@ export default function AdminEventsPage() {
   const [search, setSearch] = useState("");
   const [deleteModal, setDeleteModal] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("created")) {
+        setSuccessToast("🎉 Event successfully created and published live!");
+        window.history.replaceState({}, "", "/admin/events");
+      } else if (params.get("updated")) {
+        setSuccessToast("✅ Event details successfully updated!");
+        window.history.replaceState({}, "", "/admin/events");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -74,6 +89,22 @@ export default function AdminEventsPage() {
 
   return (
     <div className="p-3.5 sm:p-5 lg:p-7 space-y-4 sm:space-y-6 max-w-7xl mx-auto overflow-x-hidden">
+      {successToast && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between gap-3 text-emerald-400 text-xs sm:text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{successToast}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSuccessToast(null)}
+            className="text-emerald-400/70 hover:text-emerald-400 text-xs p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="min-w-0 flex-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground break-words">

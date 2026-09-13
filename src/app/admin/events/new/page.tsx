@@ -19,6 +19,12 @@ import {
   Target,
   Sparkles,
   X,
+  CheckCircle2,
+  Eye,
+  Copy,
+  Check,
+  PlusCircle,
+  ArrowRight,
 } from "lucide-react";
 import { createEvent } from "@/actions/events";
 import { uploadMediaAction } from "@/actions/upload";
@@ -31,6 +37,16 @@ const statuses = ["draft", "upcoming", "ongoing"];
 
 export default function NewEventPage() {
   const router = useRouter();
+  const [createdEvent, setCreatedEvent] = useState<{
+    slug: string;
+    title: string;
+    category: string;
+    venue: string;
+    eventDate: string;
+    bannerUrl?: string;
+    videoUrl?: string;
+  } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -99,7 +115,7 @@ export default function NewEventPage() {
     setLoading(true);
 
     try {
-      await createEvent({
+      const res = await createEvent({
         title: form.title,
         description: form.description,
         category: form.category,
@@ -115,7 +131,17 @@ export default function NewEventPage() {
         objectives: form.objectives,
         outcomes: form.outcomes,
       });
-      router.push("/admin/events");
+
+      // Show beautiful celebration success card
+      setCreatedEvent({
+        slug: res.slug,
+        title: form.title,
+        category: form.category,
+        venue: form.venue,
+        eventDate: form.eventDate,
+        bannerUrl: form.bannerUrl,
+        videoUrl: form.videoUrl,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create event");
     } finally {
@@ -409,6 +435,156 @@ export default function NewEventPage() {
           </div>
         </form>
       </motion.div>
+
+      {/* 🎉 Event Created Success Celebration Modal */}
+      {createdEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="w-full max-w-lg rounded-2xl border p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden"
+            style={{
+              background: "hsl(var(--surface-raised))",
+              borderColor: "hsl(var(--border))",
+            }}
+          >
+            {/* Ambient decorative glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/25 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Header with success badge */}
+            <div className="text-center space-y-2 relative z-10">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                <CheckCircle2 className="w-9 h-9" />
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                <Sparkles className="w-3.5 h-3.5" /> Event Published & Live!
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                Event Post Ho Chuka Hai! 🎉
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+                Aapka event portal par publish ho gaya hai aur students ab isme participate aur register kar sakte hain.
+              </p>
+            </div>
+
+            {/* Event Summary Card */}
+            <div
+              className="p-4 rounded-xl border space-y-3 relative z-10"
+              style={{ background: "hsl(var(--surface))", borderColor: "hsl(var(--border))" }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="badge text-[11px] mb-1.5 inline-block bg-primary/15 text-primary border border-primary/25">
+                    {createdEvent.category}
+                  </span>
+                  <h3 className="text-sm sm:text-base font-bold text-foreground line-clamp-1">
+                    {createdEvent.title}
+                  </h3>
+                </div>
+                {createdEvent.videoUrl && (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/25 flex items-center gap-1 shrink-0">
+                    <Video className="w-3 h-3" /> Promo Video
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
+                <div className="flex items-center gap-1.5 truncate">
+                  <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="truncate">
+                    {createdEvent.eventDate
+                      ? new Date(createdEvent.eventDate).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Scheduled"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 truncate">
+                  <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="truncate">{createdEvent.venue || "Campus Venue"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions Grid */}
+            <div className="space-y-2.5 relative z-10">
+              {/* Primary CTA: View Live Event */}
+              <Link
+                href={`/events/${createdEvent.slug}`}
+                className="w-full btn-primary py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold shadow-lg hover:shadow-primary/25 transition-all text-white"
+              >
+                <Eye className="w-4 h-4" /> View Live Event Page <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              {/* Secondary Actions: Copy Share Link & Post Another */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const fullUrl = `${window.location.origin}/events/${createdEvent.slug}`;
+                    navigator.clipboard.writeText(fullUrl);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2500);
+                  }}
+                  className="btn-secondary py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold hover:border-primary/50 transition-all"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-400 font-bold">Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Share Link</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCreatedEvent(null);
+                    setForm({
+                      title: "",
+                      description: "",
+                      category: "Technical",
+                      tags: "",
+                      bannerUrl: "",
+                      videoUrl: "",
+                      eventDate: "",
+                      venue: "",
+                      maxCapacity: 100,
+                      status: "upcoming",
+                      chiefGuest: "",
+                      facultyCoordinator: "",
+                      objectives: "",
+                      outcomes: "",
+                    });
+                  }}
+                  className="btn-secondary py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold hover:border-primary/50 transition-all"
+                >
+                  <PlusCircle className="w-3.5 h-3.5 text-primary" />
+                  <span>Post Another Event</span>
+                </button>
+              </div>
+
+              {/* Tertiary: Return to All Events */}
+              <button
+                type="button"
+                onClick={() => router.push("/admin/events")}
+                className="w-full text-center py-2 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                Go to Events Dashboard →
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

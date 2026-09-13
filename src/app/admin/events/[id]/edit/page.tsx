@@ -156,7 +156,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
         objectives: form.objectives,
         outcomes: form.outcomes,
       });
-      router.push("/admin/events");
+      router.push("/admin/events?updated=true");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update event");
     } finally {
