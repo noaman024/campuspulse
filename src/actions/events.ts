@@ -177,7 +177,7 @@ export async function getEvents(filters?: {
 
   const [events, total] = await Promise.all([
     Event.find(query)
-      .sort({ eventDate: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),
@@ -346,7 +346,7 @@ export async function getAdminEvents() {
 
   const events = await Event.find({})
     .populate("organizerId", "name email")
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .lean();
 
   return JSON.parse(JSON.stringify(events));

@@ -303,7 +303,7 @@ export async function getEventsRegistrationDetails() {
   const events = await Event.find({ status: { $ne: "cancelled" } })
     .populate("registeredUsers.userId", "name email department rollNumber")
     .select("title slug category eventDate venue status maxCapacity registeredUsers")
-    .sort({ eventDate: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .lean();
 
   const result: EventRegistrationDetail[] = events.map((ev) => {
