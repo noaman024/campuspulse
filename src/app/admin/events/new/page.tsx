@@ -47,6 +47,14 @@ export default function NewEventPage() {
     videoUrl?: string;
   } | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const getDefaultDateTime = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(10, 0, 0, 0);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -58,8 +66,8 @@ export default function NewEventPage() {
     tags: "",
     bannerUrl: "",
     videoUrl: "",
-    eventDate: "",
-    venue: "",
+    eventDate: getDefaultDateTime(),
+    venue: "Campus Main Auditorium",
     maxCapacity: 100,
     status: "upcoming",
     chiefGuest: "",
@@ -112,6 +120,25 @@ export default function NewEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Client-side validation with instant clear feedback
+    if (!form.title.trim()) {
+      setError("Please enter an Event Title.");
+      return;
+    }
+    if (!form.description.trim()) {
+      setError("Please enter an Event Description.");
+      return;
+    }
+    if (!form.eventDate) {
+      setError("Please select an Event Date & Time.");
+      return;
+    }
+    if (!form.venue.trim()) {
+      setError("Please enter an Event Venue.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -143,7 +170,14 @@ export default function NewEventPage() {
         videoUrl: form.videoUrl,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create event");
+      const rawMsg = err instanceof Error ? err.message : "Failed to create event";
+      if (rawMsg.includes("unexpected response") || rawMsg.includes("An error occurred")) {
+        setError(
+          "Server connection issue or video payload too large. Please ensure date & venue are set, or paste a YouTube video link."
+        );
+      } else {
+        setError(rawMsg);
+      }
     } finally {
       setLoading(false);
     }

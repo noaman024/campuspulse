@@ -35,9 +35,16 @@ export async function createEvent(data: {
   await dbConnect();
 
   const user = await getCurrentUser();
-  if (!user) throw new Error("User not found");
+  if (!user) throw new Error("User session not found. Please log in again.");
 
-  const baseSlug = slugify(data.title);
+  if (!data.title || !data.title.trim()) {
+    throw new Error("Event title is required.");
+  }
+  if (!data.description || !data.description.trim()) {
+    throw new Error("Event description is required.");
+  }
+
+  const baseSlug = slugify(data.title.trim()) || `event-${Date.now()}`;
   let slug = baseSlug;
   let counter = 1;
   while (await Event.findOne({ slug })) {
@@ -48,17 +55,23 @@ export async function createEvent(data: {
   const resolvedBanner = data.bannerUrl ? await resolveLocalOrDirectUrlAction(data.bannerUrl) : undefined;
   const resolvedVideo = data.videoUrl ? await resolveLocalOrDirectUrlAction(data.videoUrl) : undefined;
 
+  // Resilient Date parsing: If empty or invalid, fallback to 7 days from now
+  let parsedDate = new Date(data.eventDate);
+  if (!data.eventDate || isNaN(parsedDate.getTime())) {
+    parsedDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  }
+
   const event = await Event.create({
-    title: data.title,
-    description: data.description,
-    category: data.category as "Technical" | "Cultural" | "Sports" | "Workshop",
-    tags: data.tags,
+    title: data.title.trim(),
+    description: data.description.trim(),
+    category: (data.category as "Technical" | "Cultural" | "Sports" | "Workshop") || "Technical",
+    tags: Array.isArray(data.tags) ? data.tags : [],
     bannerUrl: resolvedBanner,
-    venue: data.venue,
-    maxCapacity: data.maxCapacity,
+    venue: (data.venue && data.venue.trim()) || "Campus Main Auditorium",
+    maxCapacity: Number(data.maxCapacity) > 0 ? Number(data.maxCapacity) : 100,
     slug,
     organizerId: user.id,
-    eventDate: new Date(data.eventDate),
+    eventDate: parsedDate,
     status: (data.status || "upcoming") as "draft" | "upcoming" | "ongoing" | "completed" | "cancelled",
     mediaGallery: {
       photos: resolvedBanner ? [resolvedBanner] : [],
