@@ -39,31 +39,48 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
+    try {
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true });
+      }
+
+      // Clean file name
+      const ext = path.extname(file.name) || (file.type.startsWith("video/") ? ".mp4" : ".png");
+      const cleanBase = path
+        .basename(file.name, ext)
+        .replace(/[^a-zA-Z0-9_-]/g, "_")
+        .toLowerCase();
+      const uniqueFileName = `${Date.now()}_${cleanBase}${ext}`;
+      const filePath = path.join(uploadDir, uniqueFileName);
+
+      await writeFile(filePath, buffer);
+
+      const publicUrl = `/uploads/${uniqueFileName}`;
+
+      return NextResponse.json({
+        success: true,
+        url: publicUrl,
+        fileName: uniqueFileName,
+        fileSize: file.size,
+        mimeType: file.type,
+      });
+    } catch (fsError) {
+      console.warn("Read-only filesystem in api/upload. Using Data URI fallback:", fsError);
+
+      if (file.type.startsWith("image/")) {
+        const base64 = buffer.toString("base64");
+        return NextResponse.json({
+          success: true,
+          url: `data:${file.type};base64,${base64}`,
+          fileName: file.name,
+          fileSize: file.size,
+          mimeType: file.type,
+        });
+      }
+
+      throw fsError;
     }
-
-    // Clean file name
-    const ext = path.extname(file.name) || (file.type.startsWith("video/") ? ".mp4" : ".png");
-    const cleanBase = path
-      .basename(file.name, ext)
-      .replace(/[^a-zA-Z0-9_-]/g, "_")
-      .toLowerCase();
-    const uniqueFileName = `${Date.now()}_${cleanBase}${ext}`;
-    const filePath = path.join(uploadDir, uniqueFileName);
-
-    await writeFile(filePath, buffer);
-
-    const publicUrl = `/uploads/${uniqueFileName}`;
-
-    return NextResponse.json({
-      success: true,
-      url: publicUrl,
-      fileName: uniqueFileName,
-      fileSize: file.size,
-      mimeType: file.type,
-    });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(

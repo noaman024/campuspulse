@@ -47,14 +47,31 @@ export default function DragDropUpload({
           publicUrl = res.url;
         }
       } catch {
-        // Fallback to fetch /api/upload
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Upload failed");
-        publicUrl = data.url;
+        try {
+          // Fallback 1: REST API /api/upload
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          if (res.ok && data.url) {
+            publicUrl = data.url;
+          } else {
+            throw new Error(data.error || "Upload failed");
+          }
+        } catch {
+          // Fallback 2: Client-side FileReader for images (instant, zero-network failure)
+          if (file.type.startsWith("image/")) {
+            publicUrl = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = () => reject(new Error("Failed to process image"));
+              reader.readAsDataURL(file);
+            });
+          } else {
+            throw new Error("Upload failed. Please check file format or paste a direct URL.");
+          }
+        }
       }
 
       setInputVal(publicUrl);
