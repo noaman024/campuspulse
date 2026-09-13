@@ -34,6 +34,24 @@ export default function DragDropUpload({
 
   const handleFileProcess = async (file: File) => {
     setError("");
+
+    // Vercel serverless request body is hard-capped at 4.5 MB.
+    // If a phone video or huge image exceeds 4.5 MB, guide user clearly instead of crashing.
+    const MAX_DIRECT_MB = 4.5;
+    if (file.size > MAX_DIRECT_MB * 1024 * 1024) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      if (type === "video") {
+        setError(
+          `Video file (${sizeMb} MB) exceeds Vercel's 4.5 MB direct upload limit. Please paste a YouTube link (e.g. https://youtu.be/...) or direct MP4 URL in the box below.`
+        );
+      } else {
+        setError(
+          `Image (${sizeMb} MB) exceeds 4.5 MB. Please select a compressed image or paste an image URL.`
+        );
+      }
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -48,29 +66,36 @@ export default function DragDropUpload({
         }
       } catch {
         try {
-          // Fallback 1: REST API /api/upload
+          // Fallback 1: REST API /api/upload with safe non-JSON text parsing
           const res = await fetch("/api/upload", {
             method: "POST",
             body: formData,
           });
-          const data = await res.json();
+
+          const rawText = await res.text();
+          let data: Record<string, unknown> = {};
+          try {
+            data = JSON.parse(rawText);
+          } catch {
+            if (res.status === 413 || rawText.includes("Request Entity Too Large") || rawText.includes("Request En")) {
+              throw new Error("File exceeds the 4.5 MB upload limit. Please paste a YouTube link or direct URL below.");
+            }
+            throw new Error(rawText || "Upload failed on server");
+          }
+
           if (res.ok && data.url) {
-            publicUrl = data.url;
+            publicUrl = String(data.url);
           } else {
-            throw new Error(data.error || "Upload failed");
+            throw new Error(String(data.error || "Upload failed"));
           }
         } catch {
-          // Fallback 2: Client-side FileReader for images (instant, zero-network failure)
-          if (file.type.startsWith("image/")) {
-            publicUrl = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = () => reject(new Error("Failed to process image"));
-              reader.readAsDataURL(file);
-            });
-          } else {
-            throw new Error("Upload failed. Please check file format or paste a direct URL.");
-          }
+          // Fallback 2: Client-side FileReader for images & small video clips (zero network failure)
+          publicUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error("Failed to process file"));
+            reader.readAsDataURL(file);
+          });
         }
       }
 
@@ -322,6 +347,36 @@ export default function DragDropUpload({
         <p className="text-xs text-red-400 bg-red-500/10 p-2 rounded-lg border border-red-500/20">
           ⚠️ {error}
         </p>
+      )}
+
+      {type === "video" && (
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[11px] text-muted-foreground">
+          <span>💡 Or test with sample video:</span>
+          <button
+            type="button"
+            onClick={() => {
+              const url = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+              setInputVal(url);
+              onChange(url);
+              setError("");
+            }}
+            className="px-2 py-0.5 rounded bg-surface hover:bg-surface-raised border border-border text-foreground transition-all hover:border-primary/40"
+          >
+            🎬 Campus Teaser
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const url = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4";
+              setInputVal(url);
+              onChange(url);
+              setError("");
+            }}
+            className="px-2 py-0.5 rounded bg-surface hover:bg-surface-raised border border-border text-foreground transition-all hover:border-primary/40"
+          >
+            ⚡ Fest Highlight
+          </button>
+        </div>
       )}
     </div>
   );

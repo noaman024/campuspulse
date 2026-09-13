@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     } catch (fsError) {
       console.warn("Read-only filesystem in api/upload. Using Data URI fallback:", fsError);
 
-      if (file.type.startsWith("image/")) {
+      if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
         const base64 = buffer.toString("base64");
         return NextResponse.json({
           success: true,

@@ -58,8 +58,8 @@ export async function uploadMediaAction(formData: FormData): Promise<{ success: 
   } catch (fsError) {
     console.warn("Filesystem is read-only (e.g. Vercel serverless). Using high-reliability Data URI fallback:", fsError);
 
-    // Fallback: Return Base64 Data URI for images so uploads always succeed on Vercel
-    if (file.type.startsWith("image/")) {
+    // Fallback: Return Base64 Data URI for images and video clips so uploads always succeed on Vercel
+    if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
       const base64 = buffer.toString("base64");
       return {
         success: true,
