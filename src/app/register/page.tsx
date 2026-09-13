@@ -64,7 +64,7 @@ export default function RegisterPage() {
         <img
           src="/college-gate.jpg"
           alt="P. R. Pote Patil College Campus"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-top sm:object-center"
         />
         {/* Pure neutral dark overlay - zero blur, zero theme haze */}
         <div className="absolute inset-0 bg-black/55" />

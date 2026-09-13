@@ -247,18 +247,18 @@ export default function HomePage() {
           1. HERO SECTION WITH COLLEGE GATE BACKGROUND
           ═══════════════════════════════════════════════════════ */}
       <section
-        className="relative pt-16 sm:pt-24 pb-20 px-4 sm:px-6 overflow-hidden"
+        className="relative pt-12 sm:pt-24 pb-20 px-4 sm:px-6 overflow-hidden bg-[#080A0F]"
       >
-        {/* Full-Bleed College Gate Hero Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Full-Bleed College Gate Hero Background with Responsive Mobile Height */}
+        <div className="absolute top-0 inset-x-0 h-[380px] xs:h-[440px] sm:h-full sm:inset-0 z-0 overflow-hidden pointer-events-none">
           <img
             src="/college-gate.jpg"
             alt="P. R. Pote Patil College Campus Gate"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-top sm:object-center"
           />
           {/* Pure neutral dark scrim - preserves natural colors & sharpness with zero theme haze or blur */}
-          <div className="absolute inset-0 bg-black/50" />
-          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/45 sm:bg-black/50" />
+          <div className="absolute inset-x-0 bottom-0 h-32 sm:h-36 bg-gradient-to-t from-[#080A0F] sm:from-black/85 via-[#080A0F]/60 sm:via-black/40 to-transparent" />
         </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
@@ -267,10 +267,10 @@ export default function HomePage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-8 text-xs font-bold backdrop-blur-md bg-black/60 border-blue-400/40 text-blue-300 shadow-lg"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border mb-5 sm:mb-8 text-xs font-bold backdrop-blur-md bg-black/60 border-blue-400/40 text-blue-300 shadow-lg"
           >
-            <Building2 className="w-3.5 h-3.5 text-blue-400" />
-            <span>P. R. POTE PATIL COLLEGE CAMPUS • OFFICIAL EVENT PORTAL</span>
+            <Building2 className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+            <span className="truncate max-w-[280px] xs:max-w-none">P. R. POTE PATIL COLLEGE CAMPUS • OFFICIAL EVENT PORTAL</span>
           </motion.div>
 
           {/* Main Hero Headline */}
@@ -278,11 +278,11 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-            className="text-white mb-6 drop-shadow-xl"
+            className="text-white mb-5 sm:mb-6 drop-shadow-xl"
             style={{
-              fontSize: "clamp(2.5rem, 6.5vw, 4.75rem)",
+              fontSize: "clamp(2rem, 6.5vw, 4.75rem)",
               fontWeight: 800,
-              lineHeight: 1.05,
+              lineHeight: 1.08,
               letterSpacing: "-0.04em",
             }}
           >
