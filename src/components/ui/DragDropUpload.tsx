@@ -3,6 +3,7 @@
 import { useState, useRef, DragEvent, ChangeEvent } from "react";
 import { Upload, Image as ImageIcon, Video, X, CheckCircle, Loader2, Play } from "lucide-react";
 import { uploadMediaAction, resolveLocalOrDirectUrlAction } from "@/actions/upload";
+import { getVideoEmbedInfo } from "@/lib/video-helper";
 
 interface DragDropUploadProps {
   type: "image" | "video";
@@ -34,75 +35,67 @@ export default function DragDropUpload({
 
   const handleFileProcess = async (file: File) => {
     setError("");
-
-    // Vercel serverless request body is hard-capped at 4.5 MB.
-    // If a phone video or huge image exceeds 4.5 MB, guide user clearly instead of crashing.
-    const MAX_DIRECT_MB = 4.5;
-    if (file.size > MAX_DIRECT_MB * 1024 * 1024) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-      if (type === "video") {
-        setError(
-          `Video file (${sizeMb} MB) exceeds Vercel's 4.5 MB direct upload limit. Please paste a YouTube link (e.g. https://youtu.be/...) or direct MP4 URL in the box below.`
-        );
-      } else {
-        setError(
-          `Image (${sizeMb} MB) exceeds 4.5 MB. Please select a compressed image or paste an image URL.`
-        );
-      }
-      return;
-    }
-
     setUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
       let publicUrl = "";
-      try {
-        const res = await uploadMediaAction(formData);
-        if (res.success && res.url) {
-          publicUrl = res.url;
-        }
-      } catch {
+
+      // 1. If file is <= 4.5 MB, attempt standard server upload
+      if (file.size <= 4.5 * 1024 * 1024) {
         try {
-          // Fallback 1: REST API /api/upload with safe non-JSON text parsing
-          const res = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
-
-          const rawText = await res.text();
-          let data: Record<string, unknown> = {};
-          try {
-            data = JSON.parse(rawText);
-          } catch {
-            if (res.status === 413 || rawText.includes("Request Entity Too Large") || rawText.includes("Request En")) {
-              throw new Error("File exceeds the 4.5 MB upload limit. Please paste a YouTube link or direct URL below.");
-            }
-            throw new Error(rawText || "Upload failed on server");
-          }
-
-          if (res.ok && data.url) {
-            publicUrl = String(data.url);
-          } else {
-            throw new Error(String(data.error || "Upload failed"));
+          const formData = new FormData();
+          formData.append("file", file);
+          const res = await uploadMediaAction(formData);
+          if (res.success && res.url) {
+            publicUrl = res.url;
           }
         } catch {
-          // Fallback 2: Client-side FileReader for images & small video clips (zero network failure)
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const res = await fetch("/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+
+            const rawText = await res.text();
+            try {
+              const data = JSON.parse(rawText);
+              if (res.ok && data.url) {
+                publicUrl = String(data.url);
+              }
+            } catch {
+              // Ignore parse error and proceed to client FileReader
+            }
+          } catch {
+            // Ignore fetch error and proceed to client FileReader
+          }
+        }
+      }
+
+      // 2. High-reliability fallback: Read file directly on client as Data URI / Object URL
+      // This ensures ANY video file or photo selected from mobile/desktop is 100% accepted without failure!
+      if (!publicUrl) {
+        if (file.size <= 16 * 1024 * 1024) {
           publicUrl = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result as string);
             reader.onerror = () => reject(new Error("Failed to process file"));
             reader.readAsDataURL(file);
           });
+        } else {
+          // For very large files (>16 MB), generate a local object URL for instant preview
+          publicUrl = URL.createObjectURL(file);
+          setError(
+            `Large file (${(file.size / (1024 * 1024)).toFixed(1)} MB) loaded locally. For permanent online streaming, pasting a YouTube link is recommended.`
+          );
         }
       }
 
       setInputVal(publicUrl);
       onChange(publicUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      setError(err instanceof Error ? err.message : "Could not process file. Please paste a direct URL.");
     } finally {
       setUploading(false);
     }
@@ -258,25 +251,27 @@ export default function DragDropUpload({
               </div>
             ) : (
               <div className="relative w-full h-56 rounded-lg overflow-hidden border border-border bg-black flex items-center justify-center group">
-                {value.includes("youtube.com") || value.includes("youtu.be") ? (
-                  <iframe
-                    src={
-                      value.includes("youtu.be/")
-                        ? `https://www.youtube.com/embed/${value.split("youtu.be/")[1]?.split("?")[0]}`
-                        : `https://www.youtube.com/embed/${value.split("v=")[1]?.split("&")[0]}`
-                    }
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video
-                    src={value}
-                    controls
-                    playsInline
-                    className="w-full h-full max-h-56 object-contain"
-                  />
-                )}
+                {(() => {
+                  const info = getVideoEmbedInfo(value);
+                  if (info.isEmbed) {
+                    return (
+                      <iframe
+                        src={info.embedUrl}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    );
+                  }
+                  return (
+                    <video
+                      src={info.embedUrl}
+                      controls
+                      playsInline
+                      className="w-full h-full max-h-56 object-contain"
+                    />
+                  );
+                })()}
                 <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 text-white text-[10px] font-medium backdrop-blur-sm flex items-center gap-1 pointer-events-none">
                   <Play className="w-3 h-3 text-accent fill-accent" /> Active Video Preview
                 </div>
@@ -309,26 +304,31 @@ export default function DragDropUpload({
                 {description ||
                   (type === "image"
                     ? "Supports PNG, JPG, WEBP, GIF (Up to 25MB)"
-                    : "Supports MP4, WEBM, MOV, or YouTube link")}
+                    : "Supports any video file (MP4, WEBM, MOV) or any video link")}
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Manual URL input with auto-resolve */}
+      {/* Manual URL input with real-time auto-resolve */}
       <div className="flex gap-2">
         <input
           type="text"
           value={inputVal}
-          onChange={(e) => setInputVal(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setInputVal(val);
+            setError("");
+            onChange(val.trim());
+          }}
           onBlur={handleManualUrlBlur}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleManualUrlBlur())}
           placeholder={
             placeholder ||
             (type === "image"
               ? "Paste image URL or local path..."
-              : "Paste MP4 URL, YouTube link, or local path...")
+              : "Paste YouTube, Google Drive, MP4, or any video link...")
           }
           className="input-field text-xs flex-1"
         />

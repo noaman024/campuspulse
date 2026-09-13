@@ -32,6 +32,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Link from "next/link";
 import QRCode from "qrcode";
 import ShareEventModal from "@/components/ui/ShareEventModal";
+import { getVideoEmbedInfo } from "@/lib/video-helper";
 
 const categoryColors: Record<string, string> = {
   Technical: "252 85% 63%",
@@ -308,20 +309,27 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                       🎬 Event Promo Video & Highlights
                     </h3>
                     <div className="rounded-xl overflow-hidden border bg-black flex items-center justify-center">
-                      {(highlightVideo || rawClips[0]).includes("youtube.com") || (highlightVideo || rawClips[0]).includes("youtu.be") ? (
-                        <iframe
-                          src={
-                            (highlightVideo || rawClips[0]).includes("youtu.be/")
-                              ? `https://www.youtube.com/embed/${(highlightVideo || rawClips[0]).split("youtu.be/")[1]?.split("?")[0]}`
-                              : `https://www.youtube.com/embed/${(highlightVideo || rawClips[0]).split("v=")[1]?.split("&")[0]}`
-                          }
-                          className="w-full aspect-video"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      ) : (
-                        <video src={highlightVideo || rawClips[0]} controls className="w-full max-h-96 object-contain" />
-                      )}
+                      {(() => {
+                        const videoInfo = getVideoEmbedInfo(highlightVideo || rawClips[0]);
+                        if (videoInfo.isEmbed) {
+                          return (
+                            <iframe
+                              src={videoInfo.embedUrl}
+                              className="w-full aspect-video"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          );
+                        }
+                        return (
+                          <video
+                            src={videoInfo.embedUrl}
+                            controls
+                            playsInline
+                            className="w-full aspect-video max-h-[480px] object-contain"
+                          />
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
