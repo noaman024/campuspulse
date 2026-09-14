@@ -4,7 +4,7 @@ import { useState, useRef, DragEvent, ChangeEvent } from "react";
 import { Upload, Image as ImageIcon, Video, X, CheckCircle, Loader2, Play, Sparkles } from "lucide-react";
 import { uploadMediaAction, resolveLocalOrDirectUrlAction } from "@/actions/upload";
 import { getVideoEmbedInfo } from "@/lib/video-helper";
-import { compressVideoClient, CompressionProgress } from "@/lib/video-compressor";
+import { CompressionProgress } from "@/lib/video-compressor";
 
 interface DragDropUploadProps {
   type: "image" | "video";
