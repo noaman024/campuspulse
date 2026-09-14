@@ -35,6 +35,37 @@ const DEFAULT_SETTINGS = {
   ],
   copyrightText: "CampusPulse. All rights reserved. University Event Portal.",
   councilNote: "Student Affairs & Technical Council",
+  aboutSettings: {
+    badge: "PROJECT DEVELOPERS & ARCHITECTS",
+    title: "Meet the Creators Behind CampusPulse",
+    subtitle: "Built with passion by university engineering students for modern, paperless campus events.",
+    projectStory: "CampusPulse was engineered to solve real campus challenges — replacing manual registration queues, physical paper tickets, and fragmented feedback with an all-in-one digital platform featuring instant QR verification, interactive live Q&A, and direct event media showcases.",
+    techStack: [
+      "Next.js 16 (App Router)",
+      "TypeScript",
+      "Tailwind CSS v4",
+      "MongoDB & Mongoose",
+      "NextAuth.js",
+      "Framer Motion",
+      "Capacitor Android Native",
+    ],
+    creators: [
+      {
+        id: "creator-1",
+        name: "Mohd Noaman",
+        role: "Lead Full-Stack Developer & Project Architect",
+        department: "Dept. of Computer Science & Engineering",
+        college: "P. R. Pote Patil College of Engineering, Amravati",
+        bio: "Passionate engineer specializing in full-stack architecture, building intuitive, modern web apps and high-performance digital systems for educational institutions.",
+        avatarUrl: "",
+        githubUrl: "https://github.com/noaman024",
+        linkedinUrl: "",
+        email: "mdnoaman024@gmail.com",
+        portfolioUrl: "",
+        highlights: ["System Architecture", "Next.js & React 19", "MongoDB Database", "Capacitor Mobile APK"],
+      },
+    ],
+  },
 };
 
 export async function getSiteSettings() {
@@ -45,10 +76,28 @@ export async function getSiteSettings() {
       settings = await SiteSettings.create(DEFAULT_SETTINGS);
       settings = settings.toObject();
     }
+    // Ensure aboutSettings is populated if DB document was created before this feature
+    if (!settings.aboutSettings) {
+      settings.aboutSettings = DEFAULT_SETTINGS.aboutSettings;
+    }
     return JSON.parse(JSON.stringify(settings));
   } catch (err) {
     console.error("Failed to get site settings, using defaults:", err);
     return DEFAULT_SETTINGS;
+  }
+}
+
+export async function getAboutSettings() {
+  try {
+    await dbConnect();
+    const settings = await SiteSettings.findOne().select("aboutSettings").lean();
+    if (settings && settings.aboutSettings) {
+      return JSON.parse(JSON.stringify(settings.aboutSettings));
+    }
+    return DEFAULT_SETTINGS.aboutSettings;
+  } catch (err) {
+    console.error("Failed to get about settings:", err);
+    return DEFAULT_SETTINGS.aboutSettings;
   }
 }
 
@@ -66,6 +115,7 @@ export async function updateSiteSettings(data: Partial<ISiteSettings>) {
     await settings.save();
 
     revalidatePath("/", "layout");
+    revalidatePath("/about");
     revalidatePath("/admin/settings");
 
     return {

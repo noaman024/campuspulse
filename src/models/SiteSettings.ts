@@ -5,6 +5,30 @@ export interface ILinkItem {
   href: string;
 }
 
+export interface ICreatorMember {
+  id: string;
+  name: string;
+  role: string;
+  department?: string;
+  college?: string;
+  bio?: string;
+  avatarUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  email?: string;
+  portfolioUrl?: string;
+  highlights?: string[];
+}
+
+export interface IAboutSettings {
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  projectStory?: string;
+  techStack?: string[];
+  creators: ICreatorMember[];
+}
+
 export interface ISiteSettings extends Document {
   siteName: string;
   tagline: string;
@@ -18,6 +42,7 @@ export interface ISiteSettings extends Document {
   policyLinks: ILinkItem[];
   copyrightText: string;
   councilNote: string;
+  aboutSettings?: IAboutSettings;
   socialSettings?: {
     geminiApiKey?: string;
     socialWebhookUrl?: string;
@@ -135,6 +160,40 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     councilNote: {
       type: String,
       default: "Student Affairs & Technical Council",
+    },
+    aboutSettings: {
+      type: Schema.Types.Mixed,
+      default: {
+        badge: "PROJECT DEVELOPERS & ARCHITECTS",
+        title: "Meet the Creators Behind CampusPulse",
+        subtitle: "Built with passion by university engineering students for modern, paperless campus events.",
+        projectStory: "CampusPulse was engineered to solve real campus challenges — replacing manual registration queues, physical paper tickets, and fragmented feedback with an all-in-one digital platform featuring instant QR verification, interactive live Q&A, and direct event media showcases.",
+        techStack: [
+          "Next.js 16 (App Router)",
+          "TypeScript",
+          "Tailwind CSS v4",
+          "MongoDB & Mongoose",
+          "NextAuth.js",
+          "Framer Motion",
+          "Capacitor Android Native",
+        ],
+        creators: [
+          {
+            id: "creator-1",
+            name: "Mohd Noaman",
+            role: "Lead Full-Stack Developer & Project Architect",
+            department: "Dept. of Computer Science & Engineering",
+            college: "P. R. Pote Patil College of Engineering, Amravati",
+            bio: "Passionate engineer specializing in full-stack architecture, building intuitive, modern web apps and high-performance digital systems for educational institutions.",
+            avatarUrl: "",
+            githubUrl: "https://github.com/noaman024",
+            linkedinUrl: "",
+            email: "mdnoaman024@gmail.com",
+            portfolioUrl: "",
+            highlights: ["System Architecture", "Next.js & React 19", "MongoDB Database", "Capacitor Mobile APK"],
+          },
+        ],
+      },
     },
     socialSettings: {
       geminiApiKey: { type: String, default: "" },

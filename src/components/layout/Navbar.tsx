@@ -21,6 +21,7 @@ import {
   Settings,
   ChevronDown,
   ShieldCheck,
+  Info,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "../providers/ThemeProvider";
@@ -63,6 +64,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/events", label: "Events", icon: Calendar },
+    { href: "/about", label: "About", icon: Info },
     { href: "/portal/feedback", label: "Feedback", icon: ClipboardList },
     { href: "/portal/qna", label: "Live Q&A", icon: MessageSquare },
     ...(isAdmin ? [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }] : []),

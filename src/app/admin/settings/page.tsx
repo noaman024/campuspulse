@@ -22,8 +22,17 @@ import {
   Eye,
   EyeOff,
   Users,
+  Code2,
+  GraduationCap,
+  User,
+  Image as ImageIcon,
+  ExternalLink,
+  Award,
+  Upload,
 } from "lucide-react";
 import { getSiteSettings, updateSiteSettings } from "@/actions/settings";
+import { ICreatorMember } from "@/models/SiteSettings";
+import { uploadMediaAction } from "@/actions/upload";
 import {
   getAdminUsers,
   createAdminUser,
@@ -60,6 +69,30 @@ export default function AdminSettingsPage() {
   const [socialWebhookUrl, setSocialWebhookUrl] = useState("");
   const [defaultHashtags, setDefaultHashtags] = useState("#CampusPulse #CollegeLife #CampusEvents");
   const [showGeminiKey, setShowGeminiKey] = useState(false);
+
+  // About Page & Project Creators State
+  const [aboutBadge, setAboutBadge] = useState("PROJECT DEVELOPERS & ARCHITECTS");
+  const [aboutTitle, setAboutTitle] = useState("Meet the Creators Behind CampusPulse");
+  const [aboutSubtitle, setAboutSubtitle] = useState("Built with passion by university engineering students for modern, paperless campus events.");
+  const [aboutProjectStory, setAboutProjectStory] = useState("");
+  const [aboutTechStack, setAboutTechStack] = useState("Next.js 16, TypeScript, Tailwind CSS, MongoDB, Framer Motion, Capacitor Android");
+  const [creators, setCreators] = useState<ICreatorMember[]>([
+    {
+      id: "creator-1",
+      name: "Mohd Noaman",
+      role: "Lead Full-Stack Developer & Project Architect",
+      department: "Dept. of Computer Science & Engineering",
+      college: "P. R. Pote Patil College of Engineering, Amravati",
+      bio: "Passionate engineer specializing in full-stack architecture, building intuitive, modern web apps and high-performance digital systems for educational institutions.",
+      avatarUrl: "",
+      githubUrl: "https://github.com/noaman024",
+      linkedinUrl: "",
+      email: "mdnoaman024@gmail.com",
+      portfolioUrl: "",
+      highlights: ["System Architecture", "Next.js & React 19", "MongoDB Database", "Capacitor Mobile APK"],
+    },
+  ]);
+  const [uploadingAvatarIdx, setUploadingAvatarIdx] = useState<number | null>(null);
 
   // New department input state
   const [newDeptLabel, setNewDeptLabel] = useState("");
@@ -103,6 +136,22 @@ export default function AdminSettingsPage() {
             setGeminiApiKey(settingsData.socialSettings.geminiApiKey || "");
             setSocialWebhookUrl(settingsData.socialSettings.socialWebhookUrl || "");
             setDefaultHashtags(settingsData.socialSettings.defaultHashtags || "#CampusPulse #CollegeLife #CampusEvents");
+          }
+          if (settingsData.aboutSettings) {
+            if (settingsData.aboutSettings.badge) setAboutBadge(settingsData.aboutSettings.badge);
+            if (settingsData.aboutSettings.title) setAboutTitle(settingsData.aboutSettings.title);
+            if (settingsData.aboutSettings.subtitle) setAboutSubtitle(settingsData.aboutSettings.subtitle);
+            if (settingsData.aboutSettings.projectStory) setAboutProjectStory(settingsData.aboutSettings.projectStory);
+            if (settingsData.aboutSettings.techStack) {
+              setAboutTechStack(
+                Array.isArray(settingsData.aboutSettings.techStack)
+                  ? settingsData.aboutSettings.techStack.join(", ")
+                  : settingsData.aboutSettings.techStack
+              );
+            }
+            if (settingsData.aboutSettings.creators && Array.isArray(settingsData.aboutSettings.creators) && settingsData.aboutSettings.creators.length > 0) {
+              setCreators(settingsData.aboutSettings.creators);
+            }
           }
         }
         if (adminsData && Array.isArray(adminsData)) {
@@ -175,6 +224,75 @@ export default function AdminSettingsPage() {
     setDepartments(departments.filter((_, i) => i !== index));
   };
 
+  // Creator profile handlers
+  const handleUpdateCreator = (index: number, field: keyof ICreatorMember, value: unknown) => {
+    setCreators((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleAddCreator = () => {
+    setCreators((prev) => [
+      ...prev,
+      {
+        id: `creator-${Date.now()}`,
+        name: "",
+        role: "Developer / Contributor",
+        department: "",
+        college: "",
+        bio: "",
+        avatarUrl: "",
+        githubUrl: "",
+        linkedinUrl: "",
+        email: "",
+        portfolioUrl: "",
+        highlights: [],
+      },
+    ]);
+  };
+
+  const handleRemoveCreator = (index: number) => {
+    if (creators.length <= 1) {
+      setToast({ message: "At least one creator profile should remain.", type: "error" });
+      return;
+    }
+    setCreators((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAvatarUpload = async (index: number, file: File) => {
+    setUploadingAvatarIdx(index);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      let fileUrl = "";
+      try {
+        const res = await uploadMediaAction(formData);
+        if (res.success && res.url) fileUrl = res.url;
+      } catch {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        fileUrl = data.url;
+      }
+      if (fileUrl) {
+        handleUpdateCreator(index, "avatarUrl", fileUrl);
+        setToast({ message: "Creator photo uploaded successfully!", type: "success" });
+      }
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to upload creator photo",
+        type: "error",
+      });
+    } finally {
+      setUploadingAvatarIdx(null);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -189,13 +307,21 @@ export default function AdminSettingsPage() {
         departments,
         copyrightText,
         councilNote,
+        aboutSettings: {
+          badge: aboutBadge,
+          title: aboutTitle,
+          subtitle: aboutSubtitle,
+          projectStory: aboutProjectStory,
+          techStack: aboutTechStack.split(",").map((s) => s.trim()).filter(Boolean),
+          creators: creators,
+        },
         socialSettings: {
           geminiApiKey,
           socialWebhookUrl,
           defaultHashtags,
         },
       });
-      setToast({ message: "Site settings and footer updated successfully!", type: "success" });
+      setToast({ message: "Site & Creator settings updated successfully!", type: "success" });
     } catch (err) {
       setToast({
         message: err instanceof Error ? err.message : "Failed to update settings",
@@ -730,7 +856,350 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Section 5: Social Media Broadcast & Webhook Automation */}
+        {/* Section 5: Project Creators & About Page Settings */}
+        <div
+          id="creators"
+          className="p-6 rounded-2xl border space-y-6 scroll-mt-24"
+          style={{
+            background: "hsl(var(--surface-raised))",
+            borderColor: "hsl(var(--border))",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center bg-violet-500/15 text-violet-400 border border-violet-500/20"
+              >
+                <Code2 className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm sm:text-base font-bold text-foreground">Project Creators & About Page Showcase</h2>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-400 border border-violet-500/25 uppercase">
+                    Customizable
+                  </span>
+                </div>
+                <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                  Configure developer profiles, photos, social links, college info, and about page text shown on <a href="/about" target="_blank" className="text-primary underline hover:opacity-80">/about</a>
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAddCreator}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Another Creator
+            </button>
+          </div>
+
+          {/* Top-Level Page Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-black/20 border border-white/5">
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-foreground">
+                Page Header Badge
+              </label>
+              <input
+                type="text"
+                value={aboutBadge}
+                onChange={(e) => setAboutBadge(e.target.value)}
+                placeholder="e.g. PROJECT DEVELOPERS & ARCHITECTS"
+                className="input-field text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-foreground">
+                Main Page Title
+              </label>
+              <input
+                type="text"
+                value={aboutTitle}
+                onChange={(e) => setAboutTitle(e.target.value)}
+                placeholder="e.g. Meet the Creators Behind CampusPulse"
+                className="input-field text-xs"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold mb-1 text-foreground">
+                Page Subtitle / Mission Statement
+              </label>
+              <input
+                type="text"
+                value={aboutSubtitle}
+                onChange={(e) => setAboutSubtitle(e.target.value)}
+                placeholder="e.g. Built with passion by university engineering students for modern, paperless campus events."
+                className="input-field text-xs"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold mb-1 text-foreground">
+                Why This Project Was Built (Origin Story)
+              </label>
+              <textarea
+                rows={3}
+                value={aboutProjectStory}
+                onChange={(e) => setAboutProjectStory(e.target.value)}
+                placeholder="Share the vision, college journey, and what problem CampusPulse solves..."
+                className="input-field text-xs resize-none"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold mb-1 text-foreground">
+                Tech Stack Tags (Comma separated)
+              </label>
+              <input
+                type="text"
+                value={aboutTechStack}
+                onChange={(e) => setAboutTechStack(e.target.value)}
+                placeholder="e.g. Next.js 16, TypeScript, Tailwind CSS, MongoDB, Framer Motion, Capacitor"
+                className="input-field text-xs"
+              />
+            </div>
+          </div>
+
+          {/* Creators List */}
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <User className="w-3.5 h-3.5 text-violet-400" />
+              Creator Profiles ({creators.length})
+            </h3>
+
+            {creators.map((creator, idx) => (
+              <div
+                key={creator.id || idx}
+                className="p-4 sm:p-5 rounded-xl border border-white/10 bg-black/15 space-y-4 relative"
+              >
+                <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold flex items-center justify-center border border-violet-500/30">
+                      {idx + 1}
+                    </span>
+                    <span className="text-xs font-bold text-foreground">
+                      {creator.name || `Creator #${idx + 1}`}
+                    </span>
+                    {creator.role && (
+                      <span className="text-[10px] text-muted-foreground">({creator.role})</span>
+                    )}
+                  </div>
+
+                  {creators.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCreator(idx)}
+                      className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer text-xs flex items-center gap-1"
+                      title="Remove this creator"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={creator.name}
+                      onChange={(e) => handleUpdateCreator(idx, "name", e.target.value)}
+                      placeholder="e.g. Mohd Noaman"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Role / Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={creator.role}
+                      onChange={(e) => handleUpdateCreator(idx, "role", e.target.value)}
+                      placeholder="e.g. Lead Full-Stack Developer & Project Architect"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Department / Branch
+                    </label>
+                    <input
+                      type="text"
+                      value={creator.department || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "department", e.target.value)}
+                      placeholder="e.g. Dept. of Computer Science & Engineering"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      College / University
+                    </label>
+                    <input
+                      type="text"
+                      value={creator.college || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "college", e.target.value)}
+                      placeholder="e.g. P. R. Pote Patil College of Engineering, Amravati"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  {/* Avatar Upload & URL */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground flex items-center justify-between">
+                      <span>Creator Photo / Avatar</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">Upload photo or paste image URL</span>
+                    </label>
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      {/* Avatar preview */}
+                      <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-violet-950/40 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
+                        {creator.avatarUrl ? (
+                          <img
+                            src={creator.avatarUrl}
+                            alt={creator.name || "Avatar"}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-violet-400 font-bold text-sm">
+                            {creator.name ? creator.name.slice(0, 2).toUpperCase() : "IMG"}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 w-full space-y-2">
+                        <input
+                          type="url"
+                          value={creator.avatarUrl || ""}
+                          onChange={(e) => handleUpdateCreator(idx, "avatarUrl", e.target.value)}
+                          placeholder="https://example.com/photo.jpg or upload below"
+                          className="input-field text-xs"
+                        />
+                        <div className="flex items-center gap-2">
+                          <label className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-foreground cursor-pointer flex items-center gap-1.5 transition-colors">
+                            <Upload className="w-3.5 h-3.5 text-violet-400" />
+                            {uploadingAvatarIdx === idx ? "Uploading Photo..." : "Upload Photo File"}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleAvatarUpload(idx, file);
+                              }}
+                            />
+                          </label>
+                          {creator.avatarUrl && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCreator(idx, "avatarUrl", "")}
+                              className="text-[11px] text-rose-400 hover:underline cursor-pointer"
+                            >
+                              Clear photo
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Bio / Description
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={creator.bio || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "bio", e.target.value)}
+                      placeholder="Passionate engineer specializing in full-stack web and mobile apps..."
+                      className="input-field text-xs resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      GitHub URL
+                    </label>
+                    <input
+                      type="url"
+                      value={creator.githubUrl || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "githubUrl", e.target.value)}
+                      placeholder="https://github.com/username"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      LinkedIn URL
+                    </label>
+                    <input
+                      type="url"
+                      value={creator.linkedinUrl || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "linkedinUrl", e.target.value)}
+                      placeholder="https://linkedin.com/in/username"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      value={creator.email || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "email", e.target.value)}
+                      placeholder="developer@gmail.com"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Portfolio / Personal Website URL
+                    </label>
+                    <input
+                      type="url"
+                      value={creator.portfolioUrl || ""}
+                      onChange={(e) => handleUpdateCreator(idx, "portfolioUrl", e.target.value)}
+                      placeholder="https://myportfolio.com"
+                      className="input-field text-xs"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                      Key Highlights / Skills (Comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={creator.highlights ? creator.highlights.join(", ") : ""}
+                      onChange={(e) => {
+                        const tags = e.target.value.split(",").map((t) => t.trim()).filter(Boolean);
+                        handleUpdateCreator(idx, "highlights", tags);
+                      }}
+                      placeholder="e.g. System Architecture, React 19, MongoDB, Capacitor Native"
+                      className="input-field text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 6: Social Media Broadcast & Webhook Automation */}
         <div
           className="p-6 rounded-2xl border space-y-4"
           style={{
