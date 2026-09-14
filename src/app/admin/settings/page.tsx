@@ -31,7 +31,7 @@ import {
   Upload,
 } from "lucide-react";
 import { getSiteSettings, updateSiteSettings } from "@/actions/settings";
-import { ICreatorMember } from "@/models/SiteSettings";
+import { ICreatorMember, ISupportMember } from "@/models/SiteSettings";
 import { uploadMediaAction } from "@/actions/upload";
 import {
   getAdminUsers,
@@ -94,6 +94,22 @@ export default function AdminSettingsPage() {
   ]);
   const [uploadingAvatarIdx, setUploadingAvatarIdx] = useState<number | null>(null);
 
+  // Support Team Members State (Unlimited dynamic members)
+  const [supportMembers, setSupportMembers] = useState<ISupportMember[]>([
+    {
+      id: "support-1",
+      name: "Student Technical Council",
+      role: "Campus Ambassador & Technical Support",
+      department: "Computer Science & Engineering",
+      avatarUrl: "",
+      email: "support@campuspulse.edu",
+      phone: "+91 98765 43210",
+      linkedinUrl: "",
+      notes: "Assisting students with event queries, ticket verification, and digital feedback.",
+    },
+  ]);
+  const [uploadingSupportAvatarIdx, setUploadingSupportAvatarIdx] = useState<number | null>(null);
+
   // New department input state
   const [newDeptLabel, setNewDeptLabel] = useState("");
   const [newDeptHref, setNewDeptHref] = useState("");
@@ -151,6 +167,9 @@ export default function AdminSettingsPage() {
             }
             if (settingsData.aboutSettings.creators && Array.isArray(settingsData.aboutSettings.creators) && settingsData.aboutSettings.creators.length > 0) {
               setCreators(settingsData.aboutSettings.creators);
+            }
+            if (settingsData.aboutSettings.supportMembers && Array.isArray(settingsData.aboutSettings.supportMembers)) {
+              setSupportMembers(settingsData.aboutSettings.supportMembers);
             }
           }
         }
@@ -293,6 +312,68 @@ export default function AdminSettingsPage() {
     }
   };
 
+  // Support Team Members handlers (Unlimited dynamic additions)
+  const handleUpdateSupportMember = (index: number, field: keyof ISupportMember, value: unknown) => {
+    setSupportMembers((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleAddSupportMember = () => {
+    setSupportMembers((prev) => [
+      ...prev,
+      {
+        id: `support-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        name: "",
+        role: "Event Coordinator / Support Volunteer",
+        department: "",
+        avatarUrl: "",
+        email: "",
+        phone: "",
+        linkedinUrl: "",
+        notes: "",
+      },
+    ]);
+  };
+
+  const handleRemoveSupportMember = (index: number) => {
+    setSupportMembers((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSupportAvatarUpload = async (index: number, file: File) => {
+    setUploadingSupportAvatarIdx(index);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      let fileUrl = "";
+      try {
+        const res = await uploadMediaAction(formData);
+        if (res.success && res.url) fileUrl = res.url;
+      } catch {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        fileUrl = data.url;
+      }
+      if (fileUrl) {
+        handleUpdateSupportMember(index, "avatarUrl", fileUrl);
+        setToast({ message: "Support member photo uploaded successfully!", type: "success" });
+      }
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : "Failed to upload member photo",
+        type: "error",
+      });
+    } finally {
+      setUploadingSupportAvatarIdx(null);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -314,6 +395,7 @@ export default function AdminSettingsPage() {
           projectStory: aboutProjectStory,
           techStack: aboutTechStack.split(",").map((s) => s.trim()).filter(Boolean),
           creators: creators,
+          supportMembers: supportMembers,
         },
         socialSettings: {
           geminiApiKey,
@@ -321,7 +403,7 @@ export default function AdminSettingsPage() {
           defaultHashtags,
         },
       });
-      setToast({ message: "Site & Creator settings updated successfully!", type: "success" });
+      setToast({ message: "Site, Creator & Support settings updated successfully!", type: "success" });
     } catch (err) {
       setToast({
         message: err instanceof Error ? err.message : "Failed to update settings",
@@ -1196,6 +1278,242 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Section: Support Team Members (Multiply / Dynamic Unlimited) */}
+          <div id="support-members" className="pt-6 border-t border-white/10 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
+                    <Users className="w-4 h-4 text-emerald-400" />
+                    Project Support Members & Student Volunteers ({supportMembers.length})
+                  </h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 uppercase">
+                    Unlimited
+                  </span>
+                </div>
+                <p className="text-[11px]" style={{ color: "hsl(var(--fg-subtle))" }}>
+                  Aap kitne bhi support members, event coordinators, ya volunteers add kar sakte hain with photos and contact details.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddSupportMember}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Support Member
+              </button>
+            </div>
+
+            {supportMembers.length === 0 ? (
+              <div className="p-6 rounded-xl border border-dashed border-white/15 text-center space-y-2 bg-black/10">
+                <p className="text-xs text-muted-foreground">Abhi koi support member add nahi hai.</p>
+                <button
+                  type="button"
+                  onClick={handleAddSupportMember}
+                  className="btn-secondary py-1.5 px-3 text-xs inline-flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Pehla Support Member Add Karein
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {supportMembers.map((member, sIdx) => (
+                  <div
+                    key={member.id || sIdx}
+                    className="p-4 sm:p-5 rounded-xl border border-white/10 bg-black/20 space-y-4 relative"
+                  >
+                    <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center border border-emerald-500/30">
+                          {sIdx + 1}
+                        </span>
+                        <span className="text-xs font-bold text-foreground">
+                          {member.name || `Support Member #${sIdx + 1}`}
+                        </span>
+                        {member.role && (
+                          <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            {member.role}
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSupportMember(sIdx)}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer text-xs flex items-center gap-1"
+                        title="Remove this support member"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Remove
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          Member Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={member.name}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "name", e.target.value)}
+                          placeholder="e.g. Student Coordinator Name"
+                          className="input-field text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          Role / Responsibility *
+                        </label>
+                        <input
+                          type="text"
+                          value={member.role}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "role", e.target.value)}
+                          placeholder="e.g. Campus Ambassador / Technical Support Lead"
+                          className="input-field text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          Department / Branch
+                        </label>
+                        <input
+                          type="text"
+                          value={member.department || ""}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "department", e.target.value)}
+                          placeholder="e.g. Dept. of Computer Science & Engineering"
+                          className="input-field text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          Contact Phone / WhatsApp
+                        </label>
+                        <input
+                          type="text"
+                          value={member.phone || ""}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "phone", e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className="input-field text-xs"
+                        />
+                      </div>
+
+                      {/* Photo Upload & URL */}
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground flex items-center justify-between">
+                          <span>Member Photo / Avatar</span>
+                          <span className="text-[10px] text-muted-foreground font-normal">Upload photo file or paste image URL</span>
+                        </label>
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
+                          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                            {member.avatarUrl ? (
+                              <img
+                                src={member.avatarUrl}
+                                alt={member.name || "Avatar"}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="text-emerald-400 font-bold text-xs">
+                                {member.name ? member.name.slice(0, 2).toUpperCase() : "SUP"}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 w-full space-y-1.5">
+                            <input
+                              type="url"
+                              value={member.avatarUrl || ""}
+                              onChange={(e) => handleUpdateSupportMember(sIdx, "avatarUrl", e.target.value)}
+                              placeholder="https://example.com/photo.jpg or upload below"
+                              className="input-field text-xs"
+                            />
+                            <div className="flex items-center gap-2">
+                              <label className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-foreground cursor-pointer flex items-center gap-1 transition-colors">
+                                <Upload className="w-3 h-3 text-emerald-400" />
+                                {uploadingSupportAvatarIdx === sIdx ? "Uploading..." : "Upload Photo File"}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleSupportAvatarUpload(sIdx, file);
+                                  }}
+                                />
+                              </label>
+                              {member.avatarUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateSupportMember(sIdx, "avatarUrl", "")}
+                                  className="text-[10px] text-rose-400 hover:underline cursor-pointer"
+                                >
+                                  Clear photo
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          value={member.email || ""}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "email", e.target.value)}
+                          placeholder="member@campuspulse.edu"
+                          className="input-field text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          LinkedIn Profile URL
+                        </label>
+                        <input
+                          type="url"
+                          value={member.linkedinUrl || ""}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "linkedinUrl", e.target.value)}
+                          placeholder="https://linkedin.com/in/username"
+                          className="input-field text-xs"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-semibold mb-1 text-foreground">
+                          Contribution / Role Notes
+                        </label>
+                        <input
+                          type="text"
+                          value={member.notes || ""}
+                          onChange={(e) => handleUpdateSupportMember(sIdx, "notes", e.target.value)}
+                          placeholder="e.g. Managing ticket desk, attendee helpdesk, and live event support."
+                          className="input-field text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={handleAddSupportMember}
+                  className="w-full py-2.5 rounded-xl border border-dashed border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Another Support Member (+1)
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

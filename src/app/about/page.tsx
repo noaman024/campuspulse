@@ -11,6 +11,7 @@ import {
   Target,
   HeartHandshake,
   Mail,
+  Phone,
   Globe,
   Sparkles,
   ExternalLink,
@@ -22,7 +23,7 @@ import {
 import { getAboutSettings } from "@/actions/settings";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ICreatorMember, IAboutSettings } from "@/models/SiteSettings";
+import { ICreatorMember, ISupportMember, IAboutSettings } from "@/models/SiteSettings";
 
 function GithubIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -76,6 +77,19 @@ const DEFAULT_ABOUT: IAboutSettings = {
       highlights: ["System Architecture", "Next.js & React 19", "MongoDB Database", "Capacitor Mobile APK"],
     },
   ],
+  supportMembers: [
+    {
+      id: "support-1",
+      name: "Student Technical Council",
+      role: "Campus Ambassador & Technical Support",
+      department: "Computer Science & Engineering",
+      avatarUrl: "",
+      email: "support@campuspulse.edu",
+      phone: "+91 98765 43210",
+      linkedinUrl: "",
+      notes: "Assisting students with event queries, ticket verification, and digital feedback.",
+    },
+  ],
 };
 
 const STATS = [
@@ -87,27 +101,25 @@ const STATS = [
 
 export default function AboutPage() {
   const { data: session } = useSession();
-  const isAdmin = session?.user && (session.user as { role?: string }).role === "admin";
   const [aboutData, setAboutData] = useState<IAboutSettings>(DEFAULT_ABOUT);
   const [loading, setLoading] = useState(true);
 
+  const isAdmin = session?.user?.role === "admin";
+
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await getAboutSettings();
-        if (data) {
-          setAboutData(data);
-        }
-      } catch (err) {
-        console.error("Failed to load about data:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    getAboutSettings()
+      .then((data) => {
+        if (data) setAboutData(data);
+      })
+      .catch((err) => console.error("Failed to load about data:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const creators = aboutData.creators && aboutData.creators.length > 0 ? aboutData.creators : DEFAULT_ABOUT.creators;
+  const supportMembers =
+    aboutData.supportMembers && aboutData.supportMembers.length > 0
+      ? aboutData.supportMembers
+      : DEFAULT_ABOUT.supportMembers || [];
   const techStack = aboutData.techStack && aboutData.techStack.length > 0 ? aboutData.techStack : DEFAULT_ABOUT.techStack!;
 
   return (
@@ -149,12 +161,18 @@ export default function AboutPage() {
 
             {/* Admin Customize Shortcut */}
             {isAdmin && (
-              <div className="mt-6 flex justify-center">
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
                 <Link
                   href="/admin/settings#creators"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-all shadow-sm"
                 >
-                  <Edit className="w-3.5 h-3.5" /> Customize Creator Profile & Story
+                  <Edit className="w-3.5 h-3.5" /> Customize Creators
+                </Link>
+                <Link
+                  href="/admin/settings#support-members"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-sm"
+                >
+                  <Users className="w-3.5 h-3.5" /> Manage Support Members
                 </Link>
               </div>
             )}
@@ -339,6 +357,137 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Support Team & Volunteers Section (Multiply / Dynamic) ── */}
+      {supportMembers && supportMembers.length > 0 && (
+        <section
+          id="support-team"
+          className="py-14 border-t"
+          style={{
+            background: "radial-gradient(ellipse at top, hsl(150 60% 35% / 0.05), transparent 70%)",
+            borderColor: "hsl(var(--border))",
+          }}
+        >
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Users className="w-3.5 h-3.5" />
+                <span>SUPPORT & ORGANIZING TEAM</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+                Project Support & Student Coordinators
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
+                Dedicated student leaders, ambassadors, and volunteers assisting with on-ground coordination and campus outreach.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {supportMembers.map((member, idx) => {
+                const initials = member.name
+                  ? member.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()
+                  : "SUP";
+
+                return (
+                  <motion.div
+                    key={member.id || idx}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: idx * 0.06 }}
+                    className="glass-card p-5 rounded-2xl border flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                          {member.avatarUrl ? (
+                            <img
+                              src={member.avatarUrl}
+                              alt={member.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-emerald-400 font-bold text-sm">
+                              {initials}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-bold text-foreground truncate">
+                            {member.name}
+                          </h3>
+                          <span className="inline-block text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 truncate max-w-full">
+                            {member.role}
+                          </span>
+                        </div>
+                      </div>
+
+                      {member.department && (
+                        <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 truncate">
+                          <Building2 className="w-3 h-3 flex-shrink-0 text-emerald-400" />
+                          <span className="truncate">{member.department}</span>
+                        </p>
+                      )}
+
+                      {member.notes && (
+                        <p className="text-[11px] text-foreground/80 leading-relaxed line-clamp-3 bg-surface-raised/40 p-2 rounded-lg border border-border/50">
+                          {member.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Contact links */}
+                    {(member.email || member.phone || member.linkedinUrl) && (
+                      <div className="pt-3 mt-3 border-t border-border flex items-center gap-2 flex-wrap">
+                        {member.email && (
+                          <a
+                            href={`mailto:${member.email}`}
+                            title={`Email ${member.name}`}
+                            className="p-1.5 rounded-lg bg-surface-raised border border-border hover:border-emerald-500/40 text-muted-foreground hover:text-emerald-400 text-xs transition-colors flex items-center gap-1"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">Email</span>
+                          </a>
+                        )}
+
+                        {member.phone && (
+                          <a
+                            href={`tel:${member.phone}`}
+                            title={`Call ${member.phone}`}
+                            className="p-1.5 rounded-lg bg-surface-raised border border-border hover:border-emerald-500/40 text-muted-foreground hover:text-emerald-400 text-xs transition-colors flex items-center gap-1"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">Phone</span>
+                          </a>
+                        )}
+
+                        {member.linkedinUrl && (
+                          <a
+                            href={member.linkedinUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="LinkedIn Profile"
+                            className="p-1.5 rounded-lg bg-surface-raised border border-border hover:border-blue-500/40 text-muted-foreground hover:text-blue-400 text-xs transition-colors flex items-center gap-1"
+                          >
+                            <LinkedinIcon className="w-3.5 h-3.5 text-blue-400" />
+                            <span className="text-[10px]">LinkedIn</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Project Story & Vision ── */}
       <section

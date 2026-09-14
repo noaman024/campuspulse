@@ -65,6 +65,19 @@ const DEFAULT_SETTINGS = {
         highlights: ["System Architecture", "Next.js & React 19", "MongoDB Database", "Capacitor Mobile APK"],
       },
     ],
+    supportMembers: [
+      {
+        id: "support-1",
+        name: "Student Technical Council",
+        role: "Campus Ambassador & Technical Support",
+        department: "Computer Science & Engineering",
+        avatarUrl: "",
+        email: "support@campuspulse.edu",
+        phone: "+91 98765 43210",
+        linkedinUrl: "",
+        notes: "Assisting students with event queries, ticket verification, and digital feedback.",
+      },
+    ],
   },
 };
 
@@ -80,6 +93,9 @@ export async function getSiteSettings() {
     if (!settings.aboutSettings) {
       settings.aboutSettings = DEFAULT_SETTINGS.aboutSettings;
     }
+    if (!settings.aboutSettings.supportMembers) {
+      settings.aboutSettings.supportMembers = DEFAULT_SETTINGS.aboutSettings.supportMembers;
+    }
     return JSON.parse(JSON.stringify(settings));
   } catch (err) {
     console.error("Failed to get site settings, using defaults:", err);
@@ -92,7 +108,11 @@ export async function getAboutSettings() {
     await dbConnect();
     const settings = await SiteSettings.findOne().select("aboutSettings").lean();
     if (settings && settings.aboutSettings) {
-      return JSON.parse(JSON.stringify(settings.aboutSettings));
+      const about = JSON.parse(JSON.stringify(settings.aboutSettings));
+      if (!about.supportMembers) {
+        about.supportMembers = DEFAULT_SETTINGS.aboutSettings.supportMembers;
+      }
+      return about;
     }
     return DEFAULT_SETTINGS.aboutSettings;
   } catch (err) {

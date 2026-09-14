@@ -20,6 +20,18 @@ export interface ICreatorMember {
   highlights?: string[];
 }
 
+export interface ISupportMember {
+  id: string;
+  name: string;
+  role: string;
+  department?: string;
+  avatarUrl?: string;
+  email?: string;
+  phone?: string;
+  linkedinUrl?: string;
+  notes?: string;
+}
+
 export interface IAboutSettings {
   badge?: string;
   title?: string;
@@ -27,6 +39,7 @@ export interface IAboutSettings {
   projectStory?: string;
   techStack?: string[];
   creators: ICreatorMember[];
+  supportMembers?: ISupportMember[];
 }
 
 export interface ISiteSettings extends Document {
@@ -191,6 +204,19 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
             email: "mdnoaman024@gmail.com",
             portfolioUrl: "",
             highlights: ["System Architecture", "Next.js & React 19", "MongoDB Database", "Capacitor Mobile APK"],
+          },
+        ],
+        supportMembers: [
+          {
+            id: "support-1",
+            name: "Student Technical Council",
+            role: "Campus Ambassador & Technical Support",
+            department: "Computer Science & Engineering",
+            avatarUrl: "",
+            email: "support@campuspulse.edu",
+            phone: "+91 98765 43210",
+            linkedinUrl: "",
+            notes: "Assisting students with event queries, ticket verification, and digital feedback.",
           },
         ],
       },
