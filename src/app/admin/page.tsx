@@ -26,8 +26,6 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  MapPin,
-  Tag,
 } from "lucide-react";
 import {
   getDashboardStats,

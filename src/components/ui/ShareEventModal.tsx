@@ -7,11 +7,7 @@ import {
   Share2,
   Copy,
   Check,
-  Mail,
-  Send,
   QrCode,
-  Sparkles,
-  ExternalLink,
 } from "lucide-react";
 import QRCode from "qrcode";
 

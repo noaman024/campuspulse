@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { XCircle, RefreshCw, ArrowLeft, AlertTriangle } from "lucide-react";
+import { XCircle, RefreshCw } from "lucide-react";
 
 export default function PaymentFailedPage() {
   return (

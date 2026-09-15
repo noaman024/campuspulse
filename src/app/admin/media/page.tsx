@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Image as ImageIcon,
@@ -13,11 +13,9 @@ import {
   Copy,
   Check,
   X,
-  ExternalLink,
   Filter,
   Star,
   Sparkles,
-  Share2,
 } from "lucide-react";
 import { getAdminEvents, addEventMedia, removeEventMedia, setEventBanner } from "@/actions/events";
 import { uploadMediaAction } from "@/actions/upload";
@@ -59,7 +57,7 @@ export default function MediaPage() {
     setIsStudioOpen(true);
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const data = await getAdminEvents();
       setEvents(data);
@@ -71,11 +69,11 @@ export default function MediaPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedEventId]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0 || !selectedEventId) return;
@@ -170,7 +168,7 @@ export default function MediaPage() {
       }
       setToast({ message: "Media asset deleted", type: "success" });
       await loadData();
-    } catch (err) {
+    } catch {
       setToast({ message: "Failed to delete media", type: "error" });
     }
   };

@@ -5,8 +5,6 @@ import { motion } from "framer-motion";
 import {
   Building2,
   Users,
-  QrCode,
-  ClipboardList,
   Zap,
   Target,
   HeartHandshake,
@@ -14,7 +12,6 @@ import {
   Phone,
   Globe,
   Sparkles,
-  ExternalLink,
   Code2,
   Edit,
   GraduationCap,
@@ -23,7 +20,7 @@ import {
 import { getAboutSettings } from "@/actions/settings";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ICreatorMember, ISupportMember, IAboutSettings } from "@/models/SiteSettings";
+import { IAboutSettings } from "@/models/SiteSettings";
 
 function GithubIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -102,7 +99,6 @@ const STATS = [
 export default function AboutPage() {
   const { data: session } = useSession();
   const [aboutData, setAboutData] = useState<IAboutSettings>(DEFAULT_ABOUT);
-  const [loading, setLoading] = useState(true);
 
   const isAdmin = session?.user?.role === "admin";
 
@@ -111,8 +107,7 @@ export default function AboutPage() {
       .then((data) => {
         if (data) setAboutData(data);
       })
-      .catch((err) => console.error("Failed to load about data:", err))
-      .finally(() => setLoading(false));
+      .catch((err) => console.error("Failed to load about data:", err));
   }, []);
 
   const creators = aboutData.creators && aboutData.creators.length > 0 ? aboutData.creators : DEFAULT_ABOUT.creators;

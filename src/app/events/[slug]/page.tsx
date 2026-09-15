@@ -9,7 +9,6 @@ import {
   Calendar,
   MapPin,
   Users,
-  Clock,
   ArrowLeft,
   Share2,
   QrCode,

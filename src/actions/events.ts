@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/db/connection";
-import Event, { IEvent } from "@/models/Event";
+import Event from "@/models/Event";
 import { requireAdmin, getCurrentUser } from "@/lib/auth/rbac";
 import { resolveLocalOrDirectUrlAction } from "@/actions/upload";
 import { v4 as uuidv4 } from "uuid";

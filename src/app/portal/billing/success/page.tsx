@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle, Calendar, ArrowRight, Download, Zap } from "lucide-react";
+import { CheckCircle, Calendar } from "lucide-react";
 
 export default function PaymentSuccessPage() {
   return (

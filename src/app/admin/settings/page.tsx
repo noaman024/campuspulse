@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import {
   Save,
   Building2,
@@ -13,21 +12,14 @@ import {
   Globe,
   FileText,
   ShieldCheck,
-  CheckCircle,
-  AlertCircle,
   Sparkles,
   UserCheck,
   UserPlus,
-  Lock,
   Eye,
   EyeOff,
   Users,
   Code2,
-  GraduationCap,
   User,
-  Image as ImageIcon,
-  ExternalLink,
-  Award,
   Upload,
 } from "lucide-react";
 import { getSiteSettings, updateSiteSettings } from "@/actions/settings";

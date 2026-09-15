@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Sparkles,
-  Share2,
   Copy,
   Check,
   Upload,
@@ -13,16 +12,12 @@ import {
   Film,
   ExternalLink,
   RefreshCw,
-  Eye,
   Send,
-  Download,
   AlertCircle,
   HelpCircle,
-  Clock,
   Layers,
   CheckCircle2,
   Settings,
-  Link as LinkIcon,
 } from "lucide-react";
 import {
   generateSocialCaptionsAction,
@@ -90,7 +85,6 @@ export default function SocialMediaStudioModal({
 
   // Custom Upload State
   const [uploadingCustom, setUploadingCustom] = useState(false);
-  const [customFilePreview, setCustomFilePreview] = useState<string>("");
 
   // Prompt / Details State
   const [customEventTitle, setCustomEventTitle] = useState<string>("");
@@ -107,7 +101,6 @@ export default function SocialMediaStudioModal({
   });
   const [suggestedHashtags, setSuggestedHashtags] = useState<string[]>([]);
   const [activePlatform, setActivePlatform] = useState<SocialPlatform>("instagram");
-  const [providerUsed, setProviderUsed] = useState<string>("");
 
   // UI States
   const [generating, setGenerating] = useState(false);
@@ -138,14 +131,13 @@ export default function SocialMediaStudioModal({
     if (preselectedEventId) setSelectedEventId(preselectedEventId);
     if (preselectedMediaUrl) {
       setSelectedMediaUrl(preselectedMediaUrl);
-      setCustomFilePreview(preselectedMediaUrl);
     }
     if (preselectedMediaType) setMediaType(preselectedMediaType);
 
     if (events.length > 0 && !selectedEventId) {
       setSelectedEventId(events[0]._id);
     }
-  }, [preselectedEventId, preselectedMediaUrl, preselectedMediaType, events]);
+  }, [preselectedEventId, preselectedMediaUrl, preselectedMediaType, events, selectedEventId]);
 
   // Selected event object
   const activeEvent = events.find((e) => e._id === selectedEventId);
@@ -160,7 +152,7 @@ export default function SocialMediaStudioModal({
         if (firstPhoto) setSelectedMediaUrl(firstPhoto);
       }
     }
-  }, [activeEvent, mediaSource]);
+  }, [activeEvent, mediaSource, selectedMediaUrl]);
 
   if (!isOpen) return null;
 
@@ -171,10 +163,6 @@ export default function SocialMediaStudioModal({
 
     const isVideo = file.type.startsWith("video/");
     setMediaType(isVideo ? "video" : "photo");
-
-    // Local object preview
-    const localUrl = URL.createObjectURL(file);
-    setCustomFilePreview(localUrl);
 
     setUploadingCustom(true);
     setStatusMessage({ text: "Uploading media to server...", type: "info" });
@@ -195,7 +183,6 @@ export default function SocialMediaStudioModal({
       }
 
       setSelectedMediaUrl(uploadedUrl);
-      setCustomFilePreview(uploadedUrl);
       setStatusMessage({ text: "Media uploaded successfully!", type: "success" });
     } catch (err) {
       setStatusMessage({ text: err instanceof Error ? err.message : "Upload failed", type: "error" });
@@ -208,12 +195,12 @@ export default function SocialMediaStudioModal({
   const handleGenerateCaptions = async () => {
     const eventTitleToUse = customEventTitle.trim() || activeEvent?.title || "Campus Spotlight";
     if (!eventTitleToUse) {
-      setStatusMessage({ text: "Please enter or select an event title first.", type: "error" });
+      setStatusMessage({ text: "Please enter or select an event title first", type: "error" });
       return;
     }
 
     setGenerating(true);
-    setStatusMessage(null);
+    setStatusMessage({ text: "Generating high-converting captions with AI...", type: "info" });
 
     try {
       const res: CaptionGenerationResult = await generateSocialCaptionsAction({
@@ -236,7 +223,6 @@ export default function SocialMediaStudioModal({
         whatsapp: res.whatsapp,
       });
       setSuggestedHashtags(res.suggestedHashtags || []);
-      setProviderUsed(res.provider);
 
       setStatusMessage({
         text:

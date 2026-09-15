@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, ArrowLeft, CheckCircle, AlertCircle, Zap } from "lucide-react";
+import { Mail, ArrowLeft, CheckCircle, Zap } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

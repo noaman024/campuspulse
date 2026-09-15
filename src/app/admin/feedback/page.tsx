@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ClipboardList,
   Calendar,
   Eye,
-  Edit,
   Plus,
   BarChart3,
   CheckCircle,
-  XCircle,
   Trash2,
   X,
   Star,
@@ -55,7 +53,7 @@ export default function AdminFeedbackPage() {
     { prompt: "What was the most valuable part of the event?", type: "text", options: [], isRequired: false },
   ]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [formsData, eventsData] = await Promise.all([
         getAllFeedbackForms(),
@@ -72,11 +70,11 @@ export default function AdminFeedbackPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedEventId]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleEventChange = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -182,7 +180,7 @@ export default function AdminFeedbackPage() {
       await deleteFeedbackForm(formId);
       setToast({ message: "Feedback form deleted", type: "success" });
       setForms((prev) => prev.filter((f) => f._id !== formId));
-    } catch (err) {
+    } catch {
       setToast({ message: "Failed to delete form", type: "error" });
     }
   };
@@ -197,7 +195,7 @@ export default function AdminFeedbackPage() {
         message: updated.acceptingResponses ? "Form opened for responses" : "Form closed for responses",
         type: "success",
       });
-    } catch (err) {
+    } catch {
       setToast({ message: "Failed to update form status", type: "error" });
     }
   };

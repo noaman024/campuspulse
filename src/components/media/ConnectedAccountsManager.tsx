@@ -10,7 +10,6 @@ import {
   Check,
   Power,
   X,
-  HelpCircle,
 } from "lucide-react";
 import {
   getConnectedAccountsAction,

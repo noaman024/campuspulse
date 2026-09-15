@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ClipboardList,
@@ -9,8 +10,6 @@ import {
   ArrowRight,
   CheckCircle,
   Sparkles,
-  MapPin,
-  HelpCircle,
   Check,
 } from "lucide-react";
 import { getAvailableFeedbackForms } from "@/actions/feedback";
@@ -20,6 +19,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import { useSession } from "next-auth/react";
 
 export default function FeedbackListPage() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [forms, setForms] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ export default function FeedbackListPage() {
             action={{
               label: "Explore Upcoming Events",
               onClick: () => {
-                window.location.href = "/events";
+                router.push("/events");
               },
             }}
           />

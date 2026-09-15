@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Star,
@@ -34,7 +33,6 @@ const likertValues = [
 
 export default function FillFeedbackPage({ params }: { params: Promise<{ formId: string }> }) {
   const { formId } = use(params);
-  const router = useRouter();
 
   const [form, setForm] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);

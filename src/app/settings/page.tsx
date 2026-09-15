@@ -9,13 +9,9 @@ import {
   Building,
   Lock,
   Bell,
-  Shield,
   Save,
-  CheckCircle,
-  AlertCircle,
   Key,
 } from "lucide-react";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Toast from "@/components/ui/Toast";
 
 export default function AccountSettingsPage() {

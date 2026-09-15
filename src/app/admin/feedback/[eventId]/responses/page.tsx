@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, BarChart3, Users, Star, FileText, Download } from "lucide-react";
+import { ArrowLeft, BarChart3, Users, Star, FileText } from "lucide-react";
 import { getFeedbackResponses } from "@/actions/feedback";
 import { getEventById } from "@/actions/events";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";

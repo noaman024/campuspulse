@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Plus,
@@ -29,6 +30,7 @@ const statusStyles: Record<string, { bg: string; color: string }> = {
 };
 
 export default function AdminEventsPage() {
+  const router = useRouter();
   const [events, setEvents] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -137,7 +139,7 @@ export default function AdminEventsPage() {
           icon={Calendar}
           title="No Events Found"
           description={search ? "Try a different search term" : "Create your first event to get started"}
-          action={!search ? { label: "Create Event", onClick: () => window.location.href = "/admin/events/new" } : undefined}
+          action={!search ? { label: "Create Event", onClick: () => router.push("/admin/events/new") } : undefined}
         />
       ) : (
         <div className="glass-card rounded-xl overflow-hidden">

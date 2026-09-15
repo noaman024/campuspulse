@@ -1,15 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  Shield,
   ArrowLeft,
   Calendar,
-  FileText,
-  Lock,
   CheckCircle,
   HelpCircle,
 } from "lucide-react";
-import { format } from "date-fns";
 
 const policyDetails: Record<
   string,

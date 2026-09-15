@@ -10,7 +10,6 @@ import {
   QrCode,
   MessageSquare,
   ClipboardList,
-  Sparkles,
   Shield,
   Users,
   Image as ImageIcon,
@@ -19,11 +18,9 @@ import {
   BarChart3,
   Globe,
   Zap,
-  ChevronRight,
   Compass,
   Check,
   Building2,
-  MapPin,
 } from "lucide-react";
 
 /* ─── Animated Counter Hook ─── */

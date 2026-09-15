@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, Calendar, SlidersHorizontal } from "lucide-react";
+import { Search, Calendar } from "lucide-react";
 import { getEvents } from "@/actions/events";
 import EventCard from "@/components/ui/EventCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";

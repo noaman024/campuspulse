@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Clock, RefreshCw, ArrowLeft } from "lucide-react";
+import { Clock, RefreshCw } from "lucide-react";
 
 export default function PaymentPendingPage() {
   return (

@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle, CheckCircle, Eye } from "lucide-react";
 import { getFeedbackFormByEvent, createFeedbackForm, updateFeedbackForm } from "@/actions/feedback";
 import { getEventById } from "@/actions/events";
 import FeedbackFormBuilder, { FormQuestion } from "@/components/ui/FeedbackFormBuilder";
@@ -12,7 +11,6 @@ import Link from "next/link";
 
 export default function EditFeedbackFormPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = use(params);
-  const router = useRouter();
 
   const [event, setEvent] = useState<Record<string, unknown> | null>(null);
   const [formId, setFormId] = useState<string | null>(null);

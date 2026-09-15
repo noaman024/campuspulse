@@ -6,18 +6,13 @@ import {
   FileText,
   Download,
   Calendar,
-  Users,
-  CheckCircle,
-  Clock,
   Printer,
   Edit,
-  Sparkles,
   UserCheck,
   Target,
   X,
   Eye,
   Award,
-  Filter,
 } from "lucide-react";
 import { getAdminEvents, updateEventReport } from "@/actions/events";
 import { format } from "date-fns";

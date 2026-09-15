@@ -17,7 +17,6 @@ import {
   Zap,
   Printer,
   ArrowLeft,
-  Sparkles,
   Clock,
   UserCheck,
 } from "lucide-react";

@@ -12,13 +12,10 @@ import {
   FileText,
   Save,
   AlertCircle,
-  Image as ImageIcon,
   Video,
-  Upload,
   UserCheck,
   Target,
   Sparkles,
-  X,
   CheckCircle2,
   Eye,
   Copy,
@@ -27,7 +24,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { createEvent } from "@/actions/events";
-import { uploadMediaAction } from "@/actions/upload";
 import { BANNER_PRESETS } from "@/lib/constants/event-presets";
 import DragDropUpload from "@/components/ui/DragDropUpload";
 import Link from "next/link";
@@ -56,8 +52,6 @@ export default function NewEventPage() {
   };
 
   const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     title: "",
@@ -78,43 +72,6 @@ export default function NewEventPage() {
 
   const updateField = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleFileUpload = async (file: File, type: "image" | "video") => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    if (type === "image") setUploadingImage(true);
-    else setUploadingVideo(true);
-
-    try {
-      let fileUrl = "";
-      try {
-        const res = await uploadMediaAction(formData);
-        if (res.success && res.url) {
-          fileUrl = res.url;
-        }
-      } catch {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Upload failed");
-        fileUrl = data.url;
-      }
-
-      if (type === "image") {
-        updateField("bannerUrl", fileUrl);
-      } else {
-        updateField("videoUrl", fileUrl);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload file");
-    } finally {
-      if (type === "image") setUploadingImage(false);
-      else setUploadingVideo(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -452,7 +409,7 @@ export default function NewEventPage() {
             </Link>
             <button
               type="submit"
-              disabled={loading || uploadingImage || uploadingVideo}
+              disabled={loading}
               className="btn-primary py-2.5 px-6 text-sm disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (

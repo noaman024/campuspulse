@@ -2,21 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   CreditCard,
   CheckCircle,
-  Zap,
-  Sparkles,
-  Shield,
-  ArrowRight,
   Clock,
   XCircle,
-  AlertTriangle,
 } from "lucide-react";
 import Toast from "@/components/ui/Toast";
 
 export default function BillingPortalPage() {
+  const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<"free" | "pro" | "club">("free");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -77,7 +73,7 @@ export default function BillingPortalPage() {
       setCurrentPlan("free");
       setToast({ message: "Subscription downgraded to Free Plan.", type: "success" });
     } else {
-      window.location.href = `/portal/billing/success?plan=${planId}`;
+      router.push(`/portal/billing/success?plan=${planId}`);
     }
   };
 
