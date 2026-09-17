@@ -2,13 +2,10 @@ import mongoose from "mongoose";
 import dns from "dns";
 
 // Fix for Node.js SRV record resolution behind restricted local DNS / WiFi
-// Guarded against Vercel/serverless environments where custom DNS servers might be restricted
 try {
-  if (!process.env.VERCEL) {
-    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
-  }
+  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
 } catch {
-  // Ignore in serverless/restricted environments
+  // Ignore in restricted environments
 }
 
 interface MongooseCache {

@@ -32,8 +32,8 @@ export async function uploadMediaAction(formData: FormData): Promise<{ success: 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  // 1. In serverless / production environments (like Vercel), the filesystem (/var/task) is read-only.
-  // Check if we are running in Vercel or if filesystem write fails:
+  // 1. In read-only or containerized production environments, filesystem write may be restricted.
+  // Attempt to write to local public/uploads directory first:
   try {
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     if (!existsSync(uploadDir)) {
@@ -56,9 +56,9 @@ export async function uploadMediaAction(formData: FormData): Promise<{ success: 
       fileName: uniqueFileName,
     };
   } catch (fsError) {
-    console.warn("Filesystem is read-only (e.g. Vercel serverless). Using high-reliability Data URI fallback:", fsError);
+    console.warn("Filesystem is read-only. Using high-reliability Data URI fallback:", fsError);
 
-    // Fallback: Return Base64 Data URI for images and video clips so uploads always succeed on Vercel
+    // Fallback: Return Base64 Data URI for images and video clips so uploads always succeed
     if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
       const base64 = buffer.toString("base64");
       return {
@@ -68,7 +68,7 @@ export async function uploadMediaAction(formData: FormData): Promise<{ success: 
       };
     }
 
-    throw new Error("Filesystem storage is read-only on this serverless deployment. Please use an image or direct URL.");
+    throw new Error("Filesystem storage is read-only on this deployment. Please use an image or direct URL.");
   }
 }
 

@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'public',
   server: {
     // For local dev or remote production URL
-    url: 'https://campuspulse.vercel.app',
+    url: process.env.APP_URL || 'http://localhost:3000',
     cleartext: true,
     androidScheme: 'https',
   },

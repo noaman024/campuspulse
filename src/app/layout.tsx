@@ -15,7 +15,7 @@ export const viewport: Viewport = {
 
 const siteUrl = process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.startsWith("http")
   ? process.env.NEXTAUTH_URL
-  : "https://campuspulse.vercel.app";
+  : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -73,10 +73,10 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "CampusPulse",
-  url: "https://campuspulse.vercel.app",
+  url: siteUrl,
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://campuspulse.vercel.app/events?search={search_term_string}",
+    target: `${siteUrl}/events?search={search_term_string}`,
     "query-input": "required name=search_term_string",
   },
 };

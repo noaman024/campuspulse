@@ -3,7 +3,7 @@ import dbConnect from '@/lib/db/connection';
 import Event from '@/models/Event';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://campuspulse.vercel.app';
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
