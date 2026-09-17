@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "firebase:login": "npx firebase-tools login",
+    "firebase:deploy": "npx firebase-tools deploy"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

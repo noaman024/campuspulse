@@ -1,0 +1,32 @@
+# Firebase App Hosting configuration for CampusPulse Next.js application
+# Reference: https://firebase.google.com/docs/app-hosting/configure
+
+runConfig:
+  # Minimum and maximum instances for auto-scaling
+  minInstances: 0
+  maxInstances: 4
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 1024
+
+env:
+  # Public NextAuth configuration
+  - variable: NEXTAUTH_URL
+    value: "http://localhost:3000"
+    availability:
+      - RUNTIME
+      - BUILD
+
+  # Atlas MongoDB and Authentication Secrets
+  # In Firebase App Hosting, you can also bind these to Cloud Secret Manager
+  - variable: MONGODB_URI
+    availability:
+      - RUNTIME
+
+  - variable: NEXTAUTH_SECRET
+    availability:
+      - RUNTIME
+
+  - variable: JWT_SECRET
+    availability:
+      - RUNTIME
