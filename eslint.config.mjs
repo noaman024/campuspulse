@@ -16,13 +16,14 @@ const eslintConfig = defineConfig([
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
+    ".firebase/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
     "android/**",
     "scripts/**",
+    "public/uploads/**",
   ]),
 ]);
 
