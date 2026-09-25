@@ -668,12 +668,12 @@ async function generatePresentation() {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // SLIDE 10: NATIVE ANDROID MOBILE APP (CAPACITOR 8.5)
+  // SLIDE 10: USER WORKFLOW & DATA FLOW DIAGRAM (DFD)
   // ═══════════════════════════════════════════════════════════════
   {
     const slide = pres.addSlide();
     slide.background = { color: BG_COLOR };
-    addHeader(slide, "Native Android Mobile Application (Capacitor 8.5)", "09 / Cross-Platform Engineering", 10);
+    addHeader(slide, "User Workflow & Data Flow Diagram (DFD)", "09 / System Workflow & DFD", 10);
 
     slide.addShape(pres.ShapeType.roundRect, {
       x: 0.8,
@@ -686,65 +686,17 @@ async function generatePresentation() {
     });
 
     slide.addText([
-      { text: "• Hybrid Native Architecture:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Packaged using Capacitor 8.5 into a full-screen, hardware-accelerated Android WebView with native lifecycle controls.\n\n", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "1. Student Discovery & Registration Flow:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• Student browses the event catalog with category filters (Technical/Cultural/Sports).\n• Clicks 'Register for Event' → System atomically reserves the seat & generates a unique Reference ID.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Standalone Production Binary (CampusPulse.apk):\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Pre-compiled APK (Application ID: com.campuspulse.app, Size: ~3.68 MB) ready for direct sideloading and Play Store distribution.\n\n", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "2. Live In-Session Engagement Flow:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• During live talks/sessions, attendee opens the live Q&A forum.\n• Submits questions & upvotes trending peer queries in real time without interrupting speakers.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Native Assets & Brand Isolation:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Custom branded splash screens (splash.png) and adaptive launcher icons across all Android DPI buckets (hdpi to xxxhdpi).\n\n", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "3. Post-Event Feedback Submission:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• When the event concludes, attendee completes a dynamic survey form (1-5 star ratings & comments).\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Live Sync Cloud Updates:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Connects to production remote URL (APP_URL), enabling web updates to reflect instantly on mobile devices without requiring app store updates.", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
-    ], {
-      x: 1.1,
-      y: 1.75,
-      w: 5.0,
-      h: 4.8,
-      fontFace: "Calibri",
-      lineSpacing: 15,
-    });
-
-    addPlaceholder(
-      slide,
-      "[INSERT SCREENSHOT: Android App / Phone Mockup]",
-      "Photo of CampusPulse running on an Android smartphone screen, showing the mobile navigation drawer and event cards."
-    );
-
-    slide.addNotes("CampusPulse is not just a website; it is packaged as a native Android APK using Capacitor 8.5. We have already compiled CampusPulse.apk which can be installed directly on any student smartphone.");
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // SLIDE 11: SECURITY, RBAC & DEVOPS DEPLOYMENT
-  // ═══════════════════════════════════════════════════════════════
-  {
-    const slide = pres.addSlide();
-    slide.background = { color: BG_COLOR };
-    addHeader(slide, "Security, RBAC & Multi-Platform DevOps", "10 / DevOps & Governance", 11);
-
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 0.8,
-      y: 1.55,
-      w: 5.6,
-      h: 5.2,
-      rectRadius: 0.15,
-      fill: { color: CARD_BG },
-      line: { color: CARD_BORDER, width: 1 }
-    });
-
-    slide.addText([
-      { text: "1. Role-Based Access Control (RBAC):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "• Student Role: Can view events, register for sessions, and post Q&A queries.\n• Admin Role: Exclusive access to create/edit events, build surveys, and download reports.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
-
-      { text: "2. User Authentication & Password Protection:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "• Secure Login: Powered by NextAuth with encrypted session tokens.\n• Password Hashing: Passwords are encrypted using Bcrypt before saving to database.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
-
-      { text: "3. Online Cloud Hosting (Netlify):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "• 24/7 Availability: Hosted online on Netlify so students can access from any mobile or PC.\n• Automatic Updates: Pushing code to GitHub automatically redeploys the live platform.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
-
-      { text: "4. Deployment Portability (Docker):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "• Container Support: Can also run on local college servers or VPS using Docker.", options: { color: TEXT_LIGHT, fontSize: 10 } },
+      { text: "4. Admin & Coordinator Management Flow:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• Admin creates events with capacity limits, monitors registrations, and exports 1-click PDF reports.", options: { color: TEXT_LIGHT, fontSize: 10 } },
     ], {
       x: 1.1,
       y: 1.75,
@@ -756,11 +708,59 @@ async function generatePresentation() {
 
     addPlaceholder(
       slide,
-      "[INSERT DEPLOYMENT DIAGRAM]",
-      "Simple flow: Code on GitHub → Automatic Build → Live Website on Netlify & Android Mobile App."
+      "[INSERT DATA FLOW DIAGRAM / DFD]",
+      "Flowchart: User Login → Event Discovery → 1-Click Registration → Live Q&A → Survey Feedback → Admin Report Generation."
     );
 
-    slide.addNotes("For security, students and admins have separate roles so students cannot modify events. Passwords are encrypted safely using Bcrypt. For deployment, the platform is hosted online on Netlify with automated updates from GitHub.");
+    slide.addNotes("Sir, Slide 10 explains the complete User Workflow and Data Flow. A student logs in, discovers events, and registers with 1 click. During the event, they participate in live Q&A, and post-event they submit feedback. On the coordinator side, all registrations and feedback are tracked in real time.");
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SLIDE 11: SYSTEM TESTING & VALIDATION RESULTS
+  // ═══════════════════════════════════════════════════════════════
+  {
+    const slide = pres.addSlide();
+    slide.background = { color: BG_COLOR };
+    addHeader(slide, "System Testing & Validation Results", "10 / Testing & Verification", 11);
+
+    slide.addShape(pres.ShapeType.roundRect, {
+      x: 0.8,
+      y: 1.55,
+      w: 5.6,
+      h: 5.2,
+      rectRadius: 0.15,
+      fill: { color: CARD_BG },
+      line: { color: CARD_BORDER, width: 1 }
+    });
+
+    slide.addText([
+      { text: "1. Authentication & Security Testing:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Verified secure student login & password encryption via Bcrypt.\n• Tested Role Guards: Confirmed student accounts cannot access admin routes (/admin).\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
+
+      { text: "2. Capacity Lock & RSVP Testing:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Tested event limit: Verified system blocks registrations when maxCapacity is reached ('Event Full').\n• Verified that cancellation immediately restores seat availability for other students.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
+
+      { text: "3. Live Q&A Deduplication Testing:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Tested upvote logic: Confirmed a student cannot double-vote or spam upvotes on the same question.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
+
+      { text: "4. Device Responsiveness & Survey Validation:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Verified form submissions and UI responsiveness across Google Chrome, Edge, and mobile screens.", options: { color: TEXT_LIGHT, fontSize: 10 } },
+    ], {
+      x: 1.1,
+      y: 1.75,
+      w: 5.0,
+      h: 4.8,
+      fontFace: "Calibri",
+      lineSpacing: 14,
+    });
+
+    addPlaceholder(
+      slide,
+      "[INSERT TEST CASES SUMMARY TABLE]",
+      "Table showing key test cases: User Authentication, Seat Capacity Limit, Q&A Upvote Locking, and Survey Submission — All Passed (100%)."
+    );
+
+    slide.addNotes("In Slide 11, we cover system testing. We conducted functional testing on core modules: verifying that capacity locks prevent overbooking, upvoting cannot be duplicated, unauthorized users cannot access admin pages, and forms validate correctly across mobile and desktop.");
   }
 
   // ═══════════════════════════════════════════════════════════════
