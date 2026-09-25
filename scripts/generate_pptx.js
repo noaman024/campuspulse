@@ -380,12 +380,12 @@ async function generatePresentation() {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // SLIDE 4: SYSTEM ARCHITECTURE & TECH STACK
+  // SLIDE 4: SYSTEM ARCHITECTURE & TECH STACK (SIMPLIFIED)
   // ═══════════════════════════════════════════════════════════════
   {
     const slide = pres.addSlide();
     slide.background = { color: BG_COLOR };
-    addHeader(slide, "System Architecture & Technology Stack", "03 / Technical Foundations", 4);
+    addHeader(slide, "System Architecture & Technologies Used", "03 / Technical Overview", 4);
 
     slide.addShape(pres.ShapeType.roundRect, {
       x: 0.8,
@@ -398,20 +398,17 @@ async function generatePresentation() {
     });
 
     slide.addText([
-      { text: "• Frontend Layer:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Next.js 16.3.3 (Turbopack, App Router), React 19.2.8, Tailwind CSS v4, Framer Motion for smooth micro-animations, Lucide React icons.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
+      { text: "1. Frontend (User Interface):\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• React.js & Next.js: For building clean, interactive web pages and smooth page navigation.\n• Tailwind CSS: Provides a modern, responsive design that works on both mobile phones and laptops.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Backend & Server Actions:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Next.js Server Actions (src/actions/) with 50MB body streaming, Edge Route Handlers, role-based middleware guards.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
+      { text: "2. Backend (Application Logic):\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• Node.js & Next.js: Handles event registrations, form submissions, and user requests.\n• NextAuth: Simple and secure login management for students and college admins.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Database & ORM:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "MongoDB Atlas Cloud, Mongoose 9.9.4 with Global Connection Caching Singleton and Google Public DNS (8.8.8.8) SRV resolver.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
+      { text: "3. Database (Data Storage):\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• MongoDB Atlas: Cloud NoSQL database that stores user profiles, event details, and survey feedback.\n• Mongoose: Connects our application easily to MongoDB with structured data schemas.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Authentication & Security:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "NextAuth.js v4 (Stateless JWT sessions, Bcrypt password hashing with 10 salt rounds, strict student/admin RBAC).\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
-
-      { text: "• Mobile & Deployment:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
-      { text: "Capacitor 8.5 (Native Android APK), Netlify Serverless with automated GitHub webhooks, Multi-stage Docker container.", options: { color: TEXT_LIGHT, fontSize: 10 } },
+      { text: "4. Architecture & Mobile Support:\n", options: { bold: true, color: ACCENT_INDIGO, fontSize: 11.5 } },
+      { text: "• 3-Tier Architecture: Presentation Layer (UI) → Application Layer (Server) → Database (MongoDB).\n• Capacitor: Packages the web project into an installable Android App (APK).", options: { color: TEXT_LIGHT, fontSize: 10 } },
     ], {
       x: 1.1,
       y: 1.7,
@@ -423,11 +420,11 @@ async function generatePresentation() {
 
     addPlaceholder(
       slide,
-      "[INSERT ARCHITECTURE DIAGRAM]",
-      "Three-tier architecture diagram showing Client (Web & Android), Next.js 16 Server Actions / NextAuth, and MongoDB Atlas Persistence layer."
+      "[INSERT 3-TIER ARCHITECTURE DIAGRAM]",
+      "Simple 3-tier diagram: User Interface (Web / Android) → Application Server (Node/Next.js) → Cloud Database (MongoDB Atlas)."
     );
 
-    slide.addNotes("CampusPulse is built using the latest industry standards: Next.js 16 App Router with Turbopack, React 19, MongoDB Atlas with connection pooling, NextAuth with Bcrypt encryption, and Capacitor for native Android deployment.");
+    slide.addNotes("Sir, our project is built using a standard 3-Tier Architecture: Frontend, Backend, and Database. For the frontend, we use React and Next.js with Tailwind CSS for a responsive UI. For the backend, we use Node.js and NextAuth for secure student and admin login. For the database, we use MongoDB Atlas to store all event and user records. Finally, using Capacitor, we also compiled it into an Android app.");
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -737,33 +734,33 @@ async function generatePresentation() {
     });
 
     slide.addText([
-      { text: "• Role-Based Access Control (RBAC):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "Server-level guards (requireAdmin(), requireAuth()) strictly protect admin panels, survey creators, and report export endpoints from unauthorized students.\n\n", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "1. Role-Based Access Control (RBAC):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Student Role: Can view events, register for sessions, and post Q&A queries.\n• Admin Role: Exclusive access to create/edit events, build surveys, and download reports.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Cryptographic Session Security:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "Bcrypt password hashing with 10 salt rounds, stateless 30-day JWT sessions, and security headers (nosniff, X-Frame-Options, XSS protection).\n\n", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "2. User Authentication & Password Protection:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Secure Login: Powered by NextAuth with encrypted session tokens.\n• Password Hashing: Passwords are encrypted using Bcrypt before saving to database.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• 100% Free Serverless Hosting (Netlify):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "Fully configured netlify.toml with automated GitHub webhook CI/CD pipeline. Pushing to origin/main triggers instant live deployment.\n\n", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "3. Online Cloud Hosting (Netlify):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• 24/7 Availability: Hosted online on Netlify so students can access from any mobile or PC.\n• Automatic Updates: Pushing code to GitHub automatically redeploys the live platform.\n\n", options: { color: TEXT_LIGHT, fontSize: 10 } },
 
-      { text: "• Production Multi-Stage Dockerization:\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
-      { text: "Lightweight Dockerfile (Node 20 Alpine) with non-root user and docker-compose.yml with persistent volume mounting for VPS hosting.", options: { color: TEXT_LIGHT, fontSize: 10.5 } },
+      { text: "4. Deployment Portability (Docker):\n", options: { bold: true, color: ACCENT_PURPLE, fontSize: 11.5 } },
+      { text: "• Container Support: Can also run on local college servers or VPS using Docker.", options: { color: TEXT_LIGHT, fontSize: 10 } },
     ], {
       x: 1.1,
       y: 1.75,
       w: 5.0,
       h: 4.8,
       fontFace: "Calibri",
-      lineSpacing: 15,
+      lineSpacing: 14,
     });
 
     addPlaceholder(
       slide,
-      "[INSERT DEVOPS FLOWCHART]",
-      "Diagram showing the CI/CD pipeline: Git Commit -> GitHub Push -> Netlify Automatic Webhook Build -> Live Web & Mobile App."
+      "[INSERT DEPLOYMENT DIAGRAM]",
+      "Simple flow: Code on GitHub → Automatic Build → Live Website on Netlify & Android Mobile App."
     );
 
-    slide.addNotes("For security, we enforce Bcrypt password hashing, NextAuth JWT sessions, and server-side RBAC guards. For deployment, we configured 100% free serverless hosting on Netlify with automated CI/CD and Docker containerization.");
+    slide.addNotes("For security, students and admins have separate roles so students cannot modify events. Passwords are encrypted safely using Bcrypt. For deployment, the platform is hosted online on Netlify with automated updates from GitHub.");
   }
 
   // ═══════════════════════════════════════════════════════════════
