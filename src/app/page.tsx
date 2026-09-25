@@ -7,7 +7,6 @@ import {
   Calendar,
   LogIn,
   ArrowRight,
-  QrCode,
   MessageSquare,
   ClipboardList,
   Shield,
@@ -122,11 +121,11 @@ function HeroPlatformPreview() {
             </div>
           </div>
 
-          {/* Right Column: Live Student Digital Pass Mockup */}
+          {/* Right Column: Live Student Registration Card Mockup */}
           <div className="md:col-span-5 bg-slate-900/90 rounded-xl p-4 border border-white/10 flex flex-col justify-between space-y-3.5 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Digital University Pass</p>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Event Registration Status</p>
                 <p className="text-sm font-bold text-white">Aarav Sharma</p>
                 <p className="text-[11px] text-blue-400">B.Tech CSE • Verified Student</p>
               </div>
@@ -135,28 +134,22 @@ function HeroPlatformPreview() {
               </div>
             </div>
 
-            {/* Pass QR Section with Laser Scan */}
+            {/* Registration Confirmation Section */}
             <div className="bg-black/60 rounded-xl p-3.5 border border-white/10 flex items-center gap-3.5 relative">
-              <div className="w-16 h-16 bg-white rounded-lg p-1.5 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
-                <QrCode className="w-full h-full text-slate-900" />
-                {/* Laser animation */}
-                <motion.div
-                  className="absolute inset-x-0 h-0.5 bg-blue-500 shadow-[0_0_8px_#3b82f6]"
-                  animate={{ top: ["5%", "90%", "5%"] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                />
+              <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/30 rounded-xl flex-shrink-0 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-emerald-400" />
               </div>
               <div className="space-y-1">
                 <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 inline-block">
-                  Verified & Active
+                  Registration Confirmed
                 </span>
-                <p className="text-xs font-mono font-bold text-white">PASS-2026-8941</p>
-                <p className="text-[10px] text-slate-400">Scan at Venue Gate for Contactless Check-in</p>
+                <p className="text-xs font-mono font-bold text-white">REG-2026-8941</p>
+                <p className="text-[10px] text-slate-400">Seat reserved & added to participant roster</p>
               </div>
             </div>
 
             <p className="text-[10px] text-center text-slate-400">
-              Passes are generated instantly upon event registration.
+              Instant 1-click registration for all verified campus events.
             </p>
           </div>
         </div>
@@ -174,10 +167,10 @@ export default function HomePage() {
 
   const features = [
     {
-      icon: QrCode,
-      title: "Contactless QR Hall Passes",
-      desc: "Instant digital entry passes on your device. 0.5-second venue gate verification eliminates manual attendance and paper tickets.",
-      badge: "Fast Entry",
+      icon: CheckCircle,
+      title: "Simple 1-Click Registration",
+      desc: "Register in seconds with immediate confirmation. No paper forms, no manual queues, and automated seat reservation.",
+      badge: "Fast RSVP",
     },
     {
       icon: Calendar,

@@ -11,7 +11,6 @@ import {
   Users,
   ArrowLeft,
   Share2,
-  QrCode,
   CheckCircle,
   XCircle,
   MessageSquare,
@@ -29,7 +28,6 @@ import { getFeedbackFormByEvent } from "@/actions/feedback";
 import { getEventDisplayBanner } from "@/lib/constants/event-presets";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Link from "next/link";
-import QRCode from "qrcode";
 import ShareEventModal from "@/components/ui/ShareEventModal";
 import { getVideoEmbedInfo } from "@/lib/video-helper";
 
@@ -53,27 +51,10 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [qrToken, setQrToken] = useState<string | null>(null);
-  const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState("");
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "qna">("details");
-
-  useEffect(() => {
-    if (qrToken && typeof window !== "undefined") {
-      const verifyUrl = `${window.location.origin}/events/verify/${qrToken}`;
-      QRCode.toDataURL(verifyUrl, {
-        width: 260,
-        margin: 2,
-        color: {
-          dark: "#0b0f19",
-          light: "#ffffff",
-        },
-      })
-        .then((url) => setQrDataUrl(url))
-        .catch((err) => console.error("QR generation error:", err));
-    }
-  }, [qrToken]);
 
   useEffect(() => {
     async function load() {
@@ -533,40 +514,38 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                     You&apos;re Registered! (Admission Confirmed)
                   </div>
 
-                  {/* Scannable Real QR Pass Card */}
+                  {/* Simple Registration Confirmation Card */}
                   <div
-                    className="p-4 rounded-2xl border text-center space-y-3 shadow-inner"
+                    className="p-4 rounded-2xl border space-y-3 shadow-sm text-left"
                     style={{ background: "hsl(var(--surface))", borderColor: "hsl(var(--border))" }}
                   >
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Your Digital QR Ticket Pass
-                    </p>
+                    <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Registration Details
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <CheckCircle className="w-3 h-3" /> Confirmed
+                      </span>
+                    </div>
 
-                    {qrDataUrl ? (
-                      <div className="bg-white p-3 rounded-2xl border shadow-md inline-block mx-auto">
-                        <img
-                          src={qrDataUrl}
-                          alt="Ticket Verification QR Code"
-                          className="w-44 h-44 object-contain"
-                        />
+                    <div className="space-y-1.5 text-xs">
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Attendee:</span>
+                        <span className="font-semibold text-foreground">{session?.user?.name || "Student"}</span>
                       </div>
-                    ) : (
-                      <div className="w-44 h-44 bg-muted/40 rounded-2xl animate-pulse mx-auto flex items-center justify-center">
-                        <QrCode className="w-12 h-12 text-muted-foreground" />
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Email:</span>
+                        <span className="font-semibold text-foreground">{session?.user?.email}</span>
                       </div>
-                    )}
-
-                    <div className="space-y-1.5 pt-1">
-                      <p className="text-[11px] text-muted-foreground">
-                        Scan with any phone camera or Google Lens to verify admission
-                      </p>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Status:</span>
+                        <span className="font-semibold text-emerald-400">Seat Reserved</span>
+                      </div>
                       {qrToken && (
-                        <Link
-                          href={`/events/verify/${qrToken}`}
-                          className="btn-primary py-2 px-4 text-xs inline-flex items-center gap-1.5 shadow-sm w-full justify-center"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" /> View / Verify Pass Details →
-                        </Link>
+                        <div className="flex justify-between text-muted-foreground pt-1.5 border-t border-border/40 text-[11px]">
+                          <span>Reference ID:</span>
+                          <span className="font-mono text-xs text-foreground/80">{qrToken.slice(0, 8).toUpperCase()}</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -594,7 +573,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
                     "Event Full"
                   ) : (
                     <span className="flex items-center gap-2 justify-center">
-                      <QrCode className="w-5 h-5" /> RSVP Now (Instant Ticket)
+                      <CheckCircle className="w-5 h-5" /> Register for Event
                     </span>
                   )}
                 </button>
